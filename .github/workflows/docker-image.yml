@@ -16,4 +16,4 @@ jobs:
       - name: publish
         run: |
           docker login -u mcncyo -p ${{ secrets.DOCKER_HUB_TOKEN }}
-          docker push mcncyo/personalsite:latest
+          docker push mcncyo/computerhacking101:latest
