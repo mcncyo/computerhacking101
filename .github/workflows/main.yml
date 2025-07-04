@@ -39,18 +39,23 @@ jobs:
         with:
           submodules: recursive
           fetch-depth: 0
-
-      # 2. Toolchain: Go (for Hugo), Hugo, Node
+# ── Go toolchain ───────────────────────────────
       - uses: actions/setup-go@v5
-        with: {go-version: ${{ env.GO_VERSION }}}
+        with:
+        go-version: ${{ env.GO_VERSION }}
 
+# ── Hugo ───────────────────────────────────────
       - uses: peaceiris/actions-hugo@v3
         with:
-          hugo-version: ${{ env.HUGO_VERSION }}
-          extended: true
+        hugo-version: ${{ env.HUGO_VERSION }}
+        extended: true
 
+# ── Node ───────────────────────────────────────
       - uses: actions/setup-node@v4
-        with: {node-version: ${{ env.NODE_VERSION }}}
+        with:
+        node-version: ${{ env.NODE_VERSION }}
+
+
 
       # 3. Any project-specific prep
       - name: Setup project (Tina schema gen, etc.)
