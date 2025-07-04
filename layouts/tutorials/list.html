@@ -1,0 +1,27 @@
+{{ define "main" }}
+  {{ partial "page-header" . }}
+
+  <!-- Intro copy from _index.md -->
+  <section class="container prose md:prose-lg mx-auto py-10">
+    {{ .Content }}
+  </section>
+
+  <!-- Grid of child *sections* (Docker, Git, …) -->
+  <ul class="container mx-auto grid gap-8 md:grid-cols-2 lg:grid-cols-3 py-10">
+    {{ range .Sections }}
+      <li>
+        <a href="{{ .RelPermalink }}" class="block border rounded-xl p-6 hover:shadow-lg transition">
+          <h2 class="text-xl font-semibold mb-2">{{ .Title }}</h2>
+
+          {{ with .Params.description }}
+            <p class="text-sm opacity-75 mb-2">{{ . }}</p>
+          {{ end }}
+
+          <p class="text-xs opacity-50">{{ len .Pages }} articles</p>
+        </a>
+      </li>
+    {{ end }}
+  </ul>
+{{ end }}
+
+

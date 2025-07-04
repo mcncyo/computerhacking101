@@ -1,0 +1,156 @@
+/* =============================================================
+   custom.css  –  Computer Hacking 101  (tidied 2025-xx-xx)
+   ============================================================= */
+
+/* ---------- 1. Global foundation ---------- */
+:root{
+  --brand-red:#d3342c;
+  --cyan:#4fc3f7;
+  --card-bg:#1b1b1b;
+  --card-border:#333;
+  --bg-grad:linear-gradient(180deg,#121212 0%,#161616 40%,#1b1b1b 100%);
+}
+
+body{
+  background:var(--bg-grad);
+  color:#e0e0e0;
+  font:400 1.1rem/1.6 system-ui,-apple-system,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+}
+
+/* keep reading width comfortable */
+main .container,
+.prose,
+section:not(.navbar):not(.hero){
+  max-width:60rem;
+  margin-inline:auto;
+  padding-inline:1rem;
+}
+
+/* ---------- 2. Headings ---------- */
+h1{font-size:2.25rem;margin:2rem 0 1.25rem;color:#fff;font-weight:700}
+h2{font-size:1.75rem;margin:2rem 0 1rem;color:#fff;font-weight:700}
+h3{font-size:1.35rem;margin:1.5rem 0 .75rem;color:#fff;font-weight:700}
+
+/* ---------- 3. Copy & lists ---------- */
+p,li{font-size:1.125rem;color:#f0f0f0}
+ul,ol{margin-left:2rem}
+ul li::marker,
+ol li::marker{color:var(--cyan);font-weight:600}
+li>ul,li>ol{border-left:2px solid rgba(79,195,247,.35);margin-left:1rem;padding-left:1rem}
+
+/* ---------- 4. Links ---------- */
+a{
+  color:var(--cyan);
+  text-decoration:underline;
+  transition:color .15s;
+}
+a:hover,a:focus{color:#80d8ff}
+
+/* ---------- 5. Utility classes ---------- */
+.red-bold{color:var(--brand-red);font-weight:bold}
+
+/* ---------- 6. Buttons ---------- */
+.btn-red{
+  background:var(--brand-red);
+  color:#fff!important;
+  padding:.75rem 1.8rem;
+  display:inline-block;
+  border-radius:4px;
+  font-weight:600;
+  text-decoration:none;
+  transition:background .2s;
+}
+.btn-red:hover{background:#ef463c}
+
+/* ---------- 7. Hero ---------- */
+.hero{
+  text-align:center;
+  padding:4rem 1rem 3rem;
+  background:linear-gradient(180deg,#111,#0c0c0c);
+}
+.hero h1{font-size:2.8rem;margin-bottom:.6rem}
+.hero p{max-width:680px;margin:.5rem auto 1.8rem;font-size:1.125rem}
+
+/* ---------- 8. Card grid ---------- */
+.card-grid{
+  display:grid;
+  grid-template-columns:repeat(auto-fit,minmax(250px,1fr));
+  gap:1.2rem;
+}
+.card{
+  background:var(--card-bg);
+  border:1px solid var(--card-border);
+  border-radius:6px;
+  padding:1.2rem 1.4rem;
+  transition:border .2s,transform .2s;
+}
+.card:hover{
+  border-color:var(--brand-red);
+  transform:translateY(-4px);
+}
+.card h3{margin-top:0;font-size:1.25rem}
+.card p{margin:.5rem 0 .8rem}
+
+/* ---------- 9. Fade-in (optional) ---------- */
+@media(prefers-reduced-motion:no-preference){
+  .card{opacity:0;transform:translateY(8px);animation:fadeUp .5s forwards .15s}
+  @keyframes fadeUp{to{opacity:1;transform:translateY(0)}}
+}
+
+
+/* ---- custom 404 ---- */
+.wrap{min-height:80vh;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:1rem}
+.big-404{font-size:7rem;margin:0;color:#d3342c;font-weight:800}
+.float-icon{width:80px;height:80px;fill:#4fc3f7;margin-bottom:1.4rem;animation:float 4s ease-in-out infinite}
+@keyframes float{50%{transform:translateY(-10px)}}
+.lead{max-width:480px;margin:0 0 2em}
+.search-wrap{width:100%;max-width:420px;margin-bottom:2em}
+.search-wrap input{width:100%;padding:.9rem 1rem;border:1px solid #333;border-radius:4px;background:#1b1b1b;color:#e0e0e0}
+.search-wrap input:focus{outline:none;border-color:#d3342c}
+.btn-home{background:#d3342c;color:#fff;padding:.7rem 1.8rem;border-radius:4px;font-weight:600;text-decoration:none}
+.btn-home:hover{background:#ef463c}
+
+
+/* ───────── BLOG LIST GRID ───────── */
+.blog-list{
+  display:grid;
+  grid-template-columns:repeat(auto-fit,minmax(320px,1fr));
+  gap:1.5rem;
+  margin-top:2rem;
+  list-style:none;
+  padding:0;
+}
+
+.blog-list li{
+  background:#181818;
+  border:1px solid rgba(79,195,247,.30);
+  border-radius:10px;
+  padding:1.25rem 1.5rem;
+  box-shadow:0 2px 8px rgba(0,0,0,.5);
+  transition:transform .2s,box-shadow .2s;
+}
+
+.blog-list li:hover{
+  transform:translateY(-4px);
+  box-shadow:0 4px 16px rgba(0,0,0,.6);
+}
+
+.blog-list li a{
+  color:inherit;
+  text-decoration:none;
+  display:block;
+}
+
+.blog-list li h3{
+  color:#d3342c;      /* CH101 red */
+  font-size:1.3rem;
+  margin-bottom:.5rem;
+  font-weight:700;
+}
+
+.blog-list li p{
+  color:#e0e0e0;
+  font-size:1rem;
+  line-height:1.55;
+  margin:0;
+}

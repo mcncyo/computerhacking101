@@ -1,0 +1,30 @@
+{{/* layouts/404.en.html  — custom 404 page for Hugoplate */}}
+
+{{ define "main" }}
+<main class="wrap">
+  <script>
+const q=document.getElementById('search-q');
+q.addEventListener('keydown',e=>{
+  if(e.key==='Enter'){location='/search/?q='+encodeURIComponent(q.value.trim());}
+});
+q.focus();
+</script>
+
+
+  <svg viewBox="0 0 24 24" class="float-icon"><path d="M9.25 19 2 12l7.25-7 .984 1.025L4.075 12l6.159 5.975L9.25 19Zm5.5 0L14.3 17.975 20.4 12l-6.1-5.975L14.75 5l7.25 7-7.25 7Z"/></svg>
+
+  <h1 class="big-404">404</h1>
+  <h2>Oops — Page not found</h2>
+  <p class="lead">The link may be broken or the page has moved.<br>Try searching the site:</p>
+
+  <div class="search-wrap">
+    <input id="search-q"
+           type="text"
+           placeholder="Search tutorials, posts, tags…"
+           autocomplete="off" />
+  </div>
+
+  <a class="btn-home" href="/">← Back Home</a>
+</main>
+{{ end }}
+

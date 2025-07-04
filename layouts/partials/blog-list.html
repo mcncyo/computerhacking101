@@ -1,0 +1,16 @@
+<ul class="blog-list">
+  {{ range .Paginator.Pages }}
+    <li>
+      <a href="{{ .RelPermalink }}">
+        <h3>{{ .Title }}</h3>
+        <p>
+          {{ with .Params.description }}
+            {{ . }}
+          {{ else }}
+            {{ .Summary | truncate 150 }}
+          {{ end }}
+        </p>
+      </a>
+    </li>
+  {{ end }}
+</ul>

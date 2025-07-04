@@ -1,0 +1,21 @@
+{{/* layouts/blog/list.html – custom blog index with card grid */}}
+
+{{ define "main" }}
+<section class="section">
+  <div class="container">
+
+    <ul class="blog-list">      {{/* <-- class that your CSS targets */}}
+      {{ range .Paginator.Pages }}
+        <li>
+          <a href="{{ .RelPermalink }}">
+            <h3>{{ .Title }}</h3>
+            <p>{{ .Summary }}</p>  {{/* or .Description */}}
+          </a>
+        </li>
+      {{ end }}
+    </ul>
+
+    {{ partial "pagination.html" . }}
+  </div>
+</section>
+{{ end }}
