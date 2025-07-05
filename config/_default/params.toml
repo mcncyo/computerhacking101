@@ -4,7 +4,6 @@ favicon = "images/favicon.png"
 # logo module: https://github.com/gethugothemes/hugo-modules/tree/master/images#logo-implementation
 logo = "logo.svg"
 logo_darkmode = "logo.svg"
-baseURL = "https://computerhacking101.com/"
 # use `px` or `x` with logo_width, example: "100px".
 # Note: logo_width is not work with .svg file
 logo_width = "160px"
