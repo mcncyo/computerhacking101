@@ -12,5 +12,5 @@ resources
 .hugo_build.lock
 jsconfig.json
 hugo_stats.json
-
+node_modules
 yarn.lock
