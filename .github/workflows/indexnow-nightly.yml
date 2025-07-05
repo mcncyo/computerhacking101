@@ -1,0 +1,19 @@
+# .github/workflows/indexnow-nightly.yml
+name: Nightly IndexNow ping
+
+on:
+  schedule:
+    - cron: '30 3 * * *'   # 03:30 UTC — adjust to taste
+  workflow_dispatch:       # lets you trigger manually in the UI
+
+jobs:
+  re-ping:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: bojieyang/indexnow-action@v2
+      with:
+        sitemap-location: '${{ secrets.SITE_URL }}/sitemap.xml'
+        key:  ${{ secrets.INDEXNOW_KEY }}
+        key-location: "${{ env.SITE_URL }}/.well-known/indexnow.txt"
+        since: '1'          # last 1 day is plenty
+        since-unit: 'day'

@@ -111,7 +111,7 @@ jobs:
         with:
           sitemap-location: "${{ env.SITE_URL }}/sitemap.xml"
           key:           ${{ secrets.INDEXNOW_KEY }}
-          key-location:  "${{ env.SITE_URL }}/${{ secrets.INDEXNOW_KEY }}.txt
+          key-location:  "${{ env.SITE_URL }}/${{ secrets.INDEXNOW_KEY }}.txt"
           endpoint:      api.indexnow.org
           since: 1
           since-unit: day
