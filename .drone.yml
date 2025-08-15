@@ -1,3 +1,4 @@
+
 kind: pipeline
 type: docker
 name: Deploy Hugo site (latest, no klakegg)
@@ -25,7 +26,7 @@ steps:
       SSH_HOST:
         from_secret: SSH_HOST
       SSH_PORT:
-        from_secret: SSH_PORT      # optional; default 22
+        from_secret: SSH_PORT
       SSH_USER:
         from_secret: SSH_USER
       SSH_TARGET_DIR:
@@ -43,29 +44,41 @@ steps:
       INDEXNOW_KEY:
         from_secret: INDEXNOW_KEY
 
-      # Hugo install script
+      # Hugo install script (resolves latest tag dynamically)
       HUGO_INSTALL: |
         set -euo pipefail
+
+        # 1) Detect and normalize architecture
         ARCH_RAW="$(uname -m 2>/dev/null || true)"
         ARCH="$(printf '%s' "$ARCH_RAW" | tr -d '\r' | tr '[:upper:]' '[:lower:]')"
         echo "Detected arch: $ARCH_RAW -> $ARCH"
 
         case "$ARCH" in
-          x86_64|amd64)
-            PKG="hugo_extended_Linux-64bit.tar.gz"
-            ;;
-          aarch64|arm64)
-            PKG="hugo_extended_Linux-ARM64.tar.gz"
-            ;;
+          x86_64|amd64)   PKG_ARCH="Linux-64bit" ;;
+          aarch64|arm64)  PKG_ARCH="Linux-ARM64" ;;
           *)
             echo "Unsupported arch: $ARCH_RAW" >&2
             exit 1
             ;;
         esac
 
-        URL="https://github.com/gohugoio/hugo/releases/latest/download/${PKG}"
-        echo "Fetching $URL ..."
+        # 2) Resolve the latest release tag (e.g., v0.135.0)
+        LATEST_TAG="$(curl -fLsS -o /dev/null -w '%{url_effective}' https://github.com/gohugoio/hugo/releases/latest)"
+        VER="${LATEST_TAG##*/}"
+        if [ -z "$VER" ]; then
+          echo "Failed to resolve latest Hugo version" >&2
+          exit 1
+        fi
+
+        # 3) Build filename and URL for Hugo Extended
+        PKG="hugo_extended_${VER}_${PKG_ARCH}.tar.gz"
+        URL="https://github.com/gohugoio/hugo/releases/download/${VER}/${PKG}"
+
+        echo "Resolved latest: VER=${VER}, ARCH=${PKG_ARCH}"
+        echo "Fetching ${URL} ..."
         curl -fLsS -o /tmp/hugo.tgz "$URL"
+
+        # 4) Install hugo binary
         tar -xzf /tmp/hugo.tgz -C /usr/local/bin hugo
         chmod +x /usr/local/bin/hugo
         /usr/local/bin/hugo version
