@@ -94,8 +94,20 @@ steps:
 
         echo "Installing Hugo $VER for $PKG_ARCH..."
         
+        # Debug version info
+        echo "Raw version: '$VER'"
+        
         # 3) Download & install Hugo
-        HUGO_URL="https://github.com/gohugoio/hugo/releases/download/${VER}/hugo_extended_${VER#v}_${PKG_ARCH}.tar.gz"
+        VER_CLEAN="${VER#v}"
+        echo "Cleaned version: '$VER_CLEAN'"
+        
+        if [ -z "$VER_CLEAN" ]; then
+          echo "Version cleaning failed, using fallback v0.148.2"
+          VER="v0.148.2"
+          VER_CLEAN="0.148.2"
+        fi
+        
+        HUGO_URL="https://github.com/gohugoio/hugo/releases/download/${VER}/hugo_extended_${VER_CLEAN}_${PKG_ARCH}.tar.gz"
         echo "Downloading: $HUGO_URL"
         
         curl -fsSL "$HUGO_URL" | tar -xz -C /tmp/
