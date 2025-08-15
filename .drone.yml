@@ -2,6 +2,10 @@ kind: pipeline
 type: docker
 name: Deploy Hugo site (latest, no klakegg)
 
+# Ensure full history for submodules, etc.
+clone:
+  depth: 0
+
 steps:
   - name: build-deploy-all
     image: node:20-alpine
@@ -9,41 +13,61 @@ steps:
       HUGO_ENV: production
       SITE_URL: https://computerhacking101.com
       CHANGE_WINDOW_HOURS: 24
+
+      # TinaCMS (secrets)
       TINA_CLIENT_ID:     { from_secret: TINA_CLIENT_ID }
       TINA_TOKEN:         { from_secret: TINA_TOKEN }
       TINA_SEARCH_TOKEN:  { from_secret: TINA_SEARCH_TOKEN }
+
+      # SSH / Deploy (secrets)
       SSH_HOST:        { from_secret: SSH_HOST }
-      SSH_PORT:        { from_secret: SSH_PORT }
+      SSH_PORT:        { from_secret: SSH_PORT }     # optional; default 22
       SSH_USER:        { from_secret: SSH_USER }
       SSH_TARGET_DIR:  { from_secret: SSH_TARGET_DIR }
       SSH_PRIVATE_KEY: { from_secret: SSH_PRIVATE_KEY }
+
+      # Cloudflare (secrets)
       CF_ZONE_ID:    { from_secret: CF_ZONE_ID }
       CF_API_TOKEN:  { from_secret: CF_API_TOKEN }
+
+      # IndexNow (secret)
       INDEXNOW_KEY:  { from_secret: INDEXNOW_KEY }
+
     commands:
       - apk add --no-cache curl rsync openssh python3 tar git
-      # Fetch latest Hugo Extended for current arch
+
+      # === Fetch latest Hugo Extended for current arch ===
       - |
-        set -e
+        set -euo pipefail
         ARCH=$(uname -m)
         case "$ARCH" in
-          x86_64)  PKG="hugo_extended_Linux-64bit.tar.gz" ;;
-          aarch64) PKG="hugo_extended_Linux-ARM64.tar.gz" ;;
-          *) echo "Unsupported arch: $ARCH"; exit 1 ;;
+          x86_64)  PKG=hugo_extended_Linux-64bit.tar.gz ;;
+          aarch64) PKG=hugo_extended_Linux-ARM64.tar.gz ;;
+          *) echo "Unsupported arch: $ARCH" >&2; exit 1 ;;
         esac
-        curl -fsSL -o /tmp/hugo.tgz "https://github.com/gohugoio/hugo/releases/latest/download/${PKG}"
+        echo "Fetching $PKG ..."
+        curl -fLsS -o /tmp/hugo.tgz "https://github.com/gohugoio/hugo/releases/latest/download/${PKG}"
         tar -xzf /tmp/hugo.tgz -C /usr/local/bin hugo
         chmod +x /usr/local/bin/hugo
-        hugo version
+        /usr/local/bin/hugo version
+
       - git submodule update --init --recursive
+      - node -v && npm -v && hugo version
       - npm ci
       - npm run project-setup
-      - npm run build
-      - mkdir -p ~/.ssh && printf "%s" "$SSH_PRIVATE_KEY" > ~/.ssh/id_deploy && chmod 600 ~/.ssh/id_deploy
+      - npm run build   # emits ./public
+
+      # === Deploy via rsync over SSH ===
+      - |
+        mkdir -p ~/.ssh
+        printf "%s" "$SSH_PRIVATE_KEY" > ~/.ssh/id_deploy
+        chmod 600 ~/.ssh/id_deploy
       - >
         rsync -az --delete
         -e "ssh -i ~/.ssh/id_deploy -o StrictHostKeyChecking=no -p ${SSH_PORT:-22}"
         public/ "${SSH_USER}@${SSH_HOST}:${SSH_TARGET_DIR}"
+
+      # === Build changed URL list from sitemap ===
       - |
         python3 - <<'PY'
         import os, datetime as dt, xml.etree.ElementTree as ET, pathlib, sys
@@ -54,16 +78,20 @@ steps:
             print('WARNING: sitemap.xml not found'); sys.exit(0)
         urls = []
         for url in ET.parse(sitemap).getroot().findall('sm:url', ns):
-          lm = url.find('sm:lastmod', ns)
-          if lm is None: continue
-          try: ts = dt.datetime.fromisoformat(lm.text.replace('Z','+00:00')).replace(tzinfo=None)
-          except ValueError: continue
-          if ts >= cutoff:
-            loc = url.find('sm:loc', ns).text
-            if loc: urls.append(loc)
+            lm = url.find('sm:lastmod', ns)
+            if lm is None: continue
+            try:
+                ts = dt.datetime.fromisoformat(lm.text.replace('Z','+00:00')).replace(tzinfo=None)
+            except ValueError:
+                continue
+            if ts >= cutoff:
+                loc = url.find('sm:loc', ns).text
+                if loc: urls.append(loc)
         if urls:
-          open('changed_urls.txt','w').write('\n'.join(urls))
+            open('changed_urls.txt','w').write('\n'.join(urls))
         PY
+
+      # === IndexNow ping (if URLs exist) ===
       - |
         if [ -s changed_urls.txt ]; then
           URLS_JSON=$(awk '{printf "\"%s\",",$0}' changed_urls.txt | sed 's/,$//')
@@ -71,7 +99,11 @@ steps:
           curl -sS -X POST "https://api.indexnow.org/indexnow" \
             -H "Content-Type: application/json" \
             -d "{\"host\":\"${HOST}\",\"key\":\"$INDEXNOW_KEY\",\"urlList\":[${URLS_JSON}]}"
+        else
+          echo "No changed URLs; skipping IndexNow."
         fi
+
+      # === Cloudflare purge (only changed URLs) ===
       - |
         if [ -s changed_urls.txt ] && [ -n "$CF_ZONE_ID" ]; then
           FILES_JSON=$(awk '{printf "\"%s\",",$0}' changed_urls.txt | sed 's/,$//')
@@ -79,6 +111,8 @@ steps:
             -H "Authorization: Bearer ${CF_API_TOKEN}" \
             -H "Content-Type: application/json" \
             --data "{\"files\":[${FILES_JSON}]}"
+        else
+          echo "Skip Cloudflare purge (no URLs or CF zone unset)."
         fi
 
 trigger:
