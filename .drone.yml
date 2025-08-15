@@ -1,12 +1,17 @@
 kind: pipeline
 type: docker
-name: Deploy Hugo site (latest, no klakegg)
+name: Deploy Hugo site (latest)
 
 clone:
   depth: 0
 
 steps:
-  - name: build-deploy-all
+  - name: build-hugo
+    image: klakegg/hugo:ext-alpine
+    commands:
+      - hugo --minify --gc --enableGitInfo
+
+  - name: install-deps-deploy
     image: node:20-alpine
     environment:
       HUGO_ENV: production
@@ -47,76 +52,6 @@ steps:
       GITHUB_TOKEN:
         from_secret: GITHUB_TOKEN
 
-      # --- Hugo install script (POSIX sh; resolves latest via API, no bash arrays) ---
-      HUGO_INSTALL: |
-        set -eu
-
-        # 1) Detect & normalize arch
-        ARCH_RAW="$(uname -m 2>/dev/null || true)"
-        ARCH_LOWER="$(printf '%s' "$ARCH_RAW" | tr -d '\r' | tr '[:upper:]' '[:lower:]')"
-        echo "Detected arch: $ARCH_RAW -> $ARCH_LOWER"
-        case "$ARCH_LOWER" in
-          x86_64|amd64)  PKG_ARCH="Linux-64bit" ;;
-          aarch64|arm64) PKG_ARCH="Linux-ARM64" ;;
-          *)
-            echo "Unsupported arch: $ARCH_RAW" >&2
-            exit 1
-            ;;
-        esac
-
-        # 2) Resolve latest tag via API (with optional token), fallback to redirect
-        VER=""
-        if [ -n "${GITHUB_TOKEN:-}" ]; then
-          VER="$(curl -fsSL \
-                  -H "Accept: application/vnd.github+json" \
-                  -H "User-Agent: drone-ci" \
-                  -H "Authorization: Bearer ${GITHUB_TOKEN}" \
-                  https://api.github.com/repos/gohugoio/hugo/releases/latest \
-                | python3 -c 'import sys,json; print(json.load(sys.stdin).get("tag_name",""))' || true)"
-        else
-          VER="$(curl -fsSL \
-                  -H "Accept: application/vnd.github+json" \
-                  -H "User-Agent: drone-ci" \
-                  https://api.github.com/repos/gohugoio/hugo/releases/latest \
-                | python3 -c 'import sys,json; print(json.load(sys.stdin).get("tag_name",""))' || true)"
-        fi
-
-        if [ -z "$VER" ]; then
-          echo "GitHub API failed or rate-limited; using redirect fallback..."
-          REDIR="$(curl -fLsS -o /dev/null -w '%{url_effective}' https://github.com/gohugoio/hugo/releases/latest || true)"
-          VER="${REDIR##*/}"
-        fi
-
-        if [ -z "$VER" ]; then
-          echo "Failed to resolve latest Hugo version" >&2
-          exit 1
-        fi
-
-        echo "Installing Hugo $VER for $PKG_ARCH..."
-        
-        # Debug version info
-        echo "Raw version: '$VER'"
-        
-        # 3) Download & install Hugo
-        VER_CLEAN="$(echo "$VER" | sed 's/^v//')"
-        echo "Cleaned version: '$VER_CLEAN'"
-        
-        if [ -z "$VER_CLEAN" ]; then
-          echo "Version cleaning failed, using fallback"
-          VER="v0.148.2"
-          VER_CLEAN="0.148.2"
-        fi
-        
-        HUGO_URL="https://github.com/gohugoio/hugo/releases/download/${VER}/hugo_extended_${VER_CLEAN}_${PKG_ARCH}.tar.gz"
-        echo "Downloading: $HUGO_URL"
-        
-        curl -fsSL "$HUGO_URL" | tar -xz -C /tmp/
-        chmod +x /tmp/hugo
-        mv /tmp/hugo /usr/local/bin/hugo
-        
-        echo "Hugo installed successfully:"
-        hugo version
-
     commands:
       - |
         # Install system dependencies
@@ -131,16 +66,8 @@ steps:
           gzip
 
       - |
-        # Install Hugo using the script
-        eval "$HUGO_INSTALL"
-
-      - |
         # Install Node.js dependencies
         npm ci
-
-      - |
-        # Build the Hugo site
-        hugo --minify --gc --enableGitInfo
 
       - |
         # Setup SSH for deployment
