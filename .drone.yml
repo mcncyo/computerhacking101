@@ -1,84 +1,49 @@
----
 kind: pipeline
 type: docker
-name: Deploy Hugo site (latest)
+name: Deploy Hugo site (latest, no klakegg)
 
 steps:
   - name: build-deploy-all
-    image: klakegg/hugo:ext-node
+    image: node:20-alpine
     environment:
-      # Keep prod env + your existing vars
       HUGO_ENV: production
       SITE_URL: https://computerhacking101.com
       CHANGE_WINDOW_HOURS: 24
-
-      # Optional: set to "true" to force-download the newest Hugo extended
-      FORCE_HUGO_LATEST: "false"
-
-      # TinaCMS
       TINA_CLIENT_ID:     { from_secret: TINA_CLIENT_ID }
       TINA_TOKEN:         { from_secret: TINA_TOKEN }
       TINA_SEARCH_TOKEN:  { from_secret: TINA_SEARCH_TOKEN }
-
-      # SSH / Deploy
       SSH_HOST:        { from_secret: SSH_HOST }
-      SSH_PORT:        { from_secret: SSH_PORT }     # optional; default 22
+      SSH_PORT:        { from_secret: SSH_PORT }
       SSH_USER:        { from_secret: SSH_USER }
       SSH_TARGET_DIR:  { from_secret: SSH_TARGET_DIR }
       SSH_PRIVATE_KEY: { from_secret: SSH_PRIVATE_KEY }
-
-      # Cloudflare
       CF_ZONE_ID:    { from_secret: CF_ZONE_ID }
       CF_API_TOKEN:  { from_secret: CF_API_TOKEN }
-
-      # IndexNow
       INDEXNOW_KEY:  { from_secret: INDEXNOW_KEY }
-
     commands:
-      - echo "==> Install minimal tools"
-      - apk add --no-cache curl rsync openssh python3 tar
-
-      - echo "==> (Optional) Force-install newest Hugo Extended if requested"
+      - apk add --no-cache curl rsync openssh python3 tar git
+      # Fetch latest Hugo Extended for current arch
       - |
-        if [ "$FORCE_HUGO_LATEST" = "true" ]; then
-          set -e
-          echo "Forcing latest Hugo Extended from GitHub releases…"
-          # Arch auto-detect
-          ARCH=$(uname -m)
-          case "$ARCH" in
-            x86_64)  PKG="hugo_extended_Linux-64bit.tar.gz" ;;
-            aarch64) PKG="hugo_extended_Linux-ARM64.tar.gz" ;;
-            *) echo "Unsupported arch: $ARCH"; exit 1 ;;
-          esac
-          curl -fsSL -o /tmp/hugo.tgz "https://github.com/gohugoio/hugo/releases/latest/download/${PKG}"
-          tar -xzf /tmp/hugo.tgz -C /usr/local/bin hugo
-          chmod +x /usr/local/bin/hugo
-        fi
-
-      - echo "==> Show Hugo version"
-      - hugo version
-
-      - echo "==> Git submodules"
+        set -e
+        ARCH=$(uname -m)
+        case "$ARCH" in
+          x86_64)  PKG="hugo_extended_Linux-64bit.tar.gz" ;;
+          aarch64) PKG="hugo_extended_Linux-ARM64.tar.gz" ;;
+          *) echo "Unsupported arch: $ARCH"; exit 1 ;;
+        esac
+        curl -fsSL -o /tmp/hugo.tgz "https://github.com/gohugoio/hugo/releases/latest/download/${PKG}"
+        tar -xzf /tmp/hugo.tgz -C /usr/local/bin hugo
+        chmod +x /usr/local/bin/hugo
+        hugo version
       - git submodule update --init --recursive
-
-      - echo "==> Node prep & project setup"
-      - node -v && npm -v
       - npm ci
       - npm run project-setup
-
-      - echo "==> Build site"
-      - npm run build   # emits ./public
-
-      - echo "==> SSH key"
+      - npm run build
       - mkdir -p ~/.ssh && printf "%s" "$SSH_PRIVATE_KEY" > ~/.ssh/id_deploy && chmod 600 ~/.ssh/id_deploy
-
-      - echo "==> Rsync deploy"
       - >
         rsync -az --delete
         -e "ssh -i ~/.ssh/id_deploy -o StrictHostKeyChecking=no -p ${SSH_PORT:-22}"
         public/ "${SSH_USER}@${SSH_HOST}:${SSH_TARGET_DIR}"
-
-      - echo "==> Extract changed URLs (last ${CHANGE_WINDOW_HOURS}h)"
       - |
         python3 - <<'PY'
         import os, datetime as dt, xml.etree.ElementTree as ET, pathlib, sys
@@ -89,19 +54,16 @@ steps:
             print('WARNING: sitemap.xml not found'); sys.exit(0)
         urls = []
         for url in ET.parse(sitemap).getroot().findall('sm:url', ns):
-            lm = url.find('sm:lastmod', ns)
-            if lm is None: continue
-            try:
-                ts = dt.datetime.fromisoformat(lm.text.replace('Z','+00:00')).replace(tzinfo=None)
-            except ValueError: continue
-            if ts >= cutoff:
-                loc = url.find('sm:loc', ns).text
-                if loc: urls.append(loc)
+          lm = url.find('sm:lastmod', ns)
+          if lm is None: continue
+          try: ts = dt.datetime.fromisoformat(lm.text.replace('Z','+00:00')).replace(tzinfo=None)
+          except ValueError: continue
+          if ts >= cutoff:
+            loc = url.find('sm:loc', ns).text
+            if loc: urls.append(loc)
         if urls:
-            open('changed_urls.txt','w').write('\n'.join(urls))
+          open('changed_urls.txt','w').write('\n'.join(urls))
         PY
-
-      - echo "==> IndexNow ping (if URLs)"
       - |
         if [ -s changed_urls.txt ]; then
           URLS_JSON=$(awk '{printf "\"%s\",",$0}' changed_urls.txt | sed 's/,$//')
@@ -109,11 +71,7 @@ steps:
           curl -sS -X POST "https://api.indexnow.org/indexnow" \
             -H "Content-Type: application/json" \
             -d "{\"host\":\"${HOST}\",\"key\":\"$INDEXNOW_KEY\",\"urlList\":[${URLS_JSON}]}"
-        else
-          echo "No changed URLs; skipping IndexNow."
         fi
-
-      - echo "==> Cloudflare purge (if URLs)"
       - |
         if [ -s changed_urls.txt ] && [ -n "$CF_ZONE_ID" ]; then
           FILES_JSON=$(awk '{printf "\"%s\",",$0}' changed_urls.txt | sed 's/,$//')
@@ -121,8 +79,6 @@ steps:
             -H "Authorization: Bearer ${CF_API_TOKEN}" \
             -H "Content-Type: application/json" \
             --data "{\"files\":[${FILES_JSON}]}"
-        else
-          echo "Skip Cloudflare purge (no URLs or CF zone unset)."
         fi
 
 trigger:
