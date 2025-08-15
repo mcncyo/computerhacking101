@@ -1,4 +1,3 @@
-
 kind: pipeline
 type: docker
 name: Deploy Hugo site (latest, no klakegg)
@@ -26,7 +25,7 @@ steps:
       SSH_HOST:
         from_secret: SSH_HOST
       SSH_PORT:
-        from_secret: SSH_PORT
+        from_secret: SSH_PORT      # optional; default 22
       SSH_USER:
         from_secret: SSH_USER
       SSH_TARGET_DIR:
@@ -44,15 +43,18 @@ steps:
       INDEXNOW_KEY:
         from_secret: INDEXNOW_KEY
 
-      # Hugo install script (resolves latest tag dynamically)
+      # OPTIONAL: GitHub token to avoid API rate limits (define in Drone)
+      GITHUB_TOKEN:
+        from_secret: GITHUB_TOKEN
+
+      # --- Hugo install script: resolve latest via API, fallback to redirect ---
       HUGO_INSTALL: |
         set -euo pipefail
 
-        # 1) Detect and normalize architecture
+        # 1) Detect and normalize arch
         ARCH_RAW="$(uname -m 2>/dev/null || true)"
         ARCH="$(printf '%s' "$ARCH_RAW" | tr -d '\r' | tr '[:upper:]' '[:lower:]')"
         echo "Detected arch: $ARCH_RAW -> $ARCH"
-
         case "$ARCH" in
           x86_64|amd64)   PKG_ARCH="Linux-64bit" ;;
           aarch64|arm64)  PKG_ARCH="Linux-ARM64" ;;
@@ -62,23 +64,35 @@ steps:
             ;;
         esac
 
-        # 2) Resolve the latest release tag (e.g., v0.135.0)
-        LATEST_TAG="$(curl -fLsS -o /dev/null -w '%{url_effective}' https://github.com/gohugoio/hugo/releases/latest)"
-        VER="${LATEST_TAG##*/}"
+        # 2) Try GitHub API first (more reliable). Use token if provided.
+        API_HDRS=(-H "Accept: application/vnd.github+json" -H "User-Agent: drone-ci")
+        if [ -n "${GITHUB_TOKEN:-}" ]; then
+          API_HDRS+=(-H "Authorization: Bearer ${GITHUB_TOKEN}")
+        fi
+
+        VER="$(curl -fsSL "${API_HDRS[@]}" https://api.github.com/repos/gohugoio/hugo/releases/latest \
+              | python3 -c 'import sys,json; print(json.load(sys.stdin).get("tag_name",""))' || true)"
+
+        # 3) Fallback: resolve via redirect if API failed
+        if [ -z "$VER" ]; then
+          echo "GitHub API failed or rate-limited; using redirect fallback..."
+          VER="$(curl -fLsS -o /dev/null -w '%{url_effective}' https://github.com/gohugoio/hugo/releases/latest 2>/dev/null)"
+          VER="${VER##*/}"
+        fi
+
         if [ -z "$VER" ]; then
           echo "Failed to resolve latest Hugo version" >&2
           exit 1
         fi
 
-        # 3) Build filename and URL for Hugo Extended
+        # 4) Build the extended tarball URL and fetch
         PKG="hugo_extended_${VER}_${PKG_ARCH}.tar.gz"
         URL="https://github.com/gohugoio/hugo/releases/download/${VER}/${PKG}"
-
         echo "Resolved latest: VER=${VER}, ARCH=${PKG_ARCH}"
         echo "Fetching ${URL} ..."
         curl -fLsS -o /tmp/hugo.tgz "$URL"
 
-        # 4) Install hugo binary
+        # 5) Install hugo binary
         tar -xzf /tmp/hugo.tgz -C /usr/local/bin hugo
         chmod +x /usr/local/bin/hugo
         /usr/local/bin/hugo version
@@ -154,3 +168,4 @@ steps:
 trigger:
   event: [ push ]
   branch: [ main ]
+
