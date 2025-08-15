@@ -43,129 +43,51 @@ steps:
       INDEXNOW_KEY:
         from_secret: INDEXNOW_KEY
 
-      # OPTIONAL: GitHub token to avoid API rate limits (define in Drone)
+      # OPTIONAL: GitHub token (raises API rate-limit)
       GITHUB_TOKEN:
         from_secret: GITHUB_TOKEN
 
-      # --- Hugo install script: resolve latest via API, fallback to redirect ---
+      # --- Hugo install script (POSIX sh; resolves latest via API, no bash arrays) ---
       HUGO_INSTALL: |
-        set -euo pipefail
+        set -eu
 
-        # 1) Detect and normalize arch
+        # 1) Detect & normalize arch
         ARCH_RAW="$(uname -m 2>/dev/null || true)"
-        ARCH="$(printf '%s' "$ARCH_RAW" | tr -d '\r' | tr '[:upper:]' '[:lower:]')"
-        echo "Detected arch: $ARCH_RAW -> $ARCH"
-        case "$ARCH" in
-          x86_64|amd64)   PKG_ARCH="Linux-64bit" ;;
-          aarch64|arm64)  PKG_ARCH="Linux-ARM64" ;;
+        ARCH_LOWER="$(printf '%s' "$ARCH_RAW" | tr -d '\r' | tr '[:upper:]' '[:lower:]')"
+        echo "Detected arch: $ARCH_RAW -> $ARCH_LOWER"
+        case "$ARCH_LOWER" in
+          x86_64|amd64)  PKG_ARCH="Linux-64bit" ;;
+          aarch64|arm64) PKG_ARCH="Linux-ARM64" ;;
           *)
             echo "Unsupported arch: $ARCH_RAW" >&2
             exit 1
             ;;
         esac
 
-        # 2) Try GitHub API first (more reliable). Use token if provided.
-        API_HDRS=(-H "Accept: application/vnd.github+json" -H "User-Agent: drone-ci")
+        # 2) Resolve latest tag via API (with optional token), fallback to redirect
+        VER=""
         if [ -n "${GITHUB_TOKEN:-}" ]; then
-          API_HDRS+=(-H "Authorization: Bearer ${GITHUB_TOKEN}")
+          VER="$(curl -fsSL \
+                  -H "Accept: application/vnd.github+json" \
+                  -H "User-Agent: drone-ci" \
+                  -H "Authorization: Bearer ${GITHUB_TOKEN}" \
+                  https://api.github.com/repos/gohugoio/hugo/releases/latest \
+                | python3 -c 'import sys,json; print(json.load(sys.stdin).get("tag_name",""))' || true)"
+        else
+          VER="$(curl -fsSL \
+                  -H "Accept: application/vnd.github+json" \
+                  -H "User-Agent: drone-ci" \
+                  https://api.github.com/repos/gohugoio/hugo/releases/latest \
+                | python3 -c 'import sys,json; print(json.load(sys.stdin).get("tag_name",""))' || true)"
         fi
 
-        VER="$(curl -fsSL "${API_HDRS[@]}" https://api.github.com/repos/gohugoio/hugo/releases/latest \
-              | python3 -c 'import sys,json; print(json.load(sys.stdin).get("tag_name",""))' || true)"
-
-        # 3) Fallback: resolve via redirect if API failed
         if [ -z "$VER" ]; then
           echo "GitHub API failed or rate-limited; using redirect fallback..."
-          VER="$(curl -fLsS -o /dev/null -w '%{url_effective}' https://github.com/gohugoio/hugo/releases/latest 2>/dev/null)"
-          VER="${VER##*/}"
+          REDIR="$(curl -fLsS -o /dev/null -w '%{url_effective}' https://github.com/gohugoio/hugo/releases/latest || true)"
+          VER="${REDIR##*/}"
         fi
 
         if [ -z "$VER" ]; then
           echo "Failed to resolve latest Hugo version" >&2
-          exit 1
-        fi
 
-        # 4) Build the extended tarball URL and fetch
-        PKG="hugo_extended_${VER}_${PKG_ARCH}.tar.gz"
-        URL="https://github.com/gohugoio/hugo/releases/download/${VER}/${PKG}"
-        echo "Resolved latest: VER=${VER}, ARCH=${PKG_ARCH}"
-        echo "Fetching ${URL} ..."
-        curl -fLsS -o /tmp/hugo.tgz "$URL"
-
-        # 5) Install hugo binary
-        tar -xzf /tmp/hugo.tgz -C /usr/local/bin hugo
-        chmod +x /usr/local/bin/hugo
-        /usr/local/bin/hugo version
-
-    commands:
-      - apk add --no-cache curl rsync openssh python3 tar git
-      - sh -ceu "$HUGO_INSTALL"
-
-      - git submodule update --init --recursive
-      - node -v && npm -v && hugo version
-      - npm ci
-      - npm run project-setup
-      - npm run build   # emits ./public
-
-      # Deploy via rsync over SSH
-      - |
-        mkdir -p ~/.ssh
-        printf "%s" "$SSH_PRIVATE_KEY" > ~/.ssh/id_deploy
-        chmod 600 ~/.ssh/id_deploy
-      - >
-        rsync -az --delete
-        -e "ssh -i ~/.ssh/id_deploy -o StrictHostKeyChecking=no -p ${SSH_PORT:-22}"
-        public/ "${SSH_USER}@${SSH_HOST}:${SSH_TARGET_DIR}"
-
-      # Build changed URL list from sitemap (last N hours)
-      - |
-        python3 - <<'PY'
-        import os, datetime as dt, xml.etree.ElementTree as ET, pathlib, sys
-        cutoff = dt.datetime.utcnow() - dt.timedelta(hours=int(os.getenv('CHANGE_WINDOW_HOURS','24')))
-        ns = {'sm': 'http://www.sitemaps.org/schemas/sitemap/0.9'}
-        sitemap = pathlib.Path('public/sitemap.xml')
-        if not sitemap.exists():
-            print('WARNING: sitemap.xml not found'); sys.exit(0)
-        urls = []
-        for url in ET.parse(sitemap).getroot().findall('sm:url', ns):
-            lm = url.find('sm:lastmod', ns)
-            if lm is None: continue
-            try:
-                ts = dt.datetime.fromisoformat(lm.text.replace('Z','+00:00')).replace(tzinfo=None)
-            except ValueError:
-                continue
-            if ts >= cutoff:
-                loc = url.find('sm:loc', ns).text
-                if loc: urls.append(loc)
-        if urls:
-            open('changed_urls.txt','w').write('\n'.join(urls))
-        PY
-
-      # IndexNow ping (only if URLs exist)
-      - |
-        if [ -s changed_urls.txt ]; then
-          URLS_JSON=$(awk '{printf "\"%s\",",$0}' changed_urls.txt | sed 's/,$//')
-          HOST=$(echo "$SITE_URL" | sed -E 's#^https?://##; s#/$##;')
-          curl -sS -X POST "https://api.indexnow.org/indexnow" \
-            -H "Content-Type: application/json" \
-            -d "{\"host\":\"${HOST}\",\"key\":\"$INDEXNOW_KEY\",\"urlList\":[${URLS_JSON}]}"
-        else
-          echo "No changed URLs; skipping IndexNow."
-        fi
-
-      # Cloudflare purge (only changed URLs)
-      - |
-        if [ -s changed_urls.txt ] && [ -n "$CF_ZONE_ID" ]; then
-          FILES_JSON=$(awk '{printf "\"%s\",",$0}' changed_urls.txt | sed 's/,$//')
-          curl -sS -X POST "https://api.cloudflare.com/client/v4/zones/${CF_ZONE_ID}/purge_cache" \
-            -H "Authorization: Bearer ${CF_API_TOKEN}" \
-            -H "Content-Type: application/json" \
-            --data "{\"files\":[${FILES_JSON}]}"
-        else
-          echo "Skip Cloudflare purge (no URLs or CF zone unset)."
-        fi
-
-trigger:
-  event: [ push ]
-  branch: [ main ]
 
