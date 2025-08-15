@@ -13,7 +13,7 @@
 
 body{
   background:var(--bg-grad);
-  color:#e0e0e0;
+  color:#e6d16a;
   font:400 1.1rem/1.6 system-ui,-apple-system,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
 }
 
@@ -32,11 +32,16 @@ h2{font-size:1.75rem;margin:2rem 0 1rem;color:#fff;font-weight:700}
 h3{font-size:1.35rem;margin:1.5rem 0 .75rem;color:#fff;font-weight:700}
 
 /* ---------- 3. Copy & lists ---------- */
-p,li{font-size:1.125rem;color:#f0f0f0}
+p,li{font-size:1.125rem;color:#e6d16a}
 ul,ol{margin-left:2rem}
 ul li::marker,
 ol li::marker{color:var(--cyan);font-weight:600}
 li>ul,li>ol{border-left:2px solid rgba(79,195,247,.35);margin-left:1rem;padding-left:1rem}
+
+/* Ensure all text elements are muted yellow */
+span, div, td, th, strong, em, b, i, code, pre {
+  color:#e6d16a;
+}
 
 /* ---------- 4. Links ---------- */
 a{
@@ -105,7 +110,7 @@ a:hover,a:focus{color:#80d8ff}
 @keyframes float{50%{transform:translateY(-10px)}}
 .lead{max-width:480px;margin:0 0 2em}
 .search-wrap{width:100%;max-width:420px;margin-bottom:2em}
-.search-wrap input{width:100%;padding:.9rem 1rem;border:1px solid #333;border-radius:4px;background:#1b1b1b;color:#e0e0e0}
+.search-wrap input{width:100%;padding:.9rem 1rem;border:1px solid #333;border-radius:4px;background:#1b1b1b;color:#ffffff}
 .search-wrap input:focus{outline:none;border-color:#d3342c}
 .btn-home{background:#d3342c;color:#fff;padding:.7rem 1.8rem;border-radius:4px;font-weight:600;text-decoration:none}
 .btn-home:hover{background:#ef463c}
@@ -149,7 +154,7 @@ a:hover,a:focus{color:#80d8ff}
 }
 
 .blog-list li p{
-  color:#e0e0e0;
+  color:#ffffff;
   font-size:1rem;
   line-height:1.55;
   margin:0;

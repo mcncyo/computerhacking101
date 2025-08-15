@@ -9,7 +9,6 @@ steps:
   - name: build-hugo
     image: hugomods/hugo:exts
     commands:
-      - hugo mod tidy
       - hugo --minify --gc --enableGitInfo
 
   - name: install-deps-deploy
