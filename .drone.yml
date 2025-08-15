@@ -43,11 +43,24 @@ steps:
       INDEXNOW_KEY:
         from_secret: INDEXNOW_KEY
 
+      # ------- Put the Hugo install script in an ENV var (safe for YAML) -------
+      HUGO_INSTALL: |
+        ARCH=$(uname -m)
+        case "$ARCH" in
+          x86_64)  PKG=hugo_extended_Linux-64bit.tar.gz ;;
+          aarch64) PKG=hugo_extended_Linux-ARM64.tar.gz ;;
+          *) echo "Unsupported arch: $ARCH" >&2; exit 1 ;;
+        esac
+        URL="https://github.com/gohugoio/hugo/releases/latest/download/${PKG}"
+        echo "Fetching $URL ..."
+        curl -fLsS -o /tmp/hugo.tgz "$URL"
+        tar -xzf /tmp/hugo.tgz -C /usr/local/bin hugo
+        chmod +x /usr/local/bin/hugo
+        /usr/local/bin/hugo version
+
     commands:
       - apk add --no-cache curl rsync openssh python3 tar git
-
-      # Fetch latest Hugo Extended (works on amd64/arm64). One-liner avoids YAML newline issues.
-      - sh -ceu 'ARCH=$(uname -m); case "$ARCH" in x86_64) PKG=hugo_extended_Linux-64bit.tar.gz ;; aarch64) PKG=hugo_extended_Linux-ARM64.tar.gz ;; *) echo "Unsupported arch: $ARCH" >&2; exit 1 ;; esac; URL="https://github.com/gohugoio/hugo/releases/latest/download/${PKG}"; echo "Fetching $URL ..."; curl -fLsS -o /tmp/hugo.tgz "$URL"; tar -xzf /tmp/hugo.tgz -C /usr/local/bin hugo; chmod +x /usr/local/bin/hugo; /usr/local/bin/hugo version'
+      - sh -ceu "$HUGO_INSTALL"
 
       - git submodule update --init --recursive
       - node -v && npm -v && hugo version
