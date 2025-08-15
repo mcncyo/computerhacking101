@@ -1,0 +1,6 @@
+{
+  "TailwindCSS": {
+    "enable": true,
+    "config": "tailwind.config.js"
+  }
+}

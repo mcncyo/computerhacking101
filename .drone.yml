@@ -7,7 +7,7 @@ clone:
 
 steps:
   - name: build-hugo
-    image: klakegg/hugo:ext-alpine
+    image: hugomods/hugo:exts
     commands:
       - hugo mod tidy
       - hugo --minify --gc --enableGitInfo
