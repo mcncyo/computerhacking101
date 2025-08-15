@@ -98,11 +98,11 @@ steps:
         echo "Raw version: '$VER'"
         
         # 3) Download & install Hugo
-        VER_CLEAN="${VER#v}"
+        VER_CLEAN="$(echo "$VER" | sed 's/^v//')"
         echo "Cleaned version: '$VER_CLEAN'"
         
         if [ -z "$VER_CLEAN" ]; then
-          echo "Version cleaning failed, using fallback v0.148.2"
+          echo "Version cleaning failed, using fallback"
           VER="v0.148.2"
           VER_CLEAN="0.148.2"
         fi
