@@ -7,8 +7,9 @@ clone:
 
 steps:
   - name: build-hugo
-    image: klakegg/hugo:ext-alpine
+    image: klakegg/hugo:0.128.0-ext-alpine
     commands:
+      - hugo mod tidy
       - hugo --minify --gc --enableGitInfo
 
   - name: install-deps-deploy

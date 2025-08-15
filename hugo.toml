@@ -25,8 +25,8 @@ defaultContentLanguageInSubdir = false
 shortname = 'themefisher-template' # we use disqus to show comments in blog posts . To install disqus please follow this tutorial https://portfolio.peter-baumgartner.net/2017/09/10/how-to-install-disqus-on-hugo/
 
 ########################## Permalinks ############################
-[permalinks.page]
-"pages" = "/:slugorcontentbasename/"
+[permalinks]
+pages = "/:slug/"
 
 
 ########################## Pagination ############################
