@@ -89,5 +89,88 @@ steps:
 
         if [ -z "$VER" ]; then
           echo "Failed to resolve latest Hugo version" >&2
+          exit 1
+        fi
+
+        echo "Installing Hugo $VER for $PKG_ARCH..."
+        
+        # 3) Download & install Hugo
+        HUGO_URL="https://github.com/gohugoio/hugo/releases/download/${VER}/hugo_extended_${VER#v}_${PKG_ARCH}.tar.gz"
+        echo "Downloading: $HUGO_URL"
+        
+        curl -fsSL "$HUGO_URL" | tar -xz -C /tmp/
+        chmod +x /tmp/hugo
+        mv /tmp/hugo /usr/local/bin/hugo
+        
+        echo "Hugo installed successfully:"
+        hugo version
+
+    commands:
+      - |
+        # Install system dependencies
+        apk add --no-cache \
+          curl \
+          git \
+          openssh-client \
+          python3 \
+          py3-pip \
+          rsync \
+          tar \
+          gzip
+
+      - |
+        # Install Hugo using the script
+        eval "$HUGO_INSTALL"
+
+      - |
+        # Install Node.js dependencies
+        npm ci
+
+      - |
+        # Build the Hugo site
+        hugo --minify --gc --enableGitInfo
+
+      - |
+        # Setup SSH for deployment
+        mkdir -p ~/.ssh
+        echo "$SSH_PRIVATE_KEY" > ~/.ssh/id_rsa
+        chmod 600 ~/.ssh/id_rsa
+        ssh-keyscan -p "${SSH_PORT:-22}" "$SSH_HOST" >> ~/.ssh/known_hosts
+
+      - |
+        # Deploy to server via rsync over SSH
+        rsync -avz --delete \
+          -e "ssh -p ${SSH_PORT:-22}" \
+          ./public/ \
+          "$SSH_USER@$SSH_HOST:$SSH_TARGET_DIR"
+
+      - |
+        # Purge Cloudflare cache
+        if [ -n "${CF_ZONE_ID:-}" ] && [ -n "${CF_API_TOKEN:-}" ]; then
+          echo "Purging Cloudflare cache..."
+          curl -X POST "https://api.cloudflare.com/client/v4/zones/$CF_ZONE_ID/purge_cache" \
+            -H "Authorization: Bearer $CF_API_TOKEN" \
+            -H "Content-Type: application/json" \
+            --data '{"purge_everything":true}'
+        else
+          echo "Cloudflare credentials not provided, skipping cache purge"
+        fi
+
+      - |
+        # Submit to IndexNow
+        if [ -n "${INDEXNOW_KEY:-}" ]; then
+          echo "Submitting to IndexNow..."
+          curl -X POST "https://api.indexnow.org/indexnow" \
+            -H "Content-Type: application/json" \
+            --data "{\"host\":\"computerhacking101.com\",\"key\":\"$INDEXNOW_KEY\",\"urlList\":[\"$SITE_URL\"]}"
+        else
+          echo "IndexNow key not provided, skipping submission"
+        fi
+
+trigger:
+  branch:
+    - main
+  event:
+    - push
 
 
