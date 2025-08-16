@@ -26,16 +26,13 @@ steps:
       SSH_USER:
         from_secret: SSH_USER
     commands:
-      - apk add --no-cache bash
       - |
-        for v in CF_API_TOKEN CF_ZONE_ID INDEXNOW_KEY SSH_USER; do
-          if [ -n "${!v}" ]; then 
-            echo "$v is set"
-          else 
-            echo "$v is MISSING"
-            exit 1
-          fi
-        done
+        echo "=== Checking required secrets ==="
+        if [ -n "$CF_API_TOKEN" ]; then echo "CF_API_TOKEN is set"; else echo "CF_API_TOKEN is MISSING"; exit 1; fi
+        if [ -n "$CF_ZONE_ID" ]; then echo "CF_ZONE_ID is set"; else echo "CF_ZONE_ID is MISSING"; exit 1; fi
+        if [ -n "$INDEXNOW_KEY" ]; then echo "INDEXNOW_KEY is set"; else echo "INDEXNOW_KEY is MISSING"; exit 1; fi
+        if [ -n "$SSH_USER" ]; then echo "SSH_USER is set"; else echo "SSH_USER is MISSING"; exit 1; fi
+        echo "All required secrets are present"
 
   - name: deploy-rsync
     image: alpine:3.20
