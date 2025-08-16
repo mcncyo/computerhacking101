@@ -18,14 +18,6 @@ steps:
       SITE_URL: https://computerhacking101.com
       CHANGE_WINDOW_HOURS: 24
 
-      # TinaCMS (secrets)
-      TINA_CLIENT_ID:
-        from_secret: TINA_CLIENT_ID
-      TINA_TOKEN:
-        from_secret: TINA_TOKEN
-      TINA_SEARCH_TOKEN:
-        from_secret: TINA_SEARCH_TOKEN
-
       # SSH / Deploy (secrets)
       SSH_HOST:
         from_secret: SSH_HOST
