@@ -36,24 +36,29 @@ Docker has revolutionized the way developers build, ship, and run applications. 
 
 ### Intermediate
 
-3. [Dockerfile Best Practices](/tutorials/docker/dockerfile-best-practices/)
+3. [Advanced Docker Networking](/tutorials/docker/advanced-docker-networking/)
+   - Understanding Docker network types
+   - Creating custom bridge networks
+   - Network security best practices
+
+4. [Dockerfile Best Practices](/tutorials/docker/dockerfile-best-practices/)
    - Writing efficient Dockerfiles
    - Multi-stage builds
    - Security considerations
 
-4. [Docker Compose in Action](/tutorials/docker/docker-compose/)
+5. [Docker Compose in Action](/tutorials/docker/docker-compose/)
    - Defining multi-container applications
    - Environment variables and volumes
    - Networking between containers
 
 ### Advanced
 
-5. [Docker Swarm for Orchestration](/tutorials/docker/docker-swarm/)
+6. [Docker Swarm for Orchestration](/tutorials/docker/docker-swarm/)
    - Setting up a Docker Swarm cluster
    - Deploying services
    - Managing container scaling
 
-6. [Docker Security Hardening](/tutorials/docker/security/)
+7. [Docker Security Hardening](/tutorials/docker/security/)
    - Container isolation
    - User namespaces
    - Secrets management

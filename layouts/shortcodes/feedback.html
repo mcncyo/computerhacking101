@@ -1,0 +1,303 @@
+<div class="feedback-container">
+  <div class="feedback-header">
+    <h3 class="feedback-title">💬 Was this helpful?</h3>
+    <p class="feedback-description">Let us know if this guide was helpful or if you have any questions.</p>
+  </div>
+  
+  <div class="feedback-buttons">
+    <button class="feedback-button feedback-yes" data-feedback="yes">
+      <span class="feedback-icon">👍</span>
+      <span>Yes, it helped</span>
+    </button>
+    
+    <button class="feedback-button feedback-no" data-feedback="no">
+      <span class="feedback-icon">👎</span>
+      <span>Needs improvement</span>
+    </button>
+  </div>
+  
+  <div class="feedback-form-container" style="display: none;">
+    <p class="feedback-prompt">What could we improve? (optional)</p>
+    <textarea class="feedback-textarea" placeholder="Your feedback helps us improve..."></textarea>
+    <button class="feedback-submit">Submit Feedback</button>
+  </div>
+  
+  <div class="feedback-thankyou" style="display: none;">
+    <p>🙏 Thank you for your feedback!</p>
+  </div>
+</div>
+
+<style>
+.feedback-container {
+  margin: 2.5rem 0;
+  padding: 1.5rem;
+  background: #f8fafc;
+  border-radius: 10px;
+  border: 1px solid #e2e8f0;
+}
+
+.feedback-header {
+  margin-bottom: 1.25rem;
+  text-align: center;
+}
+
+.feedback-title {
+  margin: 0 0 0.5rem 0;
+  font-size: 1.25rem;
+  color: #1e293b;
+  font-weight: 600;
+}
+
+.feedback-description {
+  margin: 0;
+  color: #64748b;
+  font-size: 0.9375rem;
+}
+
+.feedback-buttons {
+  display: flex;
+  gap: 1rem;
+  justify-content: center;
+  margin-bottom: 1rem;
+}
+
+.feedback-button {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.625rem 1.25rem;
+  border-radius: 6px;
+  border: 1px solid #e2e8f0;
+  background: white;
+  color: #334155;
+  font-size: 0.9375rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.feedback-button:hover {
+  background: #f1f5f9;
+  transform: translateY(-1px);
+}
+
+.feedback-button:active {
+  transform: translateY(0);
+}
+
+.feedback-button .feedback-icon {
+  font-size: 1.1em;
+}
+
+.feedback-yes:hover {
+  border-color: #bbf7d0;
+  background: #dcfce7;
+  color: #166534;
+}
+
+.feedback-no:hover {
+  border-color: #fecaca;
+  background: #fee2e2;
+  color: #991b1b;
+}
+
+.feedback-form-container {
+  margin-top: 1.5rem;
+  padding-top: 1.5rem;
+  border-top: 1px solid #e2e8f0;
+}
+
+.feedback-prompt {
+  margin: 0 0 0.75rem 0;
+  color: #475569;
+  font-size: 0.9375rem;
+}
+
+.feedback-textarea {
+  width: 100%;
+  min-height: 100px;
+  padding: 0.75rem;
+  border: 1px solid #e2e8f0;
+  border-radius: 6px;
+  font-family: inherit;
+  font-size: 0.9375rem;
+  color: #1e293b;
+  resize: vertical;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.feedback-textarea:focus {
+  outline: none;
+  border-color: #7c3aed;
+  box-shadow: 0 0 0 3px rgba(124, 58, 237, 0.1);
+}
+
+.feedback-submit {
+  display: block;
+  margin-top: 0.75rem;
+  padding: 0.625rem 1.5rem;
+  background: #7c3aed;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  font-size: 0.9375rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background-color 0.2s ease, transform 0.2s ease;
+}
+
+.feedback-submit:hover {
+  background: #6d28d9;
+  transform: translateY(-1px);
+}
+
+.feedback-submit:active {
+  transform: translateY(0);
+}
+
+.feedback-thankyou {
+  text-align: center;
+  padding: 1rem;
+  color: #166534;
+  font-weight: 500;
+}
+
+/* Dark mode support */
+.dark .feedback-container {
+  background: #1e293b;
+  border-color: #334155;
+}
+
+.dark .feedback-title {
+  color: #f8fafc;
+}
+
+.dark .feedback-description {
+  color: #94a3b8;
+}
+
+.dark .feedback-button {
+  background: #334155;
+  border-color: #475569;
+  color: #e2e8f0;
+}
+
+.dark .feedback-button:hover {
+  background: #475569;
+}
+
+.dark .feedback-yes:hover {
+  border-color: #16a34a;
+  background: #166534;
+  color: #f0fdf4;
+}
+
+.dark .feedback-no:hover {
+  border-color: #dc2626;
+  background: #991b1b;
+  color: #fef2f2;
+}
+
+.dark .feedback-form-container {
+  border-color: #334155;
+}
+
+.dark .feedback-prompt {
+  color: #cbd5e1;
+}
+
+.dark .feedback-textarea {
+  background: #1e293b;
+  border-color: #475569;
+  color: #e2e8f0;
+}
+
+.dark .feedback-textarea::placeholder {
+  color: #94a3b8;
+}
+
+.dark .feedback-textarea:focus {
+  border-color: #8b5cf6;
+  box-shadow: 0 0 0 3px rgba(124, 58, 237, 0.3);
+}
+
+/* Responsive adjustments */
+@media (max-width: 640px) {
+  .feedback-buttons {
+    flex-direction: column;
+    gap: 0.75rem;
+  }
+  
+  .feedback-button {
+    justify-content: center;
+  }
+}
+</style>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+  const container = document.querySelector('.feedback-container');
+  if (!container) return;
+  
+  const buttons = container.querySelectorAll('.feedback-button');
+  const formContainer = container.querySelector('.feedback-form-container');
+  const thankyou = container.querySelector('.feedback-thankyou');
+  const textarea = container.querySelector('.feedback-textarea');
+  const submitButton = container.querySelector('.feedback-submit');
+  
+  let feedbackType = '';
+  
+  // Handle feedback button clicks
+  buttons.forEach(button => {
+    button.addEventListener('click', function() {
+      feedbackType = this.getAttribute('data-feedback');
+      
+      // Hide buttons
+      buttons.forEach(btn => btn.style.display = 'none');
+      
+      // Show form for 'no' feedback, show thank you for 'yes'
+      if (feedbackType === 'no') {
+        formContainer.style.display = 'block';
+      } else {
+        thankyou.style.display = 'block';
+        sendFeedback('yes');
+      }
+    });
+  });
+  
+  // Handle form submission
+  if (submitButton) {
+    submitButton.addEventListener('click', function() {
+      const feedbackText = textarea ? textarea.value.trim() : '';
+      sendFeedback('no', feedbackText);
+      
+      // Hide form, show thank you
+      formContainer.style.display = 'none';
+      thankyou.style.display = 'block';
+    });
+  }
+  
+  // Function to send feedback to the server
+  function sendFeedback(type, message = '') {
+    // Here you would typically send the feedback to your server
+    // Example:
+    /*
+    fetch('/api/feedback', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        type: type,
+        message: message,
+        page: window.location.pathname,
+        timestamp: new Date().toISOString()
+      })
+    });
+    */
+    
+    // For now, we'll just log it
+    console.log('Feedback submitted:', { type, message, page: window.location.pathname });
+  }
+});
+</script>

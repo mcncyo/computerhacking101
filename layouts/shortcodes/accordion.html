@@ -1,0 +1,131 @@
+<div class="accordion">
+  {{ .Inner | safeHTML }}
+</div>
+
+<style>
+.accordion {
+  border-radius: 8px;
+  overflow: hidden;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  margin: 1.5rem 0;
+}
+
+.accordion-item {
+  border-bottom: 1px solid #e2e8f0;
+  background: white;
+}
+
+.accordion-item:last-child {
+  border-bottom: none;
+}
+
+.accordion-header {
+  padding: 1rem 1.5rem;
+  background-color: #f7fafc;
+  cursor: pointer;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  transition: background-color 0.2s ease;
+}
+
+.accordion-header:hover {
+  background-color: #edf2f7;
+}
+
+.accordion-title {
+  margin: 0;
+  font-size: 1rem;
+  font-weight: 600;
+  color: #2d3748;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.accordion-icon {
+  transition: transform 0.3s ease;
+  color: #4a5568;
+}
+
+.accordion-item.active .accordion-icon {
+  transform: rotate(180deg);
+}
+
+.accordion-content {
+  max-height: 0;
+  overflow: hidden;
+  transition: max-height 0.3s ease-out;
+  background: white;
+}
+
+.accordion-content-inner {
+  padding: 0 1.5rem 0 2.5rem;
+  margin: 1rem 0;
+}
+
+.accordion-item.active .accordion-content {
+  max-height: 1000px; /* Adjust based on content */
+  transition: max-height 0.5s ease-in;
+}
+
+/* Add some spacing for nested lists */
+.accordion-content ul, 
+.accordion-content ol {
+  margin: 0.5rem 0 0.5rem 1rem;
+  padding-left: 1rem;
+}
+
+.accordion-content li {
+  margin-bottom: 0.25rem;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .accordion-header {
+    padding: 0.75rem 1rem;
+  }
+  
+  .accordion-content-inner {
+    padding: 0.5rem 1rem 0.5rem 1.5rem;
+  }
+}
+</style>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+  const accordionItems = document.querySelectorAll('.accordion-item');
+  
+  // Close all accordion items except the first one
+  accordionItems.forEach((item, index) => {
+    if (index !== 0) {
+      item.querySelector('.accordion-content').style.maxHeight = '0';
+    } else {
+      item.classList.add('active');
+    }
+    
+    item.querySelector('.accordion-header').addEventListener('click', () => {
+      const isActive = item.classList.contains('active');
+      
+      // Close all items
+      accordionItems.forEach(accItem => {
+        accItem.classList.remove('active');
+        accItem.querySelector('.accordion-content').style.maxHeight = '0';
+      });
+      
+      // Toggle current item if it wasn't active
+      if (!isActive) {
+        item.classList.add('active');
+        const content = item.querySelector('.accordion-content');
+        content.style.maxHeight = content.scrollHeight + 'px';
+      }
+    });
+  });
+  
+  // Initialize first item as open
+  if (accordionItems.length > 0) {
+    const firstContent = accordionItems[0].querySelector('.accordion-content');
+    firstContent.style.maxHeight = firstContent.scrollHeight + 'px';
+  }
+});
+</script>

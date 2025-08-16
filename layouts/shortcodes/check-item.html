@@ -1,0 +1,8 @@
+{{ $checked := .Get "checked" | default "false" }}
+{{ $id := .Get "id" | default (printf "item-%d" (now.UnixNano)) }}
+
+<div class="checklist-item {{ if eq $checked "true" }}checked{{ end }}" data-id="{{ $id }}">
+  <div class="checklist-item-label">
+    {{ .Inner | markdownify }}
+  </div>
+</div>

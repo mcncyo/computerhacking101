@@ -1,0 +1,151 @@
+<div class="newsletter-card">
+  <div class="newsletter-content">
+    <h3 class="newsletter-title">📬 Stay Updated</h3>
+    <p class="newsletter-description">Subscribe to our newsletter for the latest tutorials, tips, and security updates.</p>
+    
+    <form class="newsletter-form" action="#" method="post">
+      <div class="form-group">
+        <input 
+          type="email" 
+          name="email" 
+          placeholder="Your email address" 
+          class="newsletter-input"
+          required
+        >
+        <button type="submit" class="newsletter-button">Subscribe</button>
+      </div>
+      <p class="newsletter-note">We respect your privacy. Unsubscribe at any time.</p>
+    </form>
+  </div>
+</div>
+
+<style>
+.newsletter-card {
+  background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%);
+  border-radius: 10px;
+  padding: 2rem;
+  margin: 2rem 0;
+  border: 1px solid #bae6fd;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+}
+
+.newsletter-title {
+  margin-top: 0;
+  margin-bottom: 0.75rem;
+  color: #0369a1;
+  font-size: 1.5rem;
+  font-weight: 600;
+}
+
+.newsletter-description {
+  margin: 0 0 1.5rem 0;
+  color: #0c4a6e;
+  line-height: 1.6;
+}
+
+.newsletter-form {
+  max-width: 500px;
+}
+
+.form-group {
+  display: flex;
+  gap: 0.5rem;
+  margin-bottom: 0.75rem;
+}
+
+.newsletter-input {
+  flex: 1;
+  padding: 0.75rem 1rem;
+  border: 1px solid #7dd3fc;
+  border-radius: 6px;
+  font-size: 1rem;
+  color: #0c4a6e;
+  background: white;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.newsletter-input:focus {
+  outline: none;
+  border-color: #0ea5e9;
+  box-shadow: 0 0 0 3px rgba(14, 165, 233, 0.2);
+}
+
+.newsletter-button {
+  padding: 0.75rem 1.5rem;
+  background-color: #0284c7;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  font-size: 1rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
+.newsletter-button:hover {
+  background-color: #0369a1;
+}
+
+.newsletter-note {
+  margin: 0;
+  font-size: 0.8125rem;
+  color: #64748b;
+  font-style: italic;
+}
+
+/* Dark mode support */
+.dark .newsletter-card {
+  background: linear-gradient(135deg, #082f49 0%, #0c4a6e 100%);
+  border-color: #0369a1;
+}
+
+.dark .newsletter-title {
+  color: #bae6fd;
+}
+
+.dark .newsletter-description {
+  color: #bae6fd;
+}
+
+.dark .newsletter-input {
+  background: #1e3a8a;
+  border-color: #1e40af;
+  color: #e0f2fe;
+}
+
+.dark .newsletter-input::placeholder {
+  color: #93c5fd;
+}
+
+.dark .newsletter-input:focus {
+  border-color: #3b82f6;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.3);
+}
+
+.dark .newsletter-button {
+  background-color: #1d4ed8;
+}
+
+.dark .newsletter-button:hover {
+  background-color: #1e40af;
+}
+
+.dark .newsletter-note {
+  color: #94a3b8;
+}
+
+/* Responsive adjustments */
+@media (max-width: 640px) {
+  .newsletter-card {
+    padding: 1.5rem;
+  }
+  
+  .form-group {
+    flex-direction: column;
+  }
+  
+  .newsletter-button {
+    width: 100%;
+  }
+}
+</style>

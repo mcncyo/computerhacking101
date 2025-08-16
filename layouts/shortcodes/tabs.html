@@ -1,0 +1,123 @@
+<div class="tabs-container">
+  <div class="tabs">
+    {{- range $index, $element := .Scratch.Get "tabs" -}}
+      <button class="tab-button {{ if eq $index 0 }}active{{ end }}" 
+              data-tab="tab-{{ $index }}">
+        {{ .name }}
+      </button>
+    {{- end -}}
+  </div>
+  
+  <div class="tab-contents">
+    {{ .Inner | safeHTML }}
+  </div>
+</div>
+
+<style>
+.tabs-container {
+  margin: 2rem 0;
+  border-radius: 8px;
+  overflow: hidden;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.tabs {
+  display: flex;
+  background-color: #f7fafc;
+  border-bottom: 1px solid #e2e8f0;
+  flex-wrap: wrap;
+}
+
+.tab-button {
+  padding: 0.75rem 1.25rem;
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 0.9rem;
+  font-weight: 500;
+  color: #4a5568;
+  transition: all 0.2s ease;
+  position: relative;
+  outline: none;
+}
+
+.tab-button:hover {
+  color: #2b6cb0;
+  background-color: #ebf8ff;
+}
+
+.tab-button.active {
+  color: #2b6cb0;
+  font-weight: 600;
+}
+
+.tab-button.active::after {
+  content: '';
+  position: absolute;
+  bottom: -1px;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background-color: #2b6cb0;
+}
+
+.tab-contents {
+  background: white;
+  padding: 1.5rem;
+}
+
+.tab-content {
+  display: none;
+  animation: fadeIn 0.3s ease;
+}
+
+.tab-content.active {
+  display: block;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* Responsive adjustments */
+@media (max-width: 640px) {
+  .tabs {
+    flex-direction: column;
+  }
+  
+  .tab-button {
+    text-align: left;
+    border-bottom: 1px solid #e2e8f0;
+  }
+  
+  .tab-button::after {
+    display: none;
+  }
+}
+</style>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+  const tabButtons = document.querySelectorAll('.tab-button');
+  
+  tabButtons.forEach(button => {
+    button.addEventListener('click', () => {
+      const tabId = button.getAttribute('data-tab');
+      
+      // Remove active class from all buttons and contents
+      document.querySelectorAll('.tab-button').forEach(btn => btn.classList.remove('active'));
+      document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
+      
+      // Add active class to clicked button and corresponding content
+      button.classList.add('active');
+      document.getElementById(tabId).classList.add('active');
+    });
+  });
+  
+  // Activate first tab by default
+  if (tabButtons.length > 0) {
+    tabButtons[0].click();
+  }
+});
+</script>

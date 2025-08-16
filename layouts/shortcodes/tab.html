@@ -1,0 +1,12 @@
+{{- if not (.Page.Scratch.Get "tabs") -}}
+  {{ .Page.Scratch.Set "tabs" slice }}
+{{- end -}}
+
+{{- $tabs := .Page.Scratch.Get "tabs" -}}
+{{- $name := .Get "name" | default (printf "Tab %d" (add (len $tabs) 1)) -}}
+{{- $tabs = $tabs | append (dict "name" $name) -}}
+{{- .Page.Scratch.Set "tabs" $tabs -}}
+
+<div id="tab-{{ len $tabs }}" class="tab-content">
+  {{ .Inner | markdownify }}
+</div>

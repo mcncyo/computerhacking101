@@ -97,10 +97,17 @@ steps:
           echo "IndexNow key missing; skipping submission"
         fi
 
-# Trigger pipeline on push to main branch or tags
+# Trigger pipeline on push to main branch, tags, or daily schedule
 trigger:
   branch: [ main ]
-  event:  [ push, tag ]
+  event:  [ push, tag, cron ]
+
+# Run daily at midnight UTC
+cron:
+  - name: daily-build
+    cron: "0 0 * * *"
+    branch: main
+    event: cron
 
 
 

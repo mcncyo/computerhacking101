@@ -1,0 +1,123 @@
+{{ $type := .Get 0 | default "info" }}
+{{ $iconMap := dict
+  "info" "ℹ️"
+  "tip" "💡"
+  "warning" "⚠️"
+  "danger" "🚨"
+  "success" "✅"
+  "note" "📝"
+  "important" "🔔"
+}}
+
+{{ $icon := index $iconMap $type | default "ℹ️" }}
+{{ $class := printf "notice notice-%s" $type }}
+
+<div class="{{ $class }}">
+  <div class="notice-icon">{{ $icon }}</div>
+  <div class="notice-content">
+    {{ .Inner | markdownify }}
+  </div>
+</div>
+
+<style>
+.notice {
+  position: relative;
+  padding: 1rem 1.25rem 1rem 3.5rem;
+  margin: 1.5rem 0;
+  border-radius: 6px;
+  border-left: 4px solid;
+  background: #f8fafc;
+  color: #2d3748;
+  font-size: 0.95rem;
+  line-height: 1.6;
+}
+
+.notice-icon {
+  position: absolute;
+  left: 1rem;
+  top: 1rem;
+  font-size: 1.25rem;
+  line-height: 1;
+}
+
+.notice-content {
+  margin-left: 0.5rem;
+}
+
+.notice-content > :first-child {
+  margin-top: 0;
+}
+
+.notice-content > :last-child {
+  margin-bottom: 0;
+}
+
+/* Notice Types */
+.notice-info {
+  border-color: #4299e1;
+  background-color: #ebf8ff;
+}
+
+.notice-tip {
+  border-color: #48bb78;
+  background-color: #f0fff4;
+}
+
+.notice-warning {
+  border-color: #ed8936;
+  background-color: #fffaf0;
+}
+
+.notice-danger {
+  border-color: #f56565;
+  background-color: #fff5f5;
+}
+
+.notice-success {
+  border-color: #48bb78;
+  background-color: #f0fff4;
+}
+
+.notice-note {
+  border-color: #9f7aea;
+  background-color: #faf5ff;
+}
+
+.notice-important {
+  border-color: #f6ad55;
+  background-color: #fffaf0;
+}
+
+/* Nested elements */
+.notice p:first-child {
+  margin-top: 0;
+}
+
+.notice p:last-child {
+  margin-bottom: 0;
+}
+
+.notice a {
+  color: inherit;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+  text-decoration-thickness: 1px;
+}
+
+.notice a:hover {
+  text-decoration-thickness: 2px;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .notice {
+    padding: 0.875rem 1rem 0.875rem 3rem;
+    margin: 1.25rem 0;
+  }
+  
+  .notice-icon {
+    left: 0.75rem;
+    top: 0.875rem;
+  }
+}
+</style>

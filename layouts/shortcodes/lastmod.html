@@ -1,0 +1,18 @@
+{{ $lastmod := .Page.Lastmod }}
+{{ if not $lastmod.IsZero }}
+  <time datetime="{{ $lastmod.Format "2006-01-02T15:04:05Z07:00" }}" class="last-modified">
+    {{ $lastmod.Format "January 2, 2006" }}
+  </time>
+{{ end }}
+
+<style>
+.last-modified {
+  color: #6b7280;
+  font-size: 0.875rem;
+  font-style: italic;
+}
+
+.dark .last-modified {
+  color: #9ca3af;
+}
+</style>

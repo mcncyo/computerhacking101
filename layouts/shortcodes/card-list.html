@@ -1,0 +1,20 @@
+<div class="card-list">
+  {{ .Inner | safeHTML }}
+</div>
+
+<style>
+.card-list {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 1.5rem;
+  margin: 2rem 0;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .card-list {
+    grid-template-columns: 1fr;
+    gap: 1rem;
+  }
+}
+</style>

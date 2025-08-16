@@ -1,0 +1,125 @@
+{{ $title := .Get "title" }}
+{{ $link := .Get "link" }}
+{{ $description := .Get "description" }}
+{{ $icon := .Get "icon" | default "📚" }}
+
+<div class="resource-card">
+  <a href="{{ $link }}" class="resource-card-link">
+    <div class="resource-card-icon">
+      {{ $icon | safeHTML }}
+    </div>
+    <div class="resource-card-content">
+      <h3 class="resource-card-title">{{ $title }}</h3>
+      {{ with $description }}
+        <p class="resource-card-description">{{ . }}</p>
+      {{ end }}
+    </div>
+    <div class="resource-card-arrow">→</div>
+  </a>
+</div>
+
+<style>
+.resource-card {
+  background: #fff;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  overflow: hidden;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  border: 1px solid #e2e8f0;
+  height: 100%;
+}
+
+.resource-card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.resource-card-link {
+  display: flex;
+  align-items: center;
+  padding: 1.5rem;
+  text-decoration: none;
+  color: inherit;
+  height: 100%;
+  box-sizing: border-box;
+}
+
+.resource-card-icon {
+  font-size: 1.5rem;
+  margin-right: 1rem;
+  flex-shrink: 0;
+  color: #4299e1;
+}
+
+.resource-card-content {
+  flex-grow: 1;
+  min-width: 0;
+}
+
+.resource-card-title {
+  margin: 0 0 0.5rem 0;
+  font-size: 1.125rem;
+  color: #2d3748;
+  font-weight: 600;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.resource-card-description {
+  margin: 0;
+  color: #4a5568;
+  font-size: 0.9375rem;
+  line-height: 1.5;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.resource-card-arrow {
+  margin-left: 1rem;
+  color: #a0aec0;
+  font-size: 1.25rem;
+  font-weight: 700;
+  transition: transform 0.2s ease;
+  flex-shrink: 0;
+}
+
+.resource-card:hover .resource-card-arrow {
+  transform: translateX(4px);
+}
+
+/* Dark mode support */
+.dark .resource-card {
+  background: #2d3748;
+  border-color: #4a5568;
+}
+
+.dark .resource-card-title {
+  color: #e2e8f0;
+}
+
+.dark .resource-card-description {
+  color: #cbd5e0;
+}
+
+.dark .resource-card-arrow {
+  color: #a0aec0;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .resource-card-link {
+    padding: 1.25rem;
+  }
+  
+  .resource-card-title {
+    font-size: 1rem;
+  }
+  
+  .resource-card-description {
+    font-size: 0.875rem;
+  }
+}
+</style>

@@ -1,0 +1,90 @@
+<div class="checklist">
+  {{ .Inner | safeHTML }}
+</div>
+
+<style>
+.checklist {
+  background: #f8fafc;
+  border-radius: 8px;
+  padding: 1.5rem;
+  margin: 1.5rem 0;
+  border: 1px solid #e2e8f0;
+}
+
+.checklist-item {
+  position: relative;
+  padding-left: 2rem;
+  margin-bottom: 0.75rem;
+  line-height: 1.6;
+  color: #2d3748;
+  display: flex;
+  align-items: flex-start;
+}
+
+.checklist-item:last-child {
+  margin-bottom: 0;
+}
+
+.checklist-item::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 0.25rem;
+  width: 1.25rem;
+  height: 1.25rem;
+  border: 2px solid #cbd5e0;
+  border-radius: 4px;
+  background: white;
+  transition: all 0.2s ease;
+}
+
+.checklist-item.checked::before {
+  background-color: #4299e1;
+  border-color: #4299e1;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='white' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='20 6 9 17 4 12'%3E%3C/polyline%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: center;
+  background-size: 12px;
+}
+
+.checklist-item-label {
+  margin-left: 0.5rem;
+  flex: 1;
+}
+
+/* Responsive adjustments */
+@media (max-width: 640px) {
+  .checklist {
+    padding: 1rem;
+  }
+  
+  .checklist-item {
+    padding-left: 1.75rem;
+    font-size: 0.95rem;
+  }
+}
+</style>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+  const checklistItems = document.querySelectorAll('.checklist-item');
+  
+  // Load saved states from localStorage
+  checklistItems.forEach(item => {
+    const itemId = item.getAttribute('data-id');
+    if (itemId && localStorage.getItem(`checklist-${itemId}`) === 'true') {
+      item.classList.add('checked');
+    }
+    
+    item.addEventListener('click', function() {
+      this.classList.toggle('checked');
+      
+      // Save state to localStorage if ID exists
+      const itemId = this.getAttribute('data-id');
+      if (itemId) {
+        localStorage.setItem(`checklist-${itemId}`, this.classList.contains('checked'));
+      }
+    });
+  });
+});
+</script>
