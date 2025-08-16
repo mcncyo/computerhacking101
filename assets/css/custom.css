@@ -131,13 +131,100 @@ summary:hover {
   background: #3d3d3d;
 }
 
-/* Style for alert/note boxes */
-.alert, .pro-tip {
-  background: #2d2d2d;
-  border-left: 4px solid #4fc3f7;
-  padding: 1rem;
-  margin: 1.5rem 0;
-  border-radius: 0 4px 4px 0;
+/* Style for alert/note boxes with !important to override theme */
+.alert, .pro-tip, .notice,
+.notice-tip, .notice-warning,
+.content .notice,
+.article-content .notice,
+main .notice,
+#main .notice,
+.container .notice,
+.prose .notice,
+.notice {
+  background: #1e2b3c !important;
+  border-left: 4px solid #4fc3f7 !important;
+  padding: 1.2rem 1.2rem 1.2rem 3.5rem !important;
+  margin: 1.5rem 0 !important;
+  border-radius: 4px !important;
+  color: #e0e0e0 !important;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2) !important;
+  position: relative !important;
+  overflow: hidden !important;
+}
+
+.alert::before,
+.pro-tip::before,
+.notice::before,
+.notice-tip::before,
+.notice-warning::before,
+.content .notice::before,
+.article-content .notice::before,
+main .notice::before,
+#main .notice::before,
+.container .notice::before,
+.prose .notice::before,
+.notice::before {
+  content: '💡' !important;
+  position: absolute !important;
+  left: 1rem !important;
+  top: 1.2rem !important;
+  font-size: 1.2rem !important;
+}
+
+.alert p,
+.pro-tip p,
+.notice p,
+.notice-tip p,
+.notice-warning p,
+.content .notice p,
+.article-content .notice p,
+main .notice p,
+#main .notice p,
+.container .notice p,
+.prose .notice p,
+.notice p {
+  margin: 0 !important;
+  padding: 0 !important;
+  line-height: 1.6 !important;
+  color: #e0e0e0 !important;
+}
+
+/* Specific notice types */
+.notice.tip,
+.notice-tip,
+.notice.tip,
+.content .notice.tip,
+.article-content .notice.tip,
+main .notice.tip,
+#main .notice.tip,
+.container .notice.tip,
+.prose .notice.tip {
+  background: #1e3a2e !important;
+  border-left-color: #4caf50 !important;
+}
+
+.notice.warning,
+.notice-warning,
+.notice.warning,
+.content .notice.warning,
+.article-content .notice.warning,
+main .notice.warning,
+#main .notice.warning,
+.container .notice.warning,
+.prose .notice.warning {
+  background: #3e2a1f !important;
+  border-left-color: #ff9800 !important;
+}
+
+.notice.danger,
+.content .notice.danger,
+.article-content .notice.danger,
+main .notice.danger,
+#main .notice.danger,
+.container .notice.danger,
+.prose .notice.danger {
+  background: #3c1e1e !important;
+  border-left-color: #f44336 !important;
 }
 
 /* Tables */

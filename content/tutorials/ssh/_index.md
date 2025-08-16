@@ -218,6 +218,7 @@ ssh -vvv user@hostname  # Maximum verbosity
 {{< /column >}}
 {{< /columns >}}
   
+{{< accordion >}}
   {{< accordion-item title="🔑 Permission Denied" id="permission-denied" >}}
     - Verify key permissions: `chmod 600 ~/.ssh/id_rsa`
     - Check server logs: `journalctl -u ssh`

@@ -26,8 +26,8 @@
   margin: 1.5rem 0;
   border-radius: 6px;
   border-left: 4px solid;
-  background: #f8fafc;
-  color: #2d3748;
+  background: #1e2b3c !important;
+  color: #e0e0e0 !important;
   font-size: 0.95rem;
   line-height: 1.6;
 }
@@ -54,38 +54,38 @@
 
 /* Notice Types */
 .notice-info {
-  border-color: #4299e1;
-  background-color: #ebf8ff;
+  border-color: #4fc3f7 !important;
+  background-color: #1e2b3c !important;
 }
 
 .notice-tip {
-  border-color: #48bb78;
-  background-color: #f0fff4;
+  border-color: #4caf50 !important;
+  background-color: #1e3a2e !important;
 }
 
 .notice-warning {
-  border-color: #ed8936;
-  background-color: #fffaf0;
+  border-color: #ff9800 !important;
+  background-color: #3e2a1f !important;
 }
 
 .notice-danger {
-  border-color: #f56565;
-  background-color: #fff5f5;
+  border-color: #f44336 !important;
+  background-color: #3c1e1e !important;
 }
 
 .notice-success {
-  border-color: #48bb78;
-  background-color: #f0fff4;
+  border-color: #4caf50 !important;
+  background-color: #1e3a2e !important;
 }
 
 .notice-note {
-  border-color: #9f7aea;
-  background-color: #faf5ff;
+  border-color: #9f7aea !important;
+  background-color: #2e1e3c !important;
 }
 
 .notice-important {
-  border-color: #f6ad55;
-  background-color: #fffaf0;
+  border-color: #ff9800 !important;
+  background-color: #3e2a1f !important;
 }
 
 /* Nested elements */
@@ -98,14 +98,15 @@
 }
 
 .notice a {
-  color: inherit;
-  text-decoration: underline;
-  text-underline-offset: 2px;
-  text-decoration-thickness: 1px;
+  color: #4fc3f7 !important;
+  text-decoration: none !important;
+  border-bottom: 1px solid rgba(79, 195, 247, 0.5);
+  transition: all 0.2s ease;
 }
 
 .notice a:hover {
-  text-decoration-thickness: 2px;
+  color: #80d8ff !important;
+  border-bottom-color: #80d8ff;
 }
 
 /* Responsive adjustments */

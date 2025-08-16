@@ -6,38 +6,41 @@
 .accordion {
   border-radius: 8px;
   overflow: hidden;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
   margin: 1.5rem 0;
+  background: #1e2b3c !important;
+  border: 1px solid #2d3748 !important;
 }
 
 .accordion-item {
-  border-bottom: 1px solid #e2e8f0;
-  background: white;
+  border-bottom: 1px solid #2d3748 !important;
+  background: #1e2b3c !important;
 }
 
 .accordion-item:last-child {
-  border-bottom: none;
+  border-bottom: none !important;
 }
 
 .accordion-header {
   padding: 1rem 1.5rem;
-  background-color: #f7fafc;
+  background-color: #1e2b3c !important;
   cursor: pointer;
   display: flex;
   justify-content: space-between;
   align-items: center;
   transition: background-color 0.2s ease;
+  border: none !important;
 }
 
 .accordion-header:hover {
-  background-color: #edf2f7;
+  background-color: #2d3748 !important;
 }
 
 .accordion-title {
   margin: 0;
   font-size: 1rem;
   font-weight: 600;
-  color: #2d3748;
+  color: #e0e0e0 !important;
   display: flex;
   align-items: center;
   gap: 0.5rem;
@@ -45,7 +48,7 @@
 
 .accordion-icon {
   transition: transform 0.3s ease;
-  color: #4a5568;
+  color: #e0e0e0 !important;
 }
 
 .accordion-item.active .accordion-icon {
@@ -56,12 +59,14 @@
   max-height: 0;
   overflow: hidden;
   transition: max-height 0.3s ease-out;
-  background: white;
+  background: #1e2b3c !important;
+  color: #e0e0e0 !important;
 }
 
 .accordion-content-inner {
   padding: 0 1.5rem 0 2.5rem;
   margin: 1rem 0;
+  color: #e0e0e0 !important;
 }
 
 .accordion-item.active .accordion-content {
@@ -89,6 +94,28 @@
   .accordion-content-inner {
     padding: 0.5rem 1rem 0.5rem 1.5rem;
   }
+}
+
+/* Style nested elements */
+.accordion-content p,
+.accordion-content ul,
+.accordion-content ol,
+.accordion-content li,
+.accordion-content code,
+.accordion-content pre {
+  color: #e0e0e0 !important;
+}
+
+.accordion-content a {
+  color: #4fc3f7 !important;
+  text-decoration: none;
+  border-bottom: 1px solid rgba(79, 195, 247, 0.5);
+  transition: all 0.2s ease;
+}
+
+.accordion-content a:hover {
+  color: #80d8ff !important;
+  border-bottom-color: #80d8ff;
 }
 </style>
 
