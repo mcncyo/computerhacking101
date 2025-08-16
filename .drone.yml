@@ -8,14 +8,24 @@ clone:
 steps:
   - name: build-hugo
     image: hugomods/hugo:exts
+    environment:
+      HUGO_ENV: production
+      SITE_URL: https://computerhacking101.com
+      INDEXNOW_KEY:
+        from_secret: INDEXNOW_KEY
+      CF_ZONE_ID:
+        from_secret: CF_ZONE_ID
+      CF_API_TOKEN:
+        from_secret: CF_API_TOKEN
     commands:
       - hugo --minify --gc --enableGitInfo
 
   - name: install-deps-deploy
     image: node:20-alpine
     environment:
-      HUGO_ENV: production
-      SITE_URL: https://computerhacking101.com
+      # Inherit environment from build step
+      HUGO_ENV: ${HUGO_ENV}
+      SITE_URL: ${SITE_URL}
       CHANGE_WINDOW_HOURS: 24
 
       # SSH / Deploy (secrets)
@@ -31,14 +41,11 @@ steps:
         from_secret: SSH_PRIVATE_KEY
 
       # Cloudflare (secrets)
-      CF_ZONE_ID:
-        from_secret: CF_ZONE_ID
-      CF_API_TOKEN:
-        from_secret: CF_API_TOKEN
+      CF_ZONE_ID: ${CF_ZONE_ID}
+      CF_API_TOKEN: ${CF_API_TOKEN}
 
       # IndexNow (secret)
-      INDEXNOW_KEY:
-        from_secret: INDEXNOW_KEY
+      INDEXNOW_KEY: ${INDEXNOW_KEY}
 
       # OPTIONAL: GitHub token (raises API rate-limit)
       GITHUB_TOKEN:
