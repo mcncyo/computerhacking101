@@ -8,115 +8,79 @@ clone:
 steps:
   - name: build-hugo
     image: hugomods/hugo:exts
-    environment:
-      HUGO_ENV: production
-      SITE_URL: https://computerhacking101.com
-      INDEXNOW_KEY:
-        from_secret: INDEXNOW_KEY
-      CF_ZONE_ID:
-        from_secret: CF_ZONE_ID
-      CF_API_TOKEN:
-        from_secret: CF_API_TOKEN
     commands:
       - hugo --minify --gc --enableGitInfo
 
-  - name: install-deps-deploy
-    image: node:20-alpine
+  # sanity check: prove secrets are available on push/tag
+  - name: debug-secrets
+    image: alpine:3.20
+    when:
+      event: [ push, tag ]
     environment:
-      # Inherit environment from build step
-      HUGO_ENV: ${HUGO_ENV}
-      SITE_URL: ${SITE_URL}
-      CHANGE_WINDOW_HOURS: 24
-
-      # SSH / Deploy (secrets)
-      SSH_HOST:
-        from_secret: SSH_HOST
-      SSH_PORT:
-        from_secret: SSH_PORT      # optional; default 22
-      SSH_USER:
-        from_secret: SSH_USER
-      SSH_TARGET_DIR:
-        from_secret: SSH_TARGET_DIR
-      SSH_PRIVATE_KEY:
-        from_secret: SSH_PRIVATE_KEY
-
-      # Cloudflare (secrets)
-      CF_ZONE_ID: ${CF_ZONE_ID}
-      CF_API_TOKEN: ${CF_API_TOKEN}
-
-      # IndexNow (secret)
-      INDEXNOW_KEY: ${INDEXNOW_KEY}
-
-      # OPTIONAL: GitHub token (raises API rate-limit)
-      GITHUB_TOKEN:
-        from_secret: GITHUB_TOKEN
-
+      CF_API_TOKEN: { from_secret: CF_API_TOKEN }
+      CF_ZONE_ID:    { from_secret: CF_ZONE_ID }
+      INDEXNOW_KEY:  { from_secret: INDEXNOW_KEY }
+      SSH_USER:      { from_secret: SSH_USER }
     commands:
+      - apk add --no-cache bash
       - |
-        # Install system dependencies
-        apk add --no-cache \
-          curl \
-          git \
-          openssh-client \
-          python3 \
-          py3-pip \
-          rsync \
-          tar \
-          gzip
+        for v in CF_API_TOKEN CF_ZONE_ID INDEXNOW_KEY SSH_USER; do
+          if [ -n "${!v}" ]; then echo "$v=SET"; else echo "$v=MISSING" && exit 1; fi
+        done
 
-      - |
-        # Install Node.js dependencies
-        npm ci
+  - name: deploy-rsync
+    image: alpine:3.20
+    when:
+      event: [ push, tag ]
+    environment:
+      SSH_HOST:        { from_secret: SSH_HOST }
+      SSH_PORT:        { from_secret: SSH_PORT }
+      SSH_USER:        { from_secret: SSH_USER }
+      SSH_TARGET_DIR:  { from_secret: SSH_TARGET_DIR }
+      SSH_PRIVATE_KEY: { from_secret: SSH_PRIVATE_KEY }
+    commands:
+      - apk add --no-cache rsync openssh-client
+      - mkdir -p ~/.ssh
+      - printf "%s\n" "$SSH_PRIVATE_KEY" > ~/.ssh/id_rsa
+      - chmod 600 ~/.ssh/id_rsa
+      - ssh-keyscan -p "${SSH_PORT:-22}" "$SSH_HOST" >> ~/.ssh/known_hosts
+      - rsync -avz --delete -e "ssh -p ${SSH_PORT:-22}" ./public/ "$SSH_USER@$SSH_HOST:$SSH_TARGET_DIR"
 
+  - name: post-deploy-hooks
+    image: alpine:3.20
+    when:
+      event: [ push, tag ]
+    environment:
+      SITE_URL:      https://computerhacking101.com
+      CF_ZONE_ID:    { from_secret: CF_ZONE_ID }
+      CF_API_TOKEN:  { from_secret: CF_API_TOKEN }
+      INDEXNOW_KEY:  { from_secret: INDEXNOW_KEY }
+    commands:
+      - apk add --no-cache curl
       - |
-        # Setup SSH for deployment
-        mkdir -p ~/.ssh
-        echo "$SSH_PRIVATE_KEY" > ~/.ssh/id_rsa
-        chmod 600 ~/.ssh/id_rsa
-        ssh-keyscan -p "${SSH_PORT:-22}" "$SSH_HOST" >> ~/.ssh/known_hosts
-
-      - |
-        # Deploy to server via rsync over SSH
-        rsync -avz --delete \
-          -e "ssh -p ${SSH_PORT:-22}" \
-          ./public/ \
-          "$SSH_USER@$SSH_HOST:$SSH_TARGET_DIR"
-
-      - |
-        # Purge Cloudflare cache
-        if [ -n "${CF_ZONE_ID:-}" ] && [ -n "${CF_API_TOKEN:-}" ]; then
+        if [ -n "$CF_ZONE_ID" ] && [ -n "$CF_API_TOKEN" ]; then
           echo "Purging Cloudflare cache..."
           curl -s -X POST "https://api.cloudflare.com/client/v4/zones/$CF_ZONE_ID/purge_cache" \
             -H "Authorization: Bearer $CF_API_TOKEN" \
-            -H "Content-Type: application/x-www-form-urlencoded" \
-            --data-urlencode 'purge_everything=true' \
-            -w "\nStatus: %{http_code}\n"
-          echo "Cloudflare cache purge requested"
-        else
-          echo "Cloudflare credentials not provided, skipping cache purge"
-        fi
-
-      - |
-        # Submit to IndexNow
-        if [ -n "${INDEXNOW_KEY:-}" ]; then
-          echo "Submitting to IndexNow..."
-          echo "Key: ${INDEXNOW_KEY:0:4}...${INDEXNOW_KEY: -4}"  # Show first and last 4 chars of key
-          echo "URL: $SITE_URL"
-          
-          RESPONSE=$(curl -s -w "\nStatus: %{http_code}" -X POST "https://api.indexnow.org/indexnow" \
             -H "Content-Type: application/json" \
-            --data "{\"host\":\"computerhacking101.com\",\"key\":\"$INDEXNOW_KEY\",\"urlList\":[\"$SITE_URL\"]}" 2>&1)
-          
-          echo "Response: $RESPONSE"
+            --data '{"purge_everything":true}' \
+            -w "\nStatus: %{http_code}\n"
         else
-          echo "IndexNow key not provided, skipping submission"
-          echo "Available environment variables: $(env | grep -E 'CF_|INDEXNOW_' || echo 'None')"
+          echo "Cloudflare creds missing; skipping"
+        fi
+      - |
+        if [ -n "$INDEXNOW_KEY" ]; then
+          echo "Submitting to IndexNow..."
+          curl -s -w "\nStatus: %{http_code}\n" -X POST "https://api.indexnow.org/indexnow" \
+            -H "Content-Type: application/json" \
+            --data "{\"host\":\"computerhacking101.com\",\"key\":\"$INDEXNOW_KEY\",\"urlList\":[\"$SITE_URL\"]}"
+        else
+          echo "IndexNow key missing; skipping"
         fi
 
 trigger:
-  branch:
-    - main
-  event:
-    - push
+  branch: [ main ]
+  event:  [ push, tag ]
+
 
 
