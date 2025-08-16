@@ -17,15 +17,24 @@ steps:
     when:
       event: [ push, tag ]
     environment:
-      CF_API_TOKEN: { from_secret: CF_API_TOKEN }
-      CF_ZONE_ID:    { from_secret: CF_ZONE_ID }
-      INDEXNOW_KEY:  { from_secret: INDEXNOW_KEY }
-      SSH_USER:      { from_secret: SSH_USER }
+      CF_API_TOKEN:
+        from_secret: CF_API_TOKEN
+      CF_ZONE_ID:
+        from_secret: CF_ZONE_ID
+      INDEXNOW_KEY:
+        from_secret: INDEXNOW_KEY
+      SSH_USER:
+        from_secret: SSH_USER
     commands:
       - apk add --no-cache bash
       - |
         for v in CF_API_TOKEN CF_ZONE_ID INDEXNOW_KEY SSH_USER; do
-          if [ -n "${!v}" ]; then echo "$v=SET"; else echo "$v=MISSING" && exit 1; fi
+          if [ -n "${!v}" ]; then 
+            echo "$v is set"
+          else 
+            echo "$v is MISSING"
+            exit 1
+          fi
         done
 
   - name: deploy-rsync
@@ -33,11 +42,16 @@ steps:
     when:
       event: [ push, tag ]
     environment:
-      SSH_HOST:        { from_secret: SSH_HOST }
-      SSH_PORT:        { from_secret: SSH_PORT }
-      SSH_USER:        { from_secret: SSH_USER }
-      SSH_TARGET_DIR:  { from_secret: SSH_TARGET_DIR }
-      SSH_PRIVATE_KEY: { from_secret: SSH_PRIVATE_KEY }
+      SSH_HOST:
+        from_secret: SSH_HOST
+      SSH_PORT:
+        from_secret: SSH_PORT
+      SSH_USER:
+        from_secret: SSH_USER
+      SSH_TARGET_DIR:
+        from_secret: SSH_TARGET_DIR
+      SSH_PRIVATE_KEY:
+        from_secret: SSH_PRIVATE_KEY
     commands:
       - apk add --no-cache rsync openssh-client
       - mkdir -p ~/.ssh
@@ -51,13 +65,19 @@ steps:
     when:
       event: [ push, tag ]
     environment:
-      SITE_URL:      https://computerhacking101.com
-      CF_ZONE_ID:    { from_secret: CF_ZONE_ID }
-      CF_API_TOKEN:  { from_secret: CF_API_TOKEN }
-      INDEXNOW_KEY:  { from_secret: INDEXNOW_KEY }
+      SITE_URL: https://computerhacking101.com
+      CF_ZONE_ID:
+        from_secret: CF_ZONE_ID
+      CF_API_TOKEN:
+        from_secret: CF_API_TOKEN
+      INDEXNOW_KEY:
+        from_secret: INDEXNOW_KEY
     commands:
       - apk add --no-cache curl
       - |
+        echo "=== Starting post-deploy hooks ==="
+        
+        # Cloudflare cache purge
         if [ -n "$CF_ZONE_ID" ] && [ -n "$CF_API_TOKEN" ]; then
           echo "Purging Cloudflare cache..."
           curl -s -X POST "https://api.cloudflare.com/client/v4/zones/$CF_ZONE_ID/purge_cache" \
@@ -66,18 +86,21 @@ steps:
             --data '{"purge_everything":true}' \
             -w "\nStatus: %{http_code}\n"
         else
-          echo "Cloudflare creds missing; skipping"
+          echo "Cloudflare credentials missing; skipping cache purge"
         fi
-      - |
+        
+        # IndexNow submission
         if [ -n "$INDEXNOW_KEY" ]; then
           echo "Submitting to IndexNow..."
+          echo "URL: $SITE_URL"
           curl -s -w "\nStatus: %{http_code}\n" -X POST "https://api.indexnow.org/indexnow" \
             -H "Content-Type: application/json" \
             --data "{\"host\":\"computerhacking101.com\",\"key\":\"$INDEXNOW_KEY\",\"urlList\":[\"$SITE_URL\"]}"
         else
-          echo "IndexNow key missing; skipping"
+          echo "IndexNow key missing; skipping submission"
         fi
 
+# Trigger pipeline on push to main branch or tags
 trigger:
   branch: [ main ]
   event:  [ push, tag ]
