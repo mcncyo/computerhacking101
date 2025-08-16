@@ -1,0 +1,27 @@
+<div class="table-responsive">
+  <table>
+    {{- if .IsNamedParams -}}
+      {{- $header := .Get "header" -}}
+      {{- if $header -}}
+        <thead>
+          <tr>
+            {{- range split $header "|" -}}
+              <th>{{ . | markdownify | safeHTML }}</th>
+            {{- end -}}
+          </tr>
+        </thead>
+      {{- end -}}
+      <tbody>
+        {{- range $row := .Params.rows -}}
+          <tr>
+            {{- range split $row "|" -}}
+              <td>{{ . | markdownify | safeHTML }}</td>
+            {{- end -}}
+          </tr>
+        {{- end -}}
+      </tbody>
+    {{- else -}}
+      {{- .Inner | markdownify -}}
+    {{- end -}}
+  </table>
+</div>

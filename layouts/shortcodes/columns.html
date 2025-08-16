@@ -1,0 +1,39 @@
+{{ $count := len .Params }}
+{{ $class := "" }}
+
+{{ if eq $count 1 }}
+    {{ $class = "md:grid-cols-1" }}
+{{ else if eq $count 2 }}
+    {{ $class = "md:grid-cols-2" }}
+{{ else if eq $count 3 }}
+    {{ $class = "md:grid-cols-3" }}
+{{ else }}
+    {{ $class = "md:grid-cols-2" }}
+{{ end }}
+
+{{/* Split inner content into columns by a clear delimiter. Default is "\n---\n" */}}
+{{ $inner := trim .Inner " \n\r\t\u00A0" }}
+{{ $parts := split $inner "\n---\n" }}
+
+<div class="grid gap-6 {{ $class }}">
+  {{ range $i, $p := $parts }}
+    <div class="rounded-lg border border-neutral-700/40 bg-neutral-800/40 p-4 shadow-sm dark:border-neutral-700 dark:bg-neutral-800/60">
+      {{/* Render content to HTML first to reliably detect a leading heading */}}
+      {{ $pt := trim $p " \n\r\t\u00A0" }}
+      {{ $html := $pt | markdownify }}
+      {{ $startsWithHeading := or (hasPrefix $html "<h1") (or (hasPrefix $html "<h2") (or (hasPrefix $html "<h3") (or (hasPrefix $html "<h4") (or (hasPrefix $html "<h5") (hasPrefix $html "<h6"))))) }}
+      {{ if and (lt $i $count) (not $startsWithHeading) }}
+        <h4 class="mb-3 text-cyan-300 font-semibold">{{ index $.Params $i }}</h4>
+      {{ end }}
+      {{ $html }}
+    </div>
+  {{ end }}
+  {{/* If there are fewer content parts than params, render empty titled columns to keep grid aligned */}}
+  {{ range $i, $t := .Params }}
+    {{ if ge $i (len $parts) }}
+      <div class="rounded-lg border border-neutral-700/40 bg-neutral-800/40 p-4 shadow-sm dark:border-neutral-700 dark:bg-neutral-800/60">
+        <h4 class="mb-3 text-cyan-300 font-semibold">{{ $t }}</h4>
+      </div>
+    {{ end }}
+  {{ end }}
+</div>

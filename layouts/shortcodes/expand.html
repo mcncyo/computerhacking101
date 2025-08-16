@@ -1,0 +1,8 @@
+<details class="mb-6 border border-gray-600 rounded-lg overflow-hidden bg-gray-800">
+    <summary class="bg-gray-700 hover:bg-gray-600 px-4 py-3 cursor-pointer font-medium text-gray-100">
+        {{ .Get 0 | markdownify }}
+    </summary>
+    <div class="p-4 bg-gray-800 text-gray-100">
+        {{ .Inner | markdownify }}
+    </div>
+</details>

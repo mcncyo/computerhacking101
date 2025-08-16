@@ -7,6 +7,7 @@ weight = 2
 description = "On computerhacking101.com, I’m sharing why I’m building my own Zigbee motion sensors, how they tie into Home Assistant, and what I’m planning next for smart home hacking and Technest Creations."
 tags = ["Home Automation", "Home Assistant", "Zigbee", "Smart Home", "Technest Creations"]
 sitemap = { priority = 0.8, changefreq = "daily" }
+featured_image = "/images/gallery/05.jpg"
 draft = false
 +++
 

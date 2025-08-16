@@ -1,16 +1,61 @@
-<ul class="blog-list">
+<div class="blog-grid">
   {{ range .Paginator.Pages }}
-    <li>
-      <a href="{{ .RelPermalink }}">
-        <h3>{{ .Title }}</h3>
-        <p>
-          {{ with .Params.description }}
-            {{ . }}
-          {{ else }}
-            {{ .Summary | truncate 150 }}
+  <article class="blog-card">
+    <div class="blog-card-content">
+      <div class="blog-card-header">
+        <h3 class="blog-card-title">
+          <a href="{{ .RelPermalink }}">{{ .Title }}</a>
+        </h3>
+        <div class="blog-card-meta">
+          <time datetime="{{ .Date.Format "2006-01-02" }}" class="blog-card-date">
+            {{ .Date.Format "January 2, 2006" }}
+          </time>
+          {{ if .Params.categories }}
+            <span class="blog-card-category">
+              {{ range $index, $category := .Params.categories }}
+                {{ if $index }}, {{ end }}
+                <a href="/categories/{{ $category | urlize }}/">{{ $category }}</a>
+              {{ end }}
+            </span>
           {{ end }}
-        </p>
-      </a>
-    </li>
+        </div>
+      </div>
+      
+      {{ if .Params.featured_image }}
+      <div class="blog-card-image">
+        <img src="{{ .Params.featured_image | relURL }}" alt="{{ .Title }}" loading="lazy">
+      </div>
+      {{ end }}
+      
+      <div class="blog-card-summary">
+        {{ with .Params.description }}
+          <p>{{ . }}</p>
+        {{ else }}
+          <p>{{ .Summary | truncate 200 }}</p>
+        {{ end }}
+      </div>
+      
+      <div class="blog-card-footer">
+        <a href="{{ .RelPermalink }}" class="blog-card-readmore">
+          Read More <span class="arrow">→</span>
+        </a>
+        {{ if .ReadingTime }}
+          <span class="blog-card-readingtime">{{ .ReadingTime }} min read</span>
+        {{ end }}
+      </div>
+    </div>
+  </article>
   {{ end }}
-</ul>
+</div>
+
+{{ if gt .Paginator.TotalPages 1 }}
+<div class="pagination">
+  {{ if .Paginator.HasPrev }}
+    <a href="{{ .Paginator.Prev.URL }}" class="pagination-prev">← Newer Posts</a>
+  {{ end }}
+  <span class="pagination-current">Page {{ .Paginator.PageNumber }} of {{ .Paginator.TotalPages }}</span>
+  {{ if .Paginator.HasNext }}
+    <a href="{{ .Paginator.Next.URL }}" class="pagination-next">Older Posts →</a>
+  {{ end }}
+</div>
+{{ end }}

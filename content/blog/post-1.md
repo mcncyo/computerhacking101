@@ -1,8 +1,13 @@
 +++
+title = "The first blog post"
+description = "Welcome to the inaugural post on the Computer Hacking 101 website with updates about our projects and YouTube channel."
+date = 2021-09-15
 lastmod = "2025-07-03"
 author = "Chris Allen"
-date = 2021-09-15
-title = "The first blog post"
+categories = ["Updates"]
+tags = ["announcement", "website", "youtube"]
+featured_image = "/images/gallery/01.jpg"
+draft = false
 +++
 
 Greetings and welcome to the inaugural post on the Computer Hacking 101 website. In this blog, we aim to keep you informed about our ongoing projects and updates to our YouTube channel and website.

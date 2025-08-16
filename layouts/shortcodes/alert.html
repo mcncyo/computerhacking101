@@ -1,0 +1,45 @@
+{{ $type := .Get 0 }}
+{{ $icon := "" }}
+{{ $bgColor := "bg-gray-800" }}
+{{ $textColor := "text-gray-100" }}
+{{ $borderColor := "border-blue-400" }}
+
+{{ if eq $type "lightbulb" }}
+    {{ $icon = "💡" }}
+    {{ $bgColor = "bg-yellow-900/20" }}
+    {{ $textColor = "text-yellow-200" }}
+    {{ $borderColor = "border-yellow-400" }}
+{{ else if eq $type "check" }}
+    {{ $icon = "✅" }}
+    {{ $bgColor = "bg-green-900/20" }}
+    {{ $textColor = "text-green-200" }}
+    {{ $borderColor = "border-green-400" }}
+{{ else if eq $type "warning" }}
+    {{ $icon = "⚠️" }}
+    {{ $bgColor = "bg-orange-900/20" }}
+    {{ $textColor = "text-orange-200" }}
+    {{ $borderColor = "border-orange-400" }}
+{{ else if eq $type "danger" }}
+    {{ $icon = "❌" }}
+    {{ $bgColor = "bg-red-900/20" }}
+    {{ $textColor = "text-red-200" }}
+    {{ $borderColor = "border-red-400" }}
+{{ else }}
+    {{ $icon = "ℹ️" }}
+    {{ $bgColor = "bg-blue-900/20" }}
+    {{ $textColor = "text-blue-200" }}
+    {{ $borderColor = "border-blue-400" }}
+{{ end }}
+
+<div class="{{ $bgColor }} rounded-lg border-l-4 {{ $borderColor }} p-4 mb-6">
+    <div class="flex">
+        <div class="flex-shrink-0">
+            <span class="text-xl">{{ $icon }}</span>
+        </div>
+        <div class="ml-3">
+            <p class="{{ $textColor }} text-sm">
+                {{ .Inner | markdownify }}
+            </p>
+        </div>
+    </div>
+</div>

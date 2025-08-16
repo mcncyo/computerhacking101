@@ -1,8 +1,13 @@
 +++
+title = "The second blog post"
+description = "An update on our recent activities and upcoming content for Computer Hacking 101."
+date = 2021-10-20
 lastmod = "2025-07-03"
 author = "Chris Allen"
-date = 2022-10-27
-title = "We change the theme with other updates"
+categories = ["Updates"]
+tags = ["update", "announcement"]
+featured_image = "/images/gallery/02.jpg"
+draft = false
 +++
 
 

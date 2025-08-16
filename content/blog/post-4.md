@@ -1,11 +1,14 @@
----
-title: "Feb 15, 2023, update"
-url: /blog/feb152023update
-date: 2023-02-25T19:54:29
-draft: false
-author: "Chris Allen"
-description: "Update what is going on with computerhacking101.com"
----
++++
+title = "February 2023 Update - Server Migration and Website Improvements"
+description = "An update on the server migration to a self-hosted solution and ongoing website improvements for Computer Hacking 101."
+date = 2023-02-25
+lastmod = "2023-02-25"
+author = "Chris Allen"
+categories = ["Updates", "Infrastructure"]
+tags = ["server", "cloudflare", "docker", "github", "jenkins"]
+featured_image = "/images/gallery/04.jpg"
+draft = false
++++
 
 ## move to another server
 
