@@ -1,6 +1,9 @@
 ---
 title: "Computer Hacking 101 – Smart-Home, Servers & Security"
-description: "Hands-on tutorials for Home Assistant, Docker, Linux servers and privacy-first hacking."
+meta_title: "Computer Hacking 101 | Docker, Linux & Smart Home Tutorials"
+description: "Master Docker containers, Linux servers, Home Assistant automation, and cybersecurity with step-by-step tutorials. Learn ethical hacking and self-hosting."
+keywords: ["docker tutorials", "linux server setup", "home assistant guide", "cybersecurity tutorials", "self-hosting", "ethical hacking", "smart home automation"]
+draft: false
 ---
 
 <!-- HERO -->

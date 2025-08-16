@@ -1,0 +1,18 @@
+User-agent: *
+Allow: /
+
+# Sitemap
+Sitemap: https://computerhacking101.com/sitemap.xml
+
+# Disallow admin areas
+Disallow: /admin/
+Disallow: /.git/
+Disallow: /node_modules/
+
+# Allow crawling of important pages
+Allow: /tutorials/
+Allow: /blog/
+Allow: /about/
+
+# Crawl delay (optional - be respectful)
+Crawl-delay: 1

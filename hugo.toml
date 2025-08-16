@@ -9,6 +9,8 @@ theme = "hugoplate"
 timeZone = "America/Chicago"
 # post excerpt
 summaryLength = 10 # see https://gohugo.io/content-management/excerpts/
+# Enable sitemap generation
+enableRobotsTXT = true
 # disable language
 disableLanguages = [
 ] # example: ["fr"] for disable french language. see https://gohugo.io/content-management/multilingual/
@@ -57,7 +59,9 @@ target = 'assets/notwatching/hugo_stats.json'
 
 ############################# Outputs ############################
 [outputs]
-home = ["HTML", "RSS", "WebAppManifest", "SearchIndex"]
+home = ["HTML", "RSS", "WebAppManifest", "SearchIndex", "Sitemap"]
+page = ["HTML"]
+section = ["HTML", "RSS"]
 
 ############################# Imaging ############################
 [imaging]

@@ -100,11 +100,21 @@ twitter_creator     = "@AuthorHandle"   # optional: individual author
 # site verifications
 # verification module: https://github.com/gethugothemes/hugo-modules/tree/master/seo-tools/site-verifications
 [site_verification]
-google = ""   # Your verification code
-bing = ""     # Your verification code
+google = ""   # Add your Google Search Console verification code here
+bing = ""     # Add your Bing Webmaster Tools verification code here
 baidu = ""    # Your verification code
 facebook = "" # Your verification code
 mastodon = "" # Your verification code
+
+# SEO Configuration
+[seo]
+# Enable automatic sitemap generation
+sitemap_priority = 0.8
+sitemap_changefreq = "weekly"
+# Schema.org structured data
+enable_schema = true
+# Canonical URLs
+enable_canonical = true
 
 # cookies
 # cookies module: https://github.com/gethugothemes/hugo-modules/tree/master/components/cookie-consent
