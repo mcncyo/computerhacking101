@@ -4,6 +4,9 @@ Allow: /
 # Sitemap
 Sitemap: https://computerhacking101.com/sitemap.xml
 
+# IndexNow
+IndexNow-Key: 84dd149c76224679bd798d909345322a
+
 # Disallow admin areas
 Disallow: /admin/
 Disallow: /.git/
