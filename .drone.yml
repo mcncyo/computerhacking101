@@ -86,10 +86,12 @@ steps:
         # Purge Cloudflare cache
         if [ -n "${CF_ZONE_ID:-}" ] && [ -n "${CF_API_TOKEN:-}" ]; then
           echo "Purging Cloudflare cache..."
-          curl -X POST "https://api.cloudflare.com/client/v4/zones/$CF_ZONE_ID/purge_cache" \
+          curl -s -X POST "https://api.cloudflare.com/client/v4/zones/$CF_ZONE_ID/purge_cache" \
             -H "Authorization: Bearer $CF_API_TOKEN" \
-            -H "Content-Type: application/json" \
-            --data '{"purge_everything":true}'
+            -H "Content-Type: application/x-www-form-urlencoded" \
+            --data-urlencode 'purge_everything=true' \
+            -w "\nStatus: %{http_code}\n"
+          echo "Cloudflare cache purge requested"
         else
           echo "Cloudflare credentials not provided, skipping cache purge"
         fi
@@ -98,11 +100,17 @@ steps:
         # Submit to IndexNow
         if [ -n "${INDEXNOW_KEY:-}" ]; then
           echo "Submitting to IndexNow..."
-          curl -X POST "https://api.indexnow.org/indexnow" \
+          echo "Key: ${INDEXNOW_KEY:0:4}...${INDEXNOW_KEY: -4}"  # Show first and last 4 chars of key
+          echo "URL: $SITE_URL"
+          
+          RESPONSE=$(curl -s -w "\nStatus: %{http_code}" -X POST "https://api.indexnow.org/indexnow" \
             -H "Content-Type: application/json" \
-            --data "{\"host\":\"computerhacking101.com\",\"key\":\"$INDEXNOW_KEY\",\"urlList\":[\"$SITE_URL\"]}"
+            --data "{\"host\":\"computerhacking101.com\",\"key\":\"$INDEXNOW_KEY\",\"urlList\":[\"$SITE_URL\"]}" 2>&1)
+          
+          echo "Response: $RESPONSE"
         else
           echo "IndexNow key not provided, skipping submission"
+          echo "Available environment variables: $(env | grep -E 'CF_|INDEXNOW_' || echo 'None')"
         fi
 
 trigger:
