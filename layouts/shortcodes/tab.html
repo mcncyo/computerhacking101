@@ -8,5 +8,6 @@
 {{- .Page.Scratch.Set "tabs" $tabs -}}
 
 <div id="tab-{{ len $tabs }}" class="tab-content">
-  {{ .Inner | markdownify }}
+  {{- /* Render inner content allowing nested shortcodes */ -}}
+  {{ .Inner | $.Page.RenderString }}
 </div>

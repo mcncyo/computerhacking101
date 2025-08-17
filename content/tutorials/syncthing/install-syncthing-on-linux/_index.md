@@ -1,155 +1,272 @@
-+++
-lastmod = "2025-07-03"
-date = '2024-12-29T10:09:40-06:00'
-draft = false
-title = 'Install syncthing on linux'
-description = "This will show you how to install synchthing on a Linux computer using apt."
-+++
+---
+title: "Install Syncthing on Linux"
+description: "Step-by-step guide to install and configure Syncthing on Linux for secure file synchronization"
+date: '2024-12-29T10:09:40-06:00'
+lastmod: "2025-07-03"
+draft: false
+weight: 2
+---
 
 {{< youtube _PXNxpdAvJM >}}
 
-## Step 1 add Syncthing repo to apt sources
+# 🚀 Install Syncthing on Linux
 
-Syncthing isn’t available to install using the default repo. So the first step is adding syncthing repo to our apt sources so we can install it on our computer. We need to open up a terminal and run the following command.
+## 🌟 Introduction
+
+Syncthing is a continuous file synchronization program that synchronizes files between two or more computers in real time, safely protected from prying eyes. This guide will walk you through installing and setting up Syncthing on your Linux system.
+
+{{< notice tip >}}
+💡 **Did You Know?** Syncthing uses a peer-to-peer architecture, meaning your files are synchronized directly between your devices without relying on a central server.
+{{< /notice >}}
+
+## 🚀 Quick Start
+
+For those who want to get started quickly, here are the essential commands:
+
+```bash
+# Add the release PGP key and repository
+curl -s https://syncthing.net/release-key.txt | sudo apt-key add -
+echo "deb https://apt.syncthing.net/ syncthing stable" | sudo tee /etc/apt/sources.list.d/syncthing.list
+
+# Update and install
+sudo apt update
+sudo apt install syncthing
+
+# Enable and start the service (replace 'username' with your actual username)
+sudo systemctl enable --now syncthing@username.service
+```
+
+## 📚 Step-by-Step Guide
+
+#### 1. Add Syncthing Repository
+
+First, we'll add the official Syncthing repository to your system's package sources. This ensures you get the latest stable version.
 
 {{< tabs >}}
-
-{{< tab "Linux" >}}
+{{< tab "Debian/Ubuntu" >}}
 ```bash
 echo "deb https://apt.syncthing.net/ syncthing stable" | sudo tee /etc/apt/sources.list.d/syncthing.list
 ```
 {{< /tab >}}
-
-{{< /tabs >}}
- ![adding-syncthing-repo](/images/syncthing/linux/addingsyncthing-repo.webp)
-
-## Step 2 Installing curl
-
-We must ensure we have curl installed to install the syncthing PGP key. All we need to do is the following command.
-
-{{< tabs >}}
-
-{{< tab "Linux" >}}
+{{< tab "RHEL/CentOS" >}}
 ```bash
-sudo apt install curl
+# For RHEL 8/CentOS 8 and later
+sudo dnf config-manager --add-repo https://download.opensuse.org/repositories/home:/knsit:/syncthing/RHEL_8/home:knsit:syncthing.repo
 ```
 {{< /tab >}}
-
 {{< /tabs >}}
 
-If it is already installed, you will get this message
+#### 2. Install Required Dependencies
 
- ![ifcurlinstall](/images/syncthing/linux/ifcurlinstall.webp)
-
-If you need to install it, your screen will look like this one.
-
- ![instaling curl](/images/syncthing/linux/installing-curl.webp)
-
-## Step 3 – Add syncthing's PGP Keys
-
-The next step we need to do Is add the synching repo PGP key to our apt keys. Without this, apt will not trust synching repo and will not install syncthing.
+We need `curl` to download the PGP key for the Syncthing repository.
 
 {{< tabs >}}
+{{< tab "Debian/Ubuntu" >}}
+```bash
+sudo apt update
+sudo apt install -y curl
+```
+{{< /tab >}}
+{{< tab "RHEL/CentOS" >}}
+```bash
+sudo dnf install -y curl
+```
+{{< /tab >}}
+{{< /tabs >}}
 
-{{< tab "Linux" >}}
+{{< notice info >}}
+If curl is already installed, you'll see a message indicating it's already at the latest version.
+{{< /notice >}}
+
+#### 3. Add Syncthing's PGP Key
+
+To ensure the integrity of the packages, we need to add Syncthing's PGP key to your system's trusted keys.
+
+{{< tabs >}}
+{{< tab "Debian/Ubuntu" >}}
 ```bash
 curl -s https://syncthing.net/release-key.txt | sudo apt-key add -
 ```
 {{< /tab >}}
-
+{{< tab "RHEL/CentOS 8+" >}}
+```bash
+sudo rpm --import https://syncthing.net/release-key.txt
+```
+{{< /tab >}}
 {{< /tabs >}}
 
-You should see the following if you added it correctly.
+After adding the key, you should see an "OK" message confirming the key was added successfully.
 
- ![adding-syncthing-apt](/images/syncthing/linux/adding-syncthing-apt-key.webp)
+#### 4. Update Package Database
 
-## Step 4 – Update apt’s database
-
-We need to update the download package information from synching and your other sources on your computer. We do that by running the sudo apt update.
+Refresh your package lists to include the newly added Syncthing repository.
 
 {{< tabs >}}
-
-{{< tab "Linux" >}}
+{{< tab "Debian/Ubuntu" >}}
 ```bash
 sudo apt update
 ```
 {{< /tab >}}
-
-{{< /tabs >}}
-
- ![sudo-apt-update](/images/syncthing/linux/running-sudo-apt-update.webp)
-
-## Step 5 – Installing Syncthing
-
-We finally get to install Syncthing on Linux. We just need to type the command below and press enter.
-
-{{< tabs >}}
-
-{{< tab "Linux" >}}
+{{< tab "RHEL/CentOS" >}}
 ```bash
-sudo apt install syncthing
+sudo dnf makecache
 ```
 {{< /tab >}}
-
 {{< /tabs >}}
- ![install-syncthing](/images/syncthing/linux/install-syncthing.webp)
 
-## Step 6 – Enable the Syncthing service
+This ensures your system is aware of the Syncthing package and its dependencies.
 
-Now we got syncthing installed; we need to enable syncthing to start at boot using the systemctl command. But make sure you replace the username with your user name in the following order. But please don’t use root. It is a security issue.
+#### 5. Install Syncthing
+
+Now we can install Syncthing using your distribution's package manager.
 
 {{< tabs >}}
-
-{{< tab "Linux" >}}
+{{< tab "Debian/Ubuntu" >}}
 ```bash
+sudo apt install -y syncthing
+```
+{{< /tab >}}
+{{< tab "RHEL/CentOS" >}}
+```bash
+sudo dnf install -y syncthing
+```
+{{< /tab >}}
+{{< /tabs >}}
+
+This will install Syncthing along with all its dependencies.
+
+#### 6. Enable Syncthing Service
+
+To ensure Syncthing starts automatically when your system boots, enable it as a systemd service. Replace `username` with your actual Linux username.
+
+{{< notice warning >}}
+**Security Note**: Always run Syncthing as a regular user, not as root, to follow security best practices.
+{{< /notice >}}
+
+```bash
+# Replace 'username' with your actual username
 sudo systemctl enable syncthing@username.service
 ```
-{{< /tab >}}
 
-{{< /tabs >}}
- ![enable-syncthing](/images/syncthing/linux/enable-syncthing.webp)
+This creates a systemd service that will start Syncthing automatically at boot.
 
-## Step 7 – Start syncthing service up
+To verify that Syncthing is running:
 
-Let’s start syncthing up for the first time by running this command below. Make sure you change the user name to your user name.
-
-{{< tabs >}}
-
-{{< tab "Linux" >}}
 ```bash
-sudo systemctl start syncthing@username.service
+systemctl --user status syncthing.service
 ```
-{{< /tab >}}
 
-{{< /tabs >}}
- ![adding-syncthing-apt-key](/images/syncthing/linux/adding-syncthing-apt-key.webp)
+You should see output indicating that the service is active and running.
 
-## (Optional) setting syncthing so you can remotely connect to it
+## 🌐 Accessing the Web Interface
 
-If you want to configure syncthing from another computer, you must change one line in the config file to allow access. It would be best if you had an editor. In this example, I am going to be using pico.
+Once Syncthing is running, you can access its web interface by opening a web browser and navigating to:
 
-{{< tabs >}}
+```
+http://localhost:8384/
+```
 
-{{< tab "Linux" >}}
+You'll be greeted by the Syncthing web interface where you can configure your synchronization settings.
+
+## 🔄 Basic Syncthing Commands
+
+Here are some useful commands for managing Syncthing:
+
+| Command | Description |
+|---------|-------------|
+| `systemctl --user start syncthing` | Start Syncthing |
+| `systemctl --user stop syncthing` | Stop Syncthing |
+| `systemctl --user restart syncthing` | Restart Syncthing |
+| `systemctl --user enable --now syncthing` | Enable and start Syncthing |
+| `journalctl --user -u syncthing -f` | View Syncthing logs |
+
+## 🌟 Next Steps
+
+Now that you have Syncthing installed, you might want to:
+
+1. [Set up your first folder sync](https://docs.syncthing.net/users/folders.html)
+2. [Add a remote device](https://docs.syncthing.net/users/device-ids.html)
+3. [Configure automatic startup](https://docs.syncthing.net/users/autostart.html)
+4. [Set up file versioning](https://docs.syncthing.net/users/versioning.html)
+
+## 🌐 Remote Access Configuration (Optional)
+
+By default, Syncthing's web interface is only accessible from the local machine. If you want to access it from other devices on your network, follow these steps:
+
+### 1. Edit the Syncthing Configuration
+
+First, stop the Syncthing service:
+
 ```bash
-sudo pico .config/syncthing/config.xml
+systemctl --user stop syncthing
 ```
-{{< /tab >}}
 
-{{< /tabs >}}
- ![picoconfig](/images/syncthing/linux/picoconfig.webp)
+Then edit the configuration file (replace `username` with your actual username):
 
-Need to find 127.0.0.1:8384 It is under the <gui enabled=true” tls=”false” debuging=”false”>. We need to change it from 127.0.0.1:8384 to 0.0.0.0:8384
- (/images/syncthing/linux/changeipaddress.webp)
-
-Then we need to restart the syncthing service by running this command. Make sure you change the username to your username again
-
-{{< tabs >}}
-
-{{< tab "Linux" >}}
 ```bash
-sudo systemctl restart syncthing@username.service
+nano /home/username/.config/syncthing/config.xml
 ```
-{{< /tab >}}
 
-{{< /tabs >}}
+### 2. Update the GUI Address
+
+Find the `<gui>` section and modify the `tls` and `address` attributes:
+
+```xml
+<gui enabled="true" tls="false" debugging="false">
+    <address>0.0.0.0:8384</address>
+    <!-- Rest of the GUI configuration -->
+</gui>
+```
+
+### 3. Restart Syncthing
+
+After saving the changes, restart Syncthing:
+
+```bash
+systemctl --user start syncthing
+```
+
+### 4. Access Remotely
+
+You can now access the web interface from other devices on your network using:
+
+```
+http://<your-server-ip>:8384
+```
+
+{{< notice warning >}}
+**Security Note**: This configuration is not secure for use over the internet. For remote access, consider using a VPN or setting up an SSH tunnel.
+{{< /notice >}}
+
+## 🔒 Security Considerations
+
+- **Enable Authentication**: Always set a username and password in the web interface
+- **Use HTTPS**: Enable TLS in the GUI settings for encrypted connections
+- **Firewall Rules**: Configure your firewall to only allow access from trusted networks
+- **Regular Updates**: Keep Syncthing updated to the latest version
+
+## 🛠 Troubleshooting
+
+### Common Issues
+
+1. **Service won't start**
+   - Check logs: `journalctl --user -u syncthing -f`
+   - Verify permissions on `~/.config/syncthing/`
+
+2. **Can't access web interface**
+   - Check if the service is running
+   - Verify the listening address in the config
+   - Check firewall settings
+
+3. **Devices won't connect**
+   - Ensure both devices are online
+   - Check if port 22000 is open in your firewall
+   - Verify device IDs are correctly added
+
+## 📚 Additional Resources
+
+- [Official Syncthing Documentation](https://docs.syncthing.net/)
+- [Syncthing Forum](https://forum.syncthing.net/)
+- [GitHub Repository](https://github.com/syncthing/syncthing)
+
+{{< button "Get Started with Syncthing" "https://docs.syncthing.net/intro/getting-started.html" >}}
