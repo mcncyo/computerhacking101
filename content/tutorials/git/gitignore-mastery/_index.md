@@ -16,6 +16,8 @@ Proper ignore rules keep repos clean and secure.
 - Global and per-repo `.gitignore`
 - Fixing tracked files accidentally committed
 
+{{< figure src="/images/git/gitignore-flow.svg" alt="Gitignore workflow diagram" caption="Define rules, test with check-ignore, and untrack already-committed files with rm --cached." >}}
+
 {{< alert "lightbulb" >}}
 Patterns in `.gitignore` are matched relative to the directory of the file that contains them. Use leading `/` to anchor to repo root, and `!` to unignore.
 {{< /alert >}}
@@ -30,7 +32,7 @@ Patterns in `.gitignore` are matched relative to the directory of the file that 
 {{< /checklist >}}
 
 ## Core Patterns
-```gitignore
+{{< clipboard lang="gitignore" >}}
 # Build outputs
 dist/
 build/
@@ -64,10 +66,10 @@ data/*
 # Ignore all but specific file type
 *.secret
 !README.secret
-```
+{{< /clipboard >}}
 
 ## Global Ignore (User-level)
-```bash
+{{< clipboard lang="bash" >}}
 # Create a global ignore file
 mkdir -p ~/.config/git
 touch ~/.config/git/ignore
@@ -77,10 +79,10 @@ git config --global core.excludesFile ~/.config/git/ignore
 
 # Add common entries
 printf ".DS_Store\nThumbs.db\n*.swp\n" >> ~/.config/git/ignore
-```
+{{< /clipboard >}}
 
 ## Troubleshooting and Retroactive Fixes
-```bash
+{{< clipboard lang="bash" >}}
 # Why is this file ignored/not ignored?
 git check-ignore -v path/to/file
 
@@ -93,7 +95,7 @@ git push
 git rm -r --cached .
 git add .
 git commit -m "chore: apply .gitignore"
-```
+{{< /clipboard >}}
 
 {{< alert "warning" >}}
 `.gitignore` does not scrub history. If secrets were committed, rotate credentials and rewrite history (e.g., `git filter-repo` or BFG). Then force-push and coordinate with collaborators.
@@ -116,3 +118,11 @@ git commit -m "chore: apply .gitignore"
 
 ## Conclusion
 A clean working tree simplifies collaboration and CI.
+
+{{< cards >}}
+{{< card title="Undoing Changes" link="/tutorials/git/undoing-changes/" icon="history" text="Fix mistakes safely and cleanly." >}}
+{{< card title="History" link="/tutorials/git/history/" icon="timeline" text="Inspect commits, diffs, and blame like a pro." >}}
+{{< /cards >}}
+
+{{< social-share >}}
+{{< feedback >}}

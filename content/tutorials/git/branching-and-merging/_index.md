@@ -11,6 +11,16 @@ tags: ["branches", "merge", "beginner"]
 ## Introduction
 Learn how branches enable parallel work and safe experimentation.
 
+{{< alert "lightbulb" >}}
+Branches let you experiment freely without risking `main`. Open PRs to review and merge when ready.
+{{< /alert >}}
+
+{{< checklist >}}
+{{< check-item id="bm-clean-main" >}}Keep `main` always releasable; protect with CI.{{< /check-item >}}
+{{< check-item id="bm-feature" >}}Create a feature branch per task/issue.{{< /check-item >}}
+{{< check-item id="bm-sync" >}}Regularly sync your feature with `origin/main` (rebase/merge).{{< /check-item >}}
+{{< /checklist >}}
+
 ## Prerequisites
 - Comfortable with Git basics: add/commit/status
 
@@ -20,12 +30,14 @@ Learn how branches enable parallel work and safe experimentation.
 - Merging branches: fast-forward vs merge commit
 - Resolving conflicts
 
+{{< figure src="/images/git/branching-flow.svg" alt="Branching and merging flow" caption="Create a feature branch, stay up to date with main, then merge back via PR." >}}
+
 ## Walkthrough
 - Feature branch workflow
 - Keeping `main` clean
 
 ### Create and Switch Branches
-```bash
+{{< clipboard lang="bash" >}}
 # create a branch from current HEAD and switch
 git switch -c feature/login
 
@@ -34,10 +46,10 @@ git branch
 
 # switch back
 git switch main
-```
+{{< /clipboard >}}
 
 ### Keep Your Branch Up To Date
-```bash
+{{< clipboard lang="bash" >}}
 # fetch latest from origin
 git fetch origin
 
@@ -47,29 +59,33 @@ git rebase origin/main
 
 # or merge main into your feature (preserve merge commits)
 git merge origin/main
-```
+{{< /clipboard >}}
 
 ### Merge Fast-Forward vs No-FF
-```bash
+{{< clipboard lang="bash" >}}
 # fast-forward (default when possible)
 git switch main
 git merge feature/login
 
 # create a merge commit even if FF is possible
 git merge --no-ff feature/login -m "merge: feature/login"
-```
+{{< /clipboard >}}
 
 ### Resolve Merge Conflicts
 1. Run the merge and see conflicts in `git status`.
 2. Open files with conflict markers `<<<<<<<`, `=======`, `>>>>>>>` and resolve.
 3. Mark resolved files and complete the merge:
-```bash
+{{< clipboard lang="bash" >}}
 git add path/to/file
 git commit   # if merging
 # or during rebase
 git rebase --continue
-```
+{{< /clipboard >}}
 - Abort if needed: `git merge --abort` or `git rebase --abort`.
+
+{{< alert "warning" >}}
+Avoid rebasing shared branches that others track. Prefer merging or coordinate with your team.
+{{< /alert >}}
 
 ### Best Practices
 - Protect `main` with CI and reviews; work on short-lived feature branches.
@@ -78,3 +94,11 @@ git rebase --continue
 
 ## Conclusion
 Branches are your superpower. Next: working with remotes.
+
+{{< cards >}}
+{{< card title="Remotes & Sync" link="/tutorials/git/remotes-and-sync/" icon="cloud" text="Push/pull, tracking branches, and collaborating." >}}
+{{< card title="Rebasing Demystified" link="/tutorials/git/rebasing-demystified/" icon="stream" text="When and how to rebase safely." >}}
+{{< /cards >}}
+
+{{< social-share >}}
+{{< feedback >}}

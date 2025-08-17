@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="800" height="360" viewBox="0 0 800 360" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <style>
+      .box { fill: #0f172a; stroke: #334155; stroke-width: 2; rx: 10; }
+      .text { fill: #e5e7eb; font: 14px sans-serif; }
+      .small { fill: #9ca3af; font: 12px sans-serif; }
+      .arrow { stroke: #64748b; stroke-width: 2; fill: none; marker-end: url(#arrowhead); }
+    </style>
+    <marker id="arrowhead" markerWidth="8" markerHeight="8" refX="4" refY="4" orient="auto">
+      <polygon points="0 0, 8 4, 0 8" fill="#64748b"/>
+    </marker>
+  </defs>
+
+  <text x="20" y="26" class="text">Gitignore Workflow</text>
+  <text x="20" y="44" class="small">Decide what to ignore, verify with check-ignore, fix tracked files with rm --cached.</text>
+
+  <!-- Boxes -->
+  <rect x="40" y="80" width="200" height="70" class="box"/>
+  <text x="60" y="110" class="text">Define rules in</text>
+  <text x="60" y="130" class="text">.gitignore / global ignore</text>
+
+  <rect x="300" y="80" width="220" height="70" class="box"/>
+  <text x="320" y="110" class="text">Test patterns</text>
+  <text x="320" y="130" class="small">git check-ignore -v path</text>
+
+  <rect x="580" y="80" width="180" height="70" class="box"/>
+  <text x="600" y="110" class="text">Commit</text>
+  <text x="600" y="130" class="small">ignored files stay untracked</text>
+
+  <rect x="300" y="200" width="220" height="90" class="box"/>
+  <text x="320" y="230" class="text">Already tracked?</text>
+  <text x="320" y="252" class="small">git rm -r --cached path</text>
+  <text x="320" y="272" class="small">git commit -m "stop tracking"</text>
+
+  <!-- Arrows -->
+  <path d="M240,115 L300,115" class="arrow"/>
+  <path d="M520,115 L580,115" class="arrow"/>
+  <path d="M390,150 C390,175 410,180 410,200" class="arrow"/>
+</svg>

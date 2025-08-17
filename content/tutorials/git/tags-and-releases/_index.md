@@ -30,7 +30,7 @@ Prefer annotated tags (`-a`) for releases. They store metadata (author, date, me
 {{< /checklist >}}
 
 ## Core Tag Commands
-```bash
+{{< clipboard lang="bash" >}}
 # Create tags
 git tag v1.2.0                         # lightweight
 git tag -a v1.2.0 -m "release: v1.2.0"  # annotated
@@ -56,10 +56,10 @@ git push origin :refs/tags/v1.2.0
 # Push tags
 git push origin v1.2.0
 git push --tags    # push all local tags
-```
+{{< /clipboard >}}
 
 ## Signing and Verification
-```bash
+{{< clipboard lang="bash" >}}
 # Configure (once)
 git config --global user.signingkey <GPG_KEY_ID>
 git config --global commit.gpgsign true
@@ -67,45 +67,53 @@ git config --global tag.gpgSign true
 
 # Verify a signed tag
 git verify-tag v1.2.0
-```
+{{< /clipboard >}}
 
 {{< alert "warning" >}}
 Signed tags require your public key to be published where verifiers can fetch it (e.g., GitHub, key servers). Keep your private key safe and use YubiKey/agent where possible.
 {{< /alert >}}
 
 ## Pre-release and Build Tags
-```bash
+{{< clipboard lang="bash" >}}
 # Pre-releases (semantic pre-release identifiers)
 git tag -a v1.3.0-rc.1 -m "release: v1.3.0-rc.1"
 
 # Include build metadata (not ordered by Git, but useful for CI)
 git tag -a v1.3.0+2025.08.17 -m "nightly build"
-```
+{{< /clipboard >}}
 
 ## Common Recipes
 {{< accordion >}}
   {{< accordion-item title="Cut a release tag from main" >}}
-  ```bash
+  {{< clipboard lang="bash" >}}
   git switch main
   git pull --ff-only
   git tag -a v1.2.0 -m "release: v1.2.0"
   git push origin v1.2.0
-  ```
+  {{< /clipboard >}}
   {{< /accordion-item >}}
 
   {{< accordion-item title="Tag a hotfix from a commit SHA" >}}
-  ```bash
+  {{< clipboard lang="bash" >}}
   git tag -a v1.2.1 -m "hotfix: security patch" <sha>
   git push origin v1.2.1
-  ```
+  {{< /clipboard >}}
   {{< /accordion-item >}}
 
   {{< accordion-item title="Generate release notes between tags" >}}
-  ```bash
+  {{< clipboard lang="bash" >}}
   git log --no-merges --pretty=format:"* %s (%h)" v1.1.0..v1.2.0
-  ```
+  {{< /clipboard >}}
   {{< /accordion-item >}}
 {{< /accordion >}}
 
 ## Conclusion
 Consistent tags make release management clear and auditable.
+
+{{< cards >}}
+{{< card title="Signed Commits" link="/tutorials/git/signed-commits/" icon="shield" text="Set up GPG/SSH signing and verify provenance." >}}
+{{< card title="Git Workflow Best Practices" link="/tutorials/git/git-workflow-best-practices/" icon="checklist" text="Keep releases smooth with healthy PR hygiene." >}}
+{{< /cards >}}
+
+{{< social-share >}}
+{{< feedback >}}

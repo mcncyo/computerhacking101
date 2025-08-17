@@ -16,12 +16,53 @@ Learn what Git is and why it matters. We’ll set up Git and walk through the fu
 - A GitHub or GitLab account (optional)
 
 ## Step 1: Install Git
-- Windows/macOS/Linux install options
-- `git --version`
+{{< tabs >}}
+{{< tab name="Windows" >}}
+{{< clipboard lang="powershell" >}}
+# Winget (Windows 10/11)
+winget install --id Git.Git -e
+
+# Chocolatey
+choco install git
+{{< /clipboard >}}
+{{< /tab >}}
+{{< tab name="macOS" >}}
+{{< clipboard lang="bash" >}}
+# Homebrew
+brew install git
+{{< /clipboard >}}
+{{< /tab >}}
+{{< tab name="Linux" >}}
+{{< clipboard lang="bash" >}}
+# Debian/Ubuntu
+sudo apt update && sudo apt install -y git
+
+# Fedora
+sudo dnf install -y git
+
+# Arch
+sudo pacman -S git
+{{< /clipboard >}}
+{{< /tab >}}
+{{< /tabs >}}
+
+{{< alert "check" >}}
+Verify installation:
+{{< clipboard lang="bash" >}}
+git --version
+{{< /clipboard >}}
+{{< /alert >}}
 
 ## Step 2: Configure Git
 - `git config --global user.name` and `user.email`
 - Useful configs: `init.defaultBranch`, `core.editor`
+
+{{< checklist >}}
+{{< check-item id="git-name" >}}Set your name: `git config --global user.name "Your Name"`{{< /check-item >}}
+{{< check-item id="git-email" >}}Set your email: `git config --global user.email you@example.com`{{< /check-item >}}
+{{< check-item id="git-default-branch" >}}Set default branch: `git config --global init.defaultBranch main`{{< /check-item >}}
+{{< check-item id="git-editor" >}}Optional editor: `git config --global core.editor "code --wait"`{{< /check-item >}}
+{{< /checklist >}}
 
 ## Step 3: Create or Clone a Repository
 - `git init`
@@ -32,7 +73,7 @@ Learn what Git is and why it matters. We’ll set up Git and walk through the fu
 - Writing good commit messages
 
 ## Quickstart Workflow Example
-```bash
+{{< clipboard lang="bash" >}}
 # initialize and commit
 git init
 echo "# My Project" > README.md
@@ -43,7 +84,7 @@ git commit -m "feat: add initial README"
 git branch -M main
 git remote add origin https://github.com/USER/REPO.git
 git push -u origin main
-```
+{{< /clipboard >}}
 
 ## Commit Message Tips
 - Use the imperative mood: "add", "fix", "refactor".
@@ -52,13 +93,13 @@ git push -u origin main
 
 ## Files to Ignore
 Create a `.gitignore` to avoid committing build artifacts and secrets:
-```gitignore
+{{< clipboard lang="gitignore" >}}
 node_modules/
 dist/
 .env
 *.log
 .DS_Store
-```
+{{< /clipboard >}}
 
 ## Common Pitfalls
 - Committing secrets: use `.gitignore` and secret scanners; rotate keys if leaked.
@@ -66,8 +107,14 @@ dist/
 - Working on `main`: prefer feature branches (`/tutorials/git/branching-and-merging/`).
 
 ## Next Steps
-- Branches and merges → `/tutorials/git/branching-and-merging/`
-- Remotes and sync → `/tutorials/git/remotes-and-sync/`
+
+{{< cards >}}
+{{< card title="Branching & Merging" link="/tutorials/git/branching-and-merging/" icon="code-branch" text="Learn how to create feature branches and merge safely." >}}
+{{< card title="Remotes & Sync" link="/tutorials/git/remotes-and-sync/" icon="cloud-upload-alt" text="Connect to GitHub/GitLab and collaborate." >}}
+{{< /cards >}}
+
+{{< social-share >}}
+{{< feedback >}}
 
 ## Conclusion
 You’ve set up Git and mastered the basics. Next: branching and merging.

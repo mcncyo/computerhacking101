@@ -20,8 +20,10 @@ Good workflows reduce friction and prevent merge hell.
 Choose one workflow and apply it consistently. Optimize for small, frequent merges into a protected default branch with automated checks.
 {{< /alert >}}
 
+{{< figure src="/images/git/rebase-vs-merge.svg" alt="Rebase vs Merge visual comparison" caption="Rebase creates a linear history; merge preserves true branch divergence." >}}
+
 ## Branching Model Basics
-```bash
+{{< clipboard lang="bash" >}}
 # Create a feature branch off the default branch (main)
 git switch main && git pull --ff-only
 git switch -c feat/search-index
@@ -33,7 +35,7 @@ git rebase origin/main          # preferred for a linear history
 
 # Publish branch
 git push -u origin feat/search-index
-```
+{{< /clipboard >}}
 
 ## Pull Request Hygiene
 {{< checklist >}}
@@ -54,7 +56,7 @@ git push -u origin feat/search-index
 {{< /checklist >}}
 
 ## Sync and Safety Commands
-```bash
+{{< clipboard lang="bash" >}}
 # Update your feature branch with the latest main (rebase) safely
 git fetch origin
 git rebase origin/main
@@ -68,7 +70,7 @@ git switch -c hotfix/login-null origin/main
 
 # Cherry-pick a fix onto release branch
 git cherry-pick <commit>
-```
+{{< /clipboard >}}
 
 {{< alert "warning" >}}
 Avoid plain `git push -f`. Use `--force-with-lease` to prevent overwriting collaborators' work.
@@ -77,13 +79,13 @@ Avoid plain `git push -f`. Use `--force-with-lease` to prevent overwriting colla
 ## Common Recipes
 {{< accordion >}}
   {{< accordion-item title="Feature branch flow (merge or rebase)" >}}
-  ```bash
+  {{< clipboard lang="bash" >}}
   git switch -c feat/payments
   # commits...
   git fetch origin && git rebase origin/main
   git push -u origin feat/payments
   # open PR → CI passes → review → squash-merge or rebase-merge
-  ```
+  {{< /clipboard >}}
   {{< /accordion-item >}}
 
   {{< accordion-item title="Trunk-based: short-lived branches" >}}
@@ -93,21 +95,29 @@ Avoid plain `git push -f`. Use `--force-with-lease` to prevent overwriting colla
   {{< /accordion-item >}}
 
   {{< accordion-item title="Split a large PR into smaller ones" >}}
-  ```bash
+  {{< clipboard lang="bash" >}}
   # Use interactive rebase to reorder/split commits
   git rebase -i origin/main
   # mark commits with 'edit' or 's' (squash) to curate logical changes
-  ```
+  {{< /clipboard >}}
   {{< /accordion-item >}}
 
   {{< accordion-item title="Backport a fix to a release branch" >}}
-  ```bash
+  {{< clipboard lang="bash" >}}
   git switch release/1.4.0
   git cherry-pick <fix-sha>
   git push origin release/1.4.0
-  ```
+  {{< /clipboard >}}
   {{< /accordion-item >}}
 {{< /accordion >}}
 
 ## Conclusion
 Pick a workflow that fits your team and enforce it consistently.
+
+{{< cards >}}
+{{< card title="Branching & Merging" link="/tutorials/git/branching-and-merging/" icon="git" text="Structure branches for smooth collaboration." >}}
+{{< card title="Rebasing Demystified" link="/tutorials/git/rebasing-demystified/" icon="git-compare" text="When to rebase vs merge and why it matters." >}}
+{{< /cards >}}
+
+{{< social-share >}}
+{{< feedback >}}

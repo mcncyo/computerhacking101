@@ -30,7 +30,7 @@ Use stashes to park work temporarily, but consider `git worktree` for full paral
 {{< /checklist >}}
 
 ## Core Commands
-```bash
+{{< clipboard lang="bash" >}}
 # Stash everything tracked with a message
 git stash push -m "wip: refactor settings form"
 
@@ -50,10 +50,10 @@ git stash apply --index stash@{0}
 # Drop a single stash or clear all (dangerous)
 git stash drop stash@{0}
 git stash clear
-```
+{{< /clipboard >}}
 
 ## Selective and Advanced Stashing
-```bash
+{{< clipboard lang="bash" >}}
 # Interactively choose hunks to stash
 git stash -p
 
@@ -67,10 +67,10 @@ git stash push --keep-index -m "wip: half-done, keep staged"
 # Include untracked (and ignored) files
 git stash push -u -m "wip: include untracked"
 git stash push -a -m "wip: include ignored too"
-```
+{{< /clipboard >}}
 
 ## Naming and Managing Multiple Stashes
-```bash
+{{< clipboard lang="bash" >}}
 # Always name your stash for clarity
 git stash push -m "wip: oauth callback fix"
 
@@ -79,7 +79,7 @@ git stash show -p stash@{2}
 
 # Create a new branch from a stash (applies and drops)
 git stash branch oauth-fix stash@{0}
-```
+{{< /clipboard >}}
 
 {{< alert "warning" >}}
 Stashes are repository-local and not pushed. Treat them as temporary scratchpads, not durable backups. Don't rely on `git stash clear` being reversible.
@@ -88,31 +88,39 @@ Stashes are repository-local and not pushed. Treat them as temporary scratchpads
 ## Common Recipes
 {{< accordion >}}
   {{< accordion-item title="Quickly park only unstaged work, keep staged for commit" >}}
-  ```bash
+  {{< clipboard lang="bash" >}}
   git add -A                    # stage what is ready
   git stash push --keep-index -m "wip: keep staged"
   git commit -m "feat: finish staged part"
   # Later...
   git stash pop                 # bring back the rest
-  ```
+  {{< /clipboard >}}
   {{< /accordion-item >}}
 
   {{< accordion-item title="Move WIP to a dedicated branch" >}}
-  ```bash
+  {{< clipboard lang="bash" >}}
   git stash push -m "wip: spike auth UI"
   git switch -c spike/auth-ui
   git stash pop
-  ```
+  {{< /clipboard >}}
   {{< /accordion-item >}}
 
   {{< accordion-item title="Recover after a conflicted apply" >}}
-  ```bash
+  {{< clipboard lang="bash" >}}
   # If apply conflicts, resolve as usual, then continue working.
   # If you popped and regret it, the stash may be in reflog:
   git reflog | grep stash
-  ```
+  {{< /clipboard >}}
   {{< /accordion-item >}}
 {{< /accordion >}}
 
 ## Conclusion
 Efficient context switching with minimal disruption.
+
+{{< cards >}}
+{{< card title="Worktrees" link="/tutorials/git/worktrees/" icon="layout" text="Parallel branches without stashing." >}}
+{{< card title="Branching & Merging" link="/tutorials/git/branching-and-merging/" icon="git" text="Structure your work to avoid conflicts." >}}
+{{< /cards >}}
+
+{{< social-share >}}
+{{< feedback >}}
