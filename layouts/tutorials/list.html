@@ -2,9 +2,21 @@
   {{ partial "page-header" . }}
 
   <!-- Intro copy from _index.md -->
-  <section class="container prose md:prose-lg mx-auto py-10">
-    {{ .Content }}
-  </section>
+  {{ if eq .RelPermalink "/tutorials/" }}
+    <!-- Keep tutorials landing page as-is (narrow) -->
+    <section class="container prose md:prose-lg mx-auto py-10">
+      {{ .Content }}
+    </section>
+  {{ else }}
+    <!-- Nested section pages (e.g., /tutorials/docker/) wider -->
+    <section class="section">
+      <div class="container">
+        <div class="prose md:prose-lg dark:prose-invert max-w-none">
+          {{ .Content }}
+        </div>
+      </div>
+    </section>
+  {{ end }}
 
   <!-- Grid of child sections with equal height cards -->
   <section class="section">

@@ -192,14 +192,7 @@ main p:has(img[src*="syncthing/windows/download.webp"]) {
   text-align: center !important;
 }
 
-/* Force images to respect container */
-img {
-  max-width: 100% !important;
-  height: auto !important;
-  display: block !important;
-  margin-left: auto !important;
-  margin-right: auto !important;
-}
+/* Removed global img display override to prevent duplicate logos (theme toggles light/dark via display classes) */
 
 /* Force all text elements to respect container width */
 main p,
@@ -802,14 +795,64 @@ blockquote p:last-child {
   text-align: center;
 }
 
+/* Allow homepage sections to be wider so a 4-column grid fits */
+.section > .container {
+  width: 100% !important;
+  max-width: 1200px !important;
+  margin: 0 auto;
+  padding: 0 1rem;
+}
+
 /* Card Grid Improvements */
 .card-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  display: grid !important;
+  grid-template-columns: repeat(4, 1fr) !important;
   gap: 2rem;
   margin: 2rem 0;
   padding: 0;
   list-style: none;
+}
+
+@media (max-width: 1024px) {
+  .card-grid { grid-template-columns: repeat(3, 1fr) !important; }
+}
+
+@media (max-width: 768px) {
+  .card-grid { grid-template-columns: repeat(2, 1fr) !important; }
+}
+
+@media (max-width: 480px) {
+  .card-grid { grid-template-columns: 1fr !important; }
+}
+
+.card-grid .card {
+  aspect-ratio: 1 / 1;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.card-grid .card h3 {
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.card-grid .card p {
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.card-grid .card .btn-red,
+.card-grid .card .btn-outline,
+.card-grid .card .btn-white,
+.card-grid .card .read-more {
+  margin-top: auto;
 }
 
 .card {
@@ -912,13 +955,14 @@ blockquote p:last-child {
 
 /* ---------- 8. Card grid ---------- */
 .card-grid{
-  display:grid;
-  grid-template-columns:repeat(auto-fit,minmax(250px,1fr));
+  display:grid !important;
+  grid-template-columns:repeat(4,1fr) !important;
   gap:1.2rem;
   margin-top:2rem;
   list-style:none;
   padding:0;
 }
+
 .card {
   background: var(--card-bg);
   border: 1px solid var(--card-border);
