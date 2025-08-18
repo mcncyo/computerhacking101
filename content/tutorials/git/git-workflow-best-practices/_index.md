@@ -2,7 +2,6 @@
 title: "Git Workflow Best Practices"
 description: "Adopt effective workflows: feature branches, trunk-based development, and PR hygiene."
 date: 2025-08-17T08:51:14-05:00
-draft: true
 weight: 240
 categories: ["tutorials", "git"]
 tags: ["workflow", "pull-requests", "trunk-based"]

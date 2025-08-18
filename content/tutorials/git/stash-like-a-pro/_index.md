@@ -2,7 +2,6 @@
 title: "Stash Like a Pro"
 description: "Park in-progress work, stash selectively, keep-index, and manage multiple stashes."
 date: 2025-08-17T08:51:14-05:00
-draft: true
 weight: 220
 categories: ["tutorials", "git"]
 tags: ["stash", "work-in-progress"]

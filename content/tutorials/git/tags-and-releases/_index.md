@@ -2,7 +2,6 @@
 title: "Tags & Releases"
 description: "Create lightweight and annotated tags, sign releases, and integrate tagging into your release flow."
 date: 2025-08-17T08:51:14-05:00
-draft: true
 weight: 230
 categories: ["tutorials", "git"]
 tags: ["tags", "release", "signing"]

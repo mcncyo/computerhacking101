@@ -2,7 +2,6 @@
 title: "Rebasing Demystified"
 description: "Master interactive rebase, fixup, autosquash, and when to prefer rebase vs merge."
 date: 2025-08-17T08:51:14-05:00
-draft: true
 weight: 210
 categories: ["tutorials", "git"]
 tags: ["rebase", "i-rebase", "history"]

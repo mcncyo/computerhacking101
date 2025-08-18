@@ -2,7 +2,6 @@
 title: "Undoing Changes"
 description: "Restore files, reset to previous commits, revert bad merges, and recover with reflog."
 date: 2025-08-17T08:51:14-05:00
-draft: true
 weight: 140
 categories: ["tutorials", "git"]
 tags: ["reset", "revert", "restore", "reflog"]

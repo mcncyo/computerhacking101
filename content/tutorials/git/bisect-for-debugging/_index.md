@@ -2,7 +2,6 @@
 title: "Bisect for Debugging"
 description: "Use git bisect to find regressions quickly with binary search—manual and automated."
 date: 2025-08-17T08:51:14-05:00
-draft: true
 weight: 320
 categories: ["tutorials", "git"]
 tags: ["bisect", "debugging"]

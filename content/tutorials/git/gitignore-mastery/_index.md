@@ -2,7 +2,6 @@
 title: "Gitignore Mastery"
 description: "Write powerful ignore rules, use global ignores, and avoid common pitfalls."
 date: 2025-08-17T08:51:14-05:00
-draft: true
 weight: 250
 categories: ["tutorials", "git"]
 tags: ["gitignore", "patterns"]

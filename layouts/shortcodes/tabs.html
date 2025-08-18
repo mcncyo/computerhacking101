@@ -1,15 +1,19 @@
+{{- /* Initialize tabs collection and render inner content first so tab shortcodes can register themselves */ -}}
+{{- .Page.Scratch.Set "tabs" (slice) -}}
+{{- $content := .Inner | $.Page.RenderString -}}
+
 <div class="tabs-container">
   <div class="tabs">
-    {{- range $index, $element := .Scratch.Get "tabs" -}}
+    {{- range $index, $element := .Page.Scratch.Get "tabs" -}}
       <button class="tab-button {{ if eq $index 0 }}active{{ end }}" 
-              data-tab="tab-{{ $index }}">
+              data-tab="tab-{{ add $index 1 }}">
         {{ .name }}
       </button>
     {{- end -}}
   </div>
   
   <div class="tab-contents">
-    {{ .Inner | safeHTML }}
+    {{- $content | safeHTML -}}
   </div>
 </div>
 

@@ -31,14 +31,14 @@
     {{ $borderColor = "#4fc3f7" }}
 {{ end }}
 
-<div style="background: {{ $bgColor }} !important; border-left: 4px solid {{ $borderColor }} !important; border-radius: 8px; padding: 1rem; margin: 1.5rem 0; color: {{ $textColor }} !important;">
+<div class="alert-box" style="background: {{ $bgColor }}; border-left: 4px solid {{ $borderColor }}; border-radius: 8px; padding: 1rem; margin: 1.5rem 0; color: {{ $textColor }}; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">
     <div style="display: flex; align-items: flex-start;">
         <div style="margin-right: 0.75rem; font-size: 1.25rem; line-height: 1;">
             {{ $icon }}
         </div>
         <div style="flex: 1;">
             <div style="font-size: 0.95rem; line-height: 1.6;">
-                {{ .Inner | markdownify }}
+                {{ .Inner | $.Page.RenderString }}
             </div>
         </div>
     </div>

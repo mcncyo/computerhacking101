@@ -2,7 +2,6 @@
 title: "Branching & Merging"
 description: "Create, switch, and merge branches. Understand fast-forward vs. merge commits and resolve conflicts."
 date: 2025-08-17T08:51:14-05:00
-draft: true
 weight: 120
 categories: ["tutorials", "git"]
 tags: ["branches", "merge", "beginner"]

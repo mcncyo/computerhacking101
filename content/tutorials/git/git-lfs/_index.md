@@ -2,7 +2,6 @@
 title: "Git LFS"
 description: "Manage large binary assets with Git LFS: setup, workflows, and migration caveats."
 date: 2025-08-17T08:51:14-05:00
-draft: true
 weight: 350
 categories: ["tutorials", "git"]
 tags: ["lfs", "binaries"]
