@@ -1,76 +1,143 @@
 ---
 title: "About Computer Hacking 101"
-description: "Who we are, why we exist, and how we help you master self-hosted tech, smart-home automation, and open-source tools."
+description: "Discover our mission, values, and how we help you master self-hosted technology, smart home automation, and cybersecurity."
 weight: 1
-tags: ["About", "Mission", "E-E-A-T"]
+tags: ["About", "Mission", "Team", "Values", "FAQ"]
 categories: ["Meta"]
-Sitemap: { priority = 0.5, changefreq = "yearly" }
+Sitemap: { priority = 0.7, changefreq = "monthly" }
 ---
 
-<section class="hero" style="padding:3rem 1rem 2rem">
-  <h1>About Computer Hacking 101</h1>
-  <p>Hands-on tutorials that turn complex tech into weekend projects—everything from Home Assistant automations to Dockerized apps and secure Linux servers.</p>
-  <a href="/tutorials/" class="btn-red">Browse Tutorials</a>
-</section>
+{{< hero >}}
+# About Computer Hacking 101
 
-## Our Mission
+Empowering tech enthusiasts to take control of their digital lives through practical, privacy-focused tutorials and guides.
 
-> **“Demystify technology, respect privacy, and empower people to build things themselves.”**
+[Explore Our Tutorials]({{< ref "tutorials" >}} "Browse our tutorials")
+{{< /hero >}}
 
-Big tech platforms make life convenient, but often trade away our data and freedom.  
-Computer Hacking 101 (CH101) exists to prove that **self-hosting and open-source alternatives aren’t rocket science**—any motivated tinkerer can run a private cloud, automate a home, or harden a server.
+## Our Mission & Vision
 
-## What You’ll Learn
+{{< columns >}}
+{{< column >}}
+### Our Mission
+To democratize technology by making self-hosting, automation, and cybersecurity accessible to everyone, regardless of their technical background.
+{{< /column >}}
 
-| Topic | Why It Matters | Sample Guide |
-|-------|----------------|--------------|
-| **Home Assistant** | Local-first smart-home hub with no vendor lock-in. | 17 Powerful Home Assistant Tips |
-| **Zigbee & IoT** | Low-power mesh sensors & switches that respect privacy. | Quick-Start Zigbee Guide |
-| **Servers & Networking** | Host your own services on VPS or homelab. | Setting Up a Server |
-| **Docker & DevOps** | Isolate apps, streamline updates, CI/CD pipelines. | Build a Private Git Runner |
-| **Security Basics** | Secure defaults, backups, monitoring & key rotation. | Set Up & Secure Ubuntu |
+{{< column >}}
+### Our Vision
+A world where individuals have full control over their digital lives, free from vendor lock-in and unnecessary data collection.
+{{< /column >}}
+{{< /columns >}}
 
-## Who Runs CH101?
+{{< alert type="info" >}}
+💡 **Why We Exist**: In an era of increasing digital surveillance and vendor lock-in, we believe in the power of open-source and self-hosted solutions to give you back control of your technology.
+{{< /alert >}}
 
-**Chris Allen** — Founder, author, hardware tinkerer
+## What We Offer
 
-* 10 + years as a Linux sysadmin & embedded-systems engineer  
-* Building smart-home hardware sold under the TechNest brand (launching Q4 2025)  
+{{< features >}}
+{{< feature 
+  icon="code-branch"
+  title="Step-by-Step Tutorials"
+  description="Clear, concise guides with real-world examples that actually work."
+>}}
 
+{{< feature 
+  icon="shield-alt"
+  title="Privacy-First Approach"
+  description="We prioritize solutions that respect your data and digital rights."
+>}}
 
-> *“If a tutorial fails for a beginner, it’s the tutorial’s fault—not the learner.”*
+{{< feature 
+  icon="laptop-code"
+  title="Beginner Friendly"
+  description="No tech degree required. We explain the 'why' behind every command."
+>}}
+{{< /features >}}
 
-## Our Content Values
+## Meet the Team
 
-* **Experience-backed** — every guide tested on real hardware and cloud accounts  
-* **Privacy-first** — local / self-hosted solutions preferred over cloud SaaS  
-* **No click-bait** — clear headlines, no endless scroll or AI scraping  
-* **Open-source bias** — we contribute fixes upstream whenever possible  
+{{< team >}}
+{{< team-member 
+  name="Chris Allen"
+  role="Founder & Lead Author"
+  image="/images/avatar.png"
+  social_github="chris-allen"
+  social_twitter="chrisallen_dev"
+  social_linkedin="in/chris-allen-dev"
+>}}
+With over a decade of experience in Linux system administration and embedded systems, Chris is passionate about making complex technology accessible to everyone. When not writing tutorials, he's busy developing open-source smart home hardware.
+{{< /team-member >}}
+{{< /team >}}
 
-## FAQ
+## Our Core Values
 
-**Is this hacking legal?**  
-Yes—“hacking” here means creative problem-solving and self-hosting, not illegal intrusion.
+{{< values >}}
+{{< value 
+  icon="flask"
+  title="Hands-On Learning"
+  description="We believe in learning by doing. Every tutorial includes practical, actionable steps."
+>}}
 
-**Can beginners follow along?**  
-Absolutely; each tutorial includes copy-paste commands, screenshots, and fallback steps.
+{{< value 
+  icon="lock"
+  title="Privacy by Design"
+  description="We prioritize solutions that protect your data and digital rights."
+>}}
 
-**How is CH101 funded?**  
-Affiliate links to gear we actually use, sales of our pre-flashed Zigbee devices (Q4 2025), and reader donations.
+{{< value 
+  icon="users"
+  title="Community Driven"
+  description="Our content evolves based on your feedback and real-world needs."
+>}}
+{{< /values >}}
 
-**Where can I get help?**  
-Comment on the post, tweet <span class="red-bold">@ComputerHacking101</span>.
+## Our Impact
 
-## Connect With Us
+{{< stats >}}
+{{< stat number="50+" label="Detailed Tutorials" >}}
 
-* **YouTube** — weekly live builds & Q &A  
-* **GitHub** — sample Docker-compose stacks  
-* **Twitter / X** — quick tips & release notes  
+{{< /stats >}}
 
+## Frequently Asked Questions
 
-<section style="text-align:center; padding:3rem 0">
-  <a class="btn-red" href="/blog/">Read Our Latest Posts</a>
-</section>
+{{< faq >}}
+{{< qa 
+  question="Is this hacking legal?"
+  answer="Absolutely! We focus on ethical hacking, security research, and self-hosting. All our content is designed to help you understand and secure your own systems."
+>}}
 
-Need more details? Ping us anytime—happy hacking!
+{{< qa 
+  question="Do I need expensive equipment to get started?"
+  answer="Not at all! Many of our tutorials can be done with a basic computer or a Raspberry Pi. We'll always suggest budget-friendly options."
+>}}
 
+{{< qa 
+  question="How can I support your work?"
+  answer="The best way to support us is by sharing our content with others who might find it helpful. You can also support us through [Patreon](https://patreon.com/computerhacking101) or by purchasing through our [recommended gear](https://computerhacking101.net/gear) links."
+>}}
+{{< /faq >}}
+
+## Join Our Community
+
+{{< cta >}}
+### Ready to Take Control of Your Digital Life?
+Join thousands of tech enthusiasts who are learning to build, automate, and secure their digital world.
+
+[Start Learning Now]({{< ref "tutorials" >}} "Browse tutorials")
+{{< /cta >}}
+
+{{< social-links >}}
+{{< social-link platform="github" url="https://github.com/computerhacking101" >}}
+{{< social-link platform="youtube" url="https://youtube.com/computerhacking101" >}}
+{{< social-link platform="twitter" url="https://twitter.com/computerhack101" >}}
+{{< social-link platform="discord" url="https://discord.gg/computerhacking101" >}}
+{{< /social-links >}}
+
+{{< newsletter 
+  title="Stay Updated"
+  description="Get the latest tutorials and updates delivered to your inbox."
+>}}
+
+*"The only way to learn is by doing. The only way to master is by teaching."*  
+— Chris Allen

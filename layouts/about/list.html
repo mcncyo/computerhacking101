@@ -1,0 +1,12 @@
+{{ define "main" }}
+<main class="container">
+  <!-- Include the custom CSS for about page -->
+  {{ $aboutCSS := resources.Get "css/about.css" | minify | fingerprint }}
+  <link rel="stylesheet" href="{{ $aboutCSS.RelPermalink }}" media="screen">
+  
+  <!-- Main content from the markdown file -->
+  <article class="about-page">
+    {{ .Content }}
+  </article>
+</main>
+{{ end }}

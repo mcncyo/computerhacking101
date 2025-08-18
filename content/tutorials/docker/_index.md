@@ -24,44 +24,34 @@ Docker has revolutionized the way developers build, ship, and run applications. 
 
 ### Beginner
 
-1. [What is Docker?](/tutorials/docker/whatisdocker/)
+1. [What is Docker?]({{< ref "whatisdocker" >}})
    - Understand Docker architecture and core concepts
    - Learn how containers work
    - Explore use cases and benefits
 
-2. [Installing Docker and Portainer](/tutorials/docker/installdockerandportainer/)
+2. [Installing Docker and Portainer]({{< ref "installdockerandportainer" >}})
    - Step-by-step installation guides for all platforms
    - Setting up Portainer for GUI management
    - Verifying your installation
 
 ### Intermediate
 
-3. [Advanced Docker Networking](/tutorials/docker/advanced-docker-networking/)
+3. [Advanced Docker Networking]({{< ref "advanced-docker-networking" >}})
    - Understanding Docker network types
    - Creating custom bridge networks
    - Network security best practices
 
-4. [Dockerfile Best Practices](/tutorials/docker/dockerfile-best-practices/)
-   - Writing efficient Dockerfiles
-   - Multi-stage builds
-   - Security considerations
+4. [Container Networking]({{< ref "container-networking" >}})
+   - Network drivers and types
+   - Connecting containers
+   - Network troubleshooting
 
-5. [Docker Compose in Action](/tutorials/docker/docker-compose/)
-   - Defining multi-container applications
-   - Environment variables and volumes
-   - Networking between containers
+### Coming Soon
 
-### Advanced
-
-6. [Docker Swarm for Orchestration](/tutorials/docker/docker-swarm/)
-   - Setting up a Docker Swarm cluster
-   - Deploying services
-   - Managing container scaling
-
-7. [Docker Security Hardening](/tutorials/docker/security/)
-   - Container isolation
-   - User namespaces
-   - Secrets management
+- Dockerfile Best Practices
+- Docker Compose in Action
+- Docker Swarm for Orchestration
+- Docker Security Hardening
 
 ## 🛠 Quick Start
 

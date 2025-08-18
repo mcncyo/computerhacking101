@@ -15,7 +15,7 @@ Sitemap = { priority = 0.8, changefreq = "daily" }
 
 ---
 
-If you’ve read [How to Use Home Assistant: 17 Powerful Tips to Master Your Smart Home in 2025](/how-to-use-home-assistant-17-powerful-tips-to-master-your-smart-home-in-2025/), you’re probably excited to put Home Assistant to work!
+If you've read [How to Use Home Assistant: 17 Powerful Tips to Master Your Smart Home in 2025](/tutorials/home-automations/home-assistant/17-powerful-tips/), you're probably excited to put Home Assistant to work!
 
 So let’s get to the fun stuff: **automations.** These are the brain of your smart home, making devices work together without lifting a finger.
 

@@ -1,0 +1,6 @@
+{{- $class := .Get "class" -}}
+<section class="hero {{ $class }}" {{ with .Get "style" }}style="{{ . | safeCSS }}"{{ end }}>
+  <div class="container">
+    {{ .Inner | markdownify }}
+  </div>
+</section>

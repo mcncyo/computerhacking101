@@ -1,0 +1,32 @@
+{{- $name := .Get "name" -}}
+{{- $role := .Get "role" -}}
+{{- $image := .Get "image" -}}
+
+<div class="team-member">
+  {{ if $image }}
+  <div class="team-member-image">
+    <img src="{{ $image }}" alt="{{ $name }}">
+  </div>
+  {{ end }}
+  
+  <div class="team-member-info">
+    <h3 class="team-member-name">{{ $name }}</h3>
+    <p class="team-member-role">{{ $role }}</p>
+    
+    <div class="team-member-social">
+      {{ with .Get "social_github" }}
+      <a href="https://github.com/{{ . }}" target="_blank" rel="noopener"><i class="fab fa-github"></i></a>
+      {{ end }}
+      {{ with .Get "social_twitter" }}
+      <a href="https://twitter.com/{{ . }}" target="_blank" rel="noopener"><i class="fab fa-twitter"></i></a>
+      {{ end }}
+      {{ with .Get "social_linkedin" }}
+      <a href="https://linkedin.com/{{ . }}" target="_blank" rel="noopener"><i class="fab fa-linkedin"></i></a>
+      {{ end }}
+    </div>
+    
+    <div class="team-member-bio">
+      {{ .Inner | markdownify }}
+    </div>
+  </div>
+</div>

@@ -342,6 +342,18 @@ main .notice::before,
   font-size: 1.2rem !important;
 }
 
+/* Allow shortcode-rendered icon without pseudo duplication */
+.no-before-icon::before { content: none !important; }
+
+/* Structured layout for shortcode-based notices */
+.notice-row { display: flex; align-items: flex-start; }
+.notice-icon { margin-right: 0.75rem; font-size: 1.25rem; line-height: 1; }
+.notice-content { flex: 1; }
+.notice-text { font-size: 0.95rem; line-height: 1.6; }
+
+/* Remove extra left padding when pseudo icon is suppressed */
+.no-before-icon.notice { padding-left: 1.2rem !important; }
+
 .alert p,
 .pro-tip p,
 .notice p,

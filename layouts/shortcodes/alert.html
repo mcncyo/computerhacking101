@@ -1,45 +1,31 @@
 {{ $type := .Get 0 }}
-{{ $icon := "" }}
-{{ $bgColor := "#1e2b3c" }}
-{{ $textColor := "#e0e0e0" }}
-{{ $borderColor := "#4fc3f7" }}
+{{ $icon := "ℹ️" }}
+{{ $variant := "" }}
 
 {{ if eq $type "lightbulb" }}
     {{ $icon = "💡" }}
-    {{ $bgColor = "#1e3a2e" }}
-    {{ $textColor = "#e0e0e0" }}
-    {{ $borderColor = "#4caf50" }}
+    {{ $variant = "tip" }}
 {{ else if eq $type "check" }}
     {{ $icon = "✅" }}
-    {{ $bgColor = "#1e3a2e" }}
-    {{ $textColor = "#e0e0e0" }}
-    {{ $borderColor = "#4caf50" }}
+    {{ $variant = "tip" }}
 {{ else if eq $type "warning" }}
     {{ $icon = "⚠️" }}
-    {{ $bgColor = "#3e2a1f" }}
-    {{ $textColor = "#e0e0e0" }}
-    {{ $borderColor = "#ff9800" }}
+    {{ $variant = "warning" }}
 {{ else if eq $type "danger" }}
     {{ $icon = "❌" }}
-    {{ $bgColor = "#3c1e1e" }}
-    {{ $textColor = "#e0e0e0" }}
-    {{ $borderColor = "#f44336" }}
+    {{ $variant = "danger" }}
 {{ else }}
     {{ $icon = "ℹ️" }}
-    {{ $bgColor = "#1e2b3c" }}
-    {{ $textColor = "#e0e0e0" }}
-    {{ $borderColor = "#4fc3f7" }}
 {{ end }}
 
-<div class="alert-box" style="background: {{ $bgColor }}; border-left: 4px solid {{ $borderColor }}; border-radius: 8px; padding: 1rem; margin: 1.5rem 0; color: {{ $textColor }}; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">
-    <div style="display: flex; align-items: flex-start;">
-        <div style="margin-right: 0.75rem; font-size: 1.25rem; line-height: 1;">
-            {{ $icon }}
-        </div>
-        <div style="flex: 1;">
-            <div style="font-size: 0.95rem; line-height: 1.6;">
+<div class="notice no-before-icon {{ $variant }}">
+    <div class="notice-row">
+        <div class="notice-icon">{{ $icon }}</div>
+        <div class="notice-content">
+            <div class="notice-text">
                 {{ .Inner | $.Page.RenderString }}
             </div>
         </div>
     </div>
 </div>
+

@@ -22,21 +22,21 @@ Welcome to our comprehensive guide on SSH (Secure Shell), the industry-standard 
 ### 🔑 Creating SSH Keys
 Learn how to generate and manage secure SSH key pairs with best practices.
 
-[Learn More →](/tutorials/ssh/createasshkey/)
+[Learn More →]({{< ref "createasshkey" >}})
 {{< /column >}}
 
 {{< column >}}
 ### 🛡️ SSH Key Management
 Master the art of managing multiple SSH keys securely.
 
-[Learn More →](/tutorials/ssh/ssh-key-management/)
+[Learn More →]({{< ref "ssh-key-management" >}})
 {{< /column >}}
 
 {{< column >}}
 ### ⚙️ SSH Config Guide
 Simplify your SSH connections with powerful configuration files.
 
-[Learn More →](/tutorials/ssh/ssh-config/)
+[Learn More →]({{< ref "ssh-config" >}})
 {{< /column >}}
 {{< /columns >}}
 

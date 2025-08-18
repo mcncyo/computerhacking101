@@ -1,0 +1,11 @@
+{{- $icon := .Get "icon" -}}
+{{- $title := .Get "title" -}}
+{{- $description := .Get "description" -}}
+
+<div class="feature">
+  <div class="feature-icon">
+    <i class="fas fa-{{ $icon }}"></i>
+  </div>
+  <h3 class="feature-title">{{ $title }}</h3>
+  <p class="feature-description">{{ $description }}</p>
+</div>

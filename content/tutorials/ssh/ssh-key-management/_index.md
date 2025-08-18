@@ -139,6 +139,6 @@ If you've lost a passphrase, you'll need to generate a new key pair and update i
 
 ## Next Steps
 
-- [SSH Config Deep Dive](/tutorials/ssh/ssh-config/)
-- [SSH Hardening Guide](/tutorials/ssh/hardening/)
-- [SSH Tunneling & Port Forwarding](/tutorials/ssh/tunneling/)
+- [SSH Config Deep Dive]({{< ref "ssh-config" >}})
+- [SSH Hardening Guide]({{< ref "tutorials/ssh/hardening" >}})
+- [SSH Tunneling & Port Forwarding]({{< ref "tutorials/ssh/tunneling" >}})

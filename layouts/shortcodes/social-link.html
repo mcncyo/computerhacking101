@@ -1,0 +1,20 @@
+{{- $platform := .Get "platform" -}}
+{{- $url := .Get "url" -}}
+{{- $iconMap := dict 
+  "github" "github"
+  "twitter" "twitter"
+  "youtube" "youtube"
+  "discord" "discord"
+  "linkedin" "linkedin-in"
+  "facebook" "facebook-f"
+  "instagram" "instagram"
+  "reddit" "reddit-alien"
+  "twitch" "twitch"
+  "patreon" "patreon"
+-}}
+
+{{- $icon := index $iconMap $platform | default $platform -}}
+
+<a href="{{ $url }}" class="social-link" target="_blank" rel="noopener">
+  <i class="fab fa-{{ $icon }}"></i>
+</a>

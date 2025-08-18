@@ -1,0 +1,7 @@
+{{- $question := .Get "question" -}}
+{{- $answer := .Get "answer" | markdownify -}}
+
+<div class="qa">
+  <div class="question">{{ $question }}</div>
+  <div class="answer">{{ $answer }}</div>
+</div>
