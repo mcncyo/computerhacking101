@@ -1,6 +1,14 @@
 ######################## default configuration ####################
 # The base URL of your site (required). This will be prepended to all relative URLs.
-baseURL = "https://computerhacking101.com"
+baseURL = "https://computerhacking101.com/"
+# Ensure canonical URLs are used
+canonifyURLs = true
+# Enable relative URLs (useful for local development)
+relativeURLs = false
+# Set the language code for the HTML element
+languageCode = "en-us"
+# Enable multilingual mode if needed
+hasCJKLanguage = false
 # Title of your website (required).
 title = "Computer Hacking 101"
 # Your theme name
@@ -14,7 +22,6 @@ enableRobotsTXT = true
 # disable language
 disableLanguages = [
 ] # example: ["fr"] for disable french language. see https://gohugo.io/content-management/multilingual/
-hasCJKLanguage = false #  If hasCJKLanguage true, auto-detect Chinese/Japanese/Korean Languages in the content. see: https://gohugo.io/getting-started/configuration/#hascjklanguage
 # default language
 defaultContentLanguage = 'en'
 # defaultContentLanguageInSubdir need to be true if you want to use the language code as a subdirectory and language specific 404 page

@@ -1,1 +1,14 @@
+# Force HTTPS and non-www
+http://computerhacking101.com/* https://computerhacking101.com/:splat 301!
+http://www.computerhacking101.com/* https://computerhacking101.com/:splat 301!
+https://www.computerhacking101.com/* https://computerhacking101.com/:splat 301!
+
+# Redirect index.html and index.htm to clean URLs
+/*/index.html /:splat 301
+/*/index.htm /:splat 301
+
+# Remove trailing slashes (except for directories)
+/*/ /:splat 301
+
+# Handle 404s
 /* /en/404.html 404

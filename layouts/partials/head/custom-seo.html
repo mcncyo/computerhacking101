@@ -1,0 +1,7 @@
+{{/* Include the canonical URL and meta tags */}}
+{{ partial "seo/canonical.html" . }}
+
+{{/* Include any custom CSS for specific sections */}}
+{{ if eq .Page.File.Dir "about/" }}
+  <link rel="stylesheet" href="{{ "css/about.css" | relURL }}" media="screen">
+{{ end }}
