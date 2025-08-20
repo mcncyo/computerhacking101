@@ -1,0 +1,21 @@
+{{/* Generate Website structured data */}}
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "WebSite",
+  "@id": "{{ .Permalink }}#website",
+  "url": "{{ .Site.BaseURL }}",
+  "name": "{{ .Site.Title }}",
+  "description": "{{ .Site.Params.description | safeHTML }}",
+  "potentialAction": [
+    {
+      "@type": "SearchAction",
+      "target": {
+        "@type": "EntryPoint",
+        "urlTemplate": "{{ .Site.BaseURL }}search/?q={search_term_string}"
+      },
+      "query-input": "required name=search_term_string"
+    }
+  ]
+}
+</script>

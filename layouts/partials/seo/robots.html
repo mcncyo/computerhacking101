@@ -1,0 +1,10 @@
+{{/* Generate robots meta tag */}}
+{{- with .Params.robots -}}
+  <meta name="robots" content="{{ . }}" />
+{{- else -}}
+  {{- if eq (getenv "HUGO_ENV") "production" -}}
+    <meta name="robots" content="index, follow" />
+  {{- else -}}
+    <meta name="robots" content="noindex, nofollow" />
+  {{- end -}}
+{{- end -}}

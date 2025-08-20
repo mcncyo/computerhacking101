@@ -1,21 +1,60 @@
+# robots.txt for computerhacking101.com
+# Last updated: {{ now.Format "2006-01-02" }}
+
+# Global rules for all crawlers
 User-agent: *
 Allow: /
 
-# Sitemap
+# Sitemap locations
 Sitemap: https://computerhacking101.com/sitemap.xml
+Sitemap: https://computerhacking101.com/sitemap-pages.xml
+Sitemap: https://computerhacking101.com/sitemap-posts.xml
 
-# IndexNow
+# IndexNow verification
 IndexNow-Key: 84dd149c76224679bd798d909345322a
 
-# Disallow admin areas
-Disallow: /admin/
-Disallow: /.git/
-Disallow: /node_modules/
+# Crawl rate limiting (requests per second)
+# Default: 10 req/s for all except Google
+# Google has its own rate limits
 
-# Allow crawling of important pages
+# Google-specific rules
+User-agent: Googlebot
+Allow: /*.css$
+Allow: /*.js$
 Allow: /tutorials/
 Allow: /blog/
 Allow: /about/
+Crawl-delay: 2
 
-# Crawl delay (optional - be respectful)
+# Bing-specific rules
+User-agent: bingbot
+Crawl-delay: 5
+
+# Yandex-specific rules
+User-agent: Yandex
+Crawl-delay: 2
+
+# Disallowed paths (for all crawlers)
+Disallow: /admin/
+Disallow: /.git/
+Disallow: /node_modules/
+Disallow: /private/
+Disallow: /tmp/
+Disallow: /vendor/
+Disallow: /wp-admin/
+Disallow: /wp-includes/
+Disallow: /wp-json/
+Disallow: /xmlrpc.php
+Disallow: /wp-login.php
+Disallow: /wp-admin/admin-ajax.php
+
+# Allow crawling of important content
+Allow: /tutorials/
+Allow: /blog/
+Allow: /about/
+Allow: /contact/
+Allow: /privacy-policy/
+Allow: /terms-of-service/
+
+# Crawl-delay for all other bots (be respectful)
 Crawl-delay: 1

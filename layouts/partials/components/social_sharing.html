@@ -1,0 +1,65 @@
+{{/* Generate social sharing buttons */}}
+{{- $title := .Title | htmlEscape -}}
+{{- $url := .Permalink | absURL -}}
+{{- $description := .Description | default .Summary | plainify | htmlEscape -}}
+{{- $hashtags := delimit (union .Params.tags (slice (lower (replace .Section " " "")))) "," -}}
+
+<div class="social-sharing my-6">
+  <div class="flex items-center space-x-2">
+    <span class="text-sm font-medium text-gray-600 dark:text-gray-400">Share:</span>
+    
+    <!-- Twitter -->
+    <a href="https://twitter.com/intent/tweet?text={{ $title }}&url={{ $url }}&hashtags={{ $hashtags }}" 
+       target="_blank" 
+       rel="noopener noreferrer"
+       class="inline-flex items-center justify-center w-8 h-8 rounded-full bg-blue-50 hover:bg-blue-100 dark:bg-blue-900/30 dark:hover:bg-blue-800/50 text-blue-500 dark:text-blue-400 transition-colors"
+       aria-label="Share on Twitter">
+      {{- partial "icon.html" (dict "name" "twitter" "size" "4") -}}
+    </a>
+    
+    <!-- Facebook -->
+    <a href="https://www.facebook.com/sharer/sharer.php?u={{ $url }}" 
+       target="_blank" 
+       rel="noopener noreferrer"
+       class="inline-flex items-center justify-center w-8 h-8 rounded-full bg-blue-50 hover:bg-blue-100 dark:bg-blue-900/30 dark:hover:bg-blue-800/50 text-blue-600 dark:text-blue-400 transition-colors"
+       aria-label="Share on Facebook">
+      {{- partial "icon.html" (dict "name" "facebook" "size" "4") -}}
+    </a>
+    
+    <!-- LinkedIn -->
+    <a href="https://www.linkedin.com/shareArticle?mini=true&url={{ $url }}&title={{ $title }}&summary={{ $description }}" 
+       target="_blank" 
+       rel="noopener noreferrer"
+       class="inline-flex items-center justify-center w-8 h-8 rounded-full bg-blue-50 hover:bg-blue-100 dark:bg-blue-900/30 dark:hover:bg-blue-800/50 text-blue-700 dark:text-blue-400 transition-colors"
+       aria-label="Share on LinkedIn">
+      {{- partial "icon.html" (dict "name" "linkedin" "size" "4") -}}
+    </a>
+    
+    <!-- Reddit -->
+    <a href="https://www.reddit.com/submit?url={{ $url }}&title={{ $title }}" 
+       target="_blank" 
+       rel="noopener noreferrer"
+       class="inline-flex items-center justify-center w-8 h-8 rounded-full bg-orange-50 hover:bg-orange-100 dark:bg-orange-900/20 dark:hover:bg-orange-800/30 text-orange-500 dark:text-orange-400 transition-colors"
+       aria-label="Share on Reddit">
+      {{- partial "icon.html" (dict "name" "reddit" "size" "4") -}}
+    </a>
+    
+    <!-- Copy Link -->
+    <button 
+      type="button" 
+      class="copy-link inline-flex items-center justify-center w-8 h-8 rounded-full bg-gray-100 hover:bg-gray-200 dark:bg-gray-700 dark:hover:bg-gray-600 text-gray-600 dark:text-gray-300 transition-colors"
+      data-url="{{ $url }}"
+      aria-label="Copy link to clipboard"
+      data-tooltip="Copy link">
+      {{- partial "icon.html" (dict "name" "link" "size" "4") -}}
+    </button>
+  </div>
+  
+  <!-- Copy link feedback -->
+  <div class="copy-feedback mt-2 text-sm text-green-600 dark:text-green-400 hidden">
+    Link copied to clipboard!
+  </div>
+</div>
+
+{{- $js := resources.Get "js/social-sharing.js" | js.Build (dict "minify" true) | fingerprint -}}
+<script src="{{ $js.RelPermalink }}" defer></script>

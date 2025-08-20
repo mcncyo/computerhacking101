@@ -1,11 +1,23 @@
 {{ define "main" }}
 <main class="container">
+  <!-- Breadcrumbs -->
+  <section class="py-4">
+    <div class="container">
+      <ul class="inline-flex space-x-2">
+        <li><a href="/" class="text-primary hover:underline">Home</a></li>
+        <li class="text-gray-500">/</li>
+        <li class="text-gray-600">About</li>
+      </ul>
+    </div>
+  </section>
+  
   <!-- Include the custom CSS for about page -->
   {{ $aboutCSS := resources.Get "css/about.css" | minify | fingerprint }}
   <link rel="stylesheet" href="{{ $aboutCSS.RelPermalink }}" media="screen">
   
   <!-- Main content from the markdown file -->
   <article class="about-page">
+    <h1 class="text-3xl font-bold mb-6">{{ .Title }}</h1>
     {{ .Content }}
   </article>
 </main>

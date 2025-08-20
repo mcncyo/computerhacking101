@@ -11,21 +11,73 @@ languageCode = "en-us"
 hasCJKLanguage = false
 # Title of your website (required).
 title = "Computer Hacking 101"
+# Site description for SEO
+description = "Learn ethical hacking, cybersecurity, and IT skills with step-by-step tutorials and guides."
 # Your theme name
 theme = "hugoplate"
-# Default time zone for time stamps; use any valid tz database name: https://en.wikipedia.org/wiki/List_of_tz_database_time_zones#List
+# Default time zone for time stamps
 timeZone = "America/Chicago"
-# post excerpt
-summaryLength = 10 # see https://gohugo.io/content-management/excerpts/
+# Post excerpt length
+summaryLength = 30
 # Enable sitemap generation
 enableRobotsTXT = true
-# disable language
-disableLanguages = [
-] # example: ["fr"] for disable french language. see https://gohugo.io/content-management/multilingual/
-# default language
+# Disable languages (for multilingual sites)
+disableLanguages = []
+# Default language
 defaultContentLanguage = 'en'
-# defaultContentLanguageInSubdir need to be true if you want to use the language code as a subdirectory and language specific 404 page
+# Language in subdirectory
 defaultContentLanguageInSubdir = false
+
+# PWA Configuration
+[params.pwa]
+  enable = true
+  manifest = "/site.webmanifest"
+  themeColor = "#4fc3f7"
+  backgroundColor = "#ffffff"
+  display = "standalone"
+  scope = "/"
+  startURL = "/?source=pwa"
+  icon = "android-chrome-192x192.png"
+  icon_192 = "android-chrome-192x192.png"
+  icon_512 = "android-chrome-512x512.png"
+  apple_touch_icon = "apple-touch-icon.png"
+  safari_pinned_tab = "safari-pinned-tab.svg"
+  msapplication_config = "/browserconfig.xml"
+  msapplication_TileColor = "#4fc3f7"
+
+# SEO Configuration
+[params.seo]
+  google_analytics_id = ""  # Add your Google Analytics ID
+  google_site_verification = ""  # Add Google Search Console verification code
+  bing_verification = ""  # Add Bing Webmaster Tools verification code
+  yandex_verification = ""  # Add Yandex Webmaster verification code
+  baidu_verification = ""  # Add Baidu Webmaster Tools verification code
+  twitter_site = "@computerhack101"  # Your Twitter handle
+  twitter_creator = "@computerhack101"  # Your Twitter handle
+  
+# Performance optimizations
+[params.performance]
+  minify = true
+  minifyJS = true
+  minifyCSS = true
+  minifyHTML = true
+  minifyJSON = true
+  minifyXML = true
+  bundle = true
+  bundleCSS = true
+  bundleJS = true
+  inlineCSS = true
+  inlineJS = true
+  preloadCriticalCSS = true
+  preloadFonts = true
+  preloadImages = true
+  preloadVideos = true
+  preloadIframes = true
+  preloadScripts = true
+  preloadStyles = true
+  preconnect = ["https://fonts.googleapis.com", "https://fonts.gstatic.com"]
+  dns_prefetch = ["//www.google-analytics.com", "//cdnjs.cloudflare.com"]
+  preload = ["/css/critical.css", "/fonts/your-font.woff2"]
 
 ########################### Services #############################
 [services]

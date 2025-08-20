@@ -1,0 +1,224 @@
+/* Mobile Navigation Styles */
+.mobile-nav {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 50;
+  background-color: #ffffff;
+  transform: translateX(-100%);
+  transition: transform 0.3s ease-in-out;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+  width: 300px;
+  max-width: 90%;
+  box-shadow: 2px 0 10px rgba(0, 0, 0, 0.1);
+}
+
+.dark .mobile-nav {
+  background-color: #111827;
+  border-right: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.mobile-nav.open {
+  transform: translateX(0);
+}
+
+/* Mobile menu overlay */
+.mobile-nav-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+  z-index: 40;
+  display: none;
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+}
+
+.mobile-nav-overlay.open {
+  display: block;
+}
+
+/* Navigation items */
+.mobile-nav-item {
+  display: block;
+  padding: 0.75rem 1rem;
+  color: #374151;
+  text-decoration: none;
+  transition: background-color 0.2s, color 0.2s;
+}
+
+.dark .mobile-nav-item {
+  color: #e5e7eb;
+}
+
+.mobile-nav-item:hover {
+  background-color: #f3f4f6;
+}
+
+.dark .mobile-nav-item:hover {
+  background-color: #1f2937;
+}
+
+.mobile-nav-item.active {
+  color: #3b82f6;
+  font-weight: 500;
+}
+
+.dark .mobile-nav-item.active {
+  color: #60a5fa;
+}
+
+/* Dropdown menu */
+.mobile-dropdown {
+  padding-left: 1.5rem;
+  margin-top: 0.25rem;
+}
+
+.mobile-dropdown .mobile-nav-item {
+  padding-left: 1rem;
+  font-size: 0.9375rem;
+}
+
+/* Search bar in mobile nav */
+.mobile-search {
+  padding: 0.5rem 1rem;
+  margin: 0.5rem 0;
+}
+
+.mobile-search input {
+  width: 100%;
+  padding: 0.5rem 1rem;
+  border-radius: 0.375rem;
+  border: 1px solid #d1d5db;
+  background-color: #ffffff;
+  color: #111827;
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.dark .mobile-search input {
+  background-color: #1f2937;
+  border-color: #4b5563;
+  color: #f9fafb;
+}
+
+.mobile-search input:focus {
+  outline: none;
+  border-color: #3b82f6;
+  box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.2);
+}
+
+/* Theme toggle in mobile nav */
+.mobile-theme-toggle {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  padding: 0.75rem 1rem;
+  text-align: left;
+  background: none;
+  border: none;
+  color: #374151;
+  cursor: pointer;
+  transition: background-color 0.2s, color 0.2s;
+}
+
+.dark .mobile-theme-toggle {
+  color: #e5e7eb;
+}
+
+.mobile-theme-toggle:hover {
+  background-color: #f3f4f6;
+}
+
+.dark .mobile-theme-toggle:hover {
+  background-color: #1f2937;
+}
+
+/* Animation for mobile menu */
+@keyframes slideIn {
+  from {
+    transform: translateX(-100%);
+  }
+  to {
+    transform: translateX(0);
+  }
+}
+
+@keyframes slideOut {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(-100%);
+  }
+}
+
+.mobile-nav.slide-in {
+  animation: slideIn 0.3s ease-out forwards;
+}
+
+.mobile-nav.slide-out {
+  animation: slideOut 0.3s ease-in forwards;
+}
+
+/* Responsive adjustments */
+@media (min-width: 768px) {
+  .mobile-nav,
+  .mobile-nav-overlay {
+    display: none !important;
+  }
+}
+
+/* Ensure content is not hidden behind mobile nav */
+body.mobile-menu-open {
+  overflow: hidden;
+}
+
+/* Smooth transitions for theme changes */
+.mobile-nav,
+.mobile-nav * {
+  transition: background-color 0.3s ease, border-color 0.3s ease, color 0.3s ease;
+}
+
+/* Focus styles for accessibility */
+.mobile-nav a:focus,
+.mobile-nav button:focus {
+  outline: none;
+  box-shadow: 0 0 0 2px #3b82f6, 0 0 0 4px rgba(255, 255, 255, 0.5);
+}
+
+.dark .mobile-nav a:focus,
+.dark .mobile-nav button:focus {
+  box-shadow: 0 0 0 2px #3b82f6, 0 0 0 4px rgba(17, 24, 39, 0.5);
+}
+
+/* Scrollbar styling for mobile nav */
+.mobile-nav::-webkit-scrollbar {
+  width: 6px;
+}
+
+.mobile-nav::-webkit-scrollbar-track {
+  background-color: transparent;
+}
+
+.mobile-nav::-webkit-scrollbar-thumb {
+  background-color: #d1d5db;
+  border-radius: 9999px;
+}
+
+.dark .mobile-nav::-webkit-scrollbar-thumb {
+  background-color: #4b5563;
+}
+
+.mobile-nav::-webkit-scrollbar-thumb:hover {
+  background-color: #9ca3af;
+}
+
+.dark .mobile-nav::-webkit-scrollbar-thumb:hover {
+  background-color: #6b7280;
+}

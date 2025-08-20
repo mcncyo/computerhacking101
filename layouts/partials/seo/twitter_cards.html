@@ -1,0 +1,20 @@
+{{/* Generate Twitter Card meta tags */}}
+{{- $title := .Title | default site.Title -}}
+{{- $description := .Description | default .Summary | default site.Params.Description -}}
+{{- $image := .Params.image | default site.Params.og_image | absURL -}}
+
+<meta name="twitter:card" content="summary_large_image" />
+<meta name="twitter:title" content="{{ $title }}" />
+<meta name="twitter:description" content="{{ $description | plainify | htmlUnescape | chomp }}" />
+
+{{- with site.Params.Social.twitter -}}
+  <meta name="twitter:site" content="@{{ . }}" />
+  <meta name="twitter:creator" content="@{{ . }}" />
+{{- end -}}
+
+{{- if $image -}}
+  <meta name="twitter:image" content="{{ $image }}" />
+  {{- with .Params.image_alt -}}
+    <meta name="twitter:image:alt" content="{{ . }}" />
+  {{- end -}}
+{{- end -}}

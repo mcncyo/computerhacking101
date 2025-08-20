@@ -1,0 +1,10 @@
+{{- /* Main schema template */ -}}
+{{- if .IsPage -}}
+  {{- if eq .Type "blog" -}}
+    {{- partial "seo/structured_data/blog_posting.html" . -}}
+  {{- else -}}
+    {{- partial "seo/structured_data/article.html" . -}}
+  {{- end -}}
+{{- else -}}
+  {{- partial "seo/structured_data/website.html" . -}}
+{{- end -}}

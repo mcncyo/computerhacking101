@@ -1,0 +1,126 @@
+<!-- Mobile Navigation -->
+<div class="mobile-nav md:hidden fixed inset-0 z-50 bg-white dark:bg-gray-900 transform transition-transform duration-300 ease-in-out -translate-x-full" id="mobileMenu">
+  <div class="p-4 border-b border-gray-200 dark:border-gray-700 flex justify-between items-center">
+    <a href="/" class="text-xl font-bold text-gray-900 dark:text-white">
+      {{ if .Site.Params.logo }}
+        <img src="{{ .Site.Params.logo | relURL }}" alt="{{ .Site.Title }}" class="h-8">
+      {{ else }}
+        {{ .Site.Title }}
+      {{ end }}
+    </a>
+    <button type="button" class="text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200" id="closeMobileMenu">
+      <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+      </svg>
+    </button>
+  </div>
+  
+  <nav class="p-4">
+    <ul class="space-y-2">
+      {{ $currentPage := . }}
+      {{ range .Site.Menus.main }}
+        <li>
+          <a href="{{ .URL }}" class="block px-4 py-2 text-gray-700 hover:bg-gray-100 dark:text-gray-200 dark:hover:bg-gray-800 rounded-md transition-colors duration-200 {{ if $currentPage.IsMenuCurrent "main" . }}font-semibold text-primary-600 dark:text-primary-400{{ end }}">
+            {{ .Name }}
+          </a>
+        </li>
+      {{ end }}
+      
+      <!-- Mobile search button -->
+      <li class="pt-2 border-t border-gray-200 dark:border-gray-700 mt-4">
+        <button type="button" class="w-full flex items-center px-4 py-2 text-left text-gray-700 hover:bg-gray-100 dark:text-gray-200 dark:hover:bg-gray-800 rounded-md transition-colors duration-200" id="mobileSearchBtn">
+          <svg class="h-5 w-5 mr-3 text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+          </svg>
+          Search...
+        </button>
+      </li>
+      
+      <!-- Theme toggle for mobile -->
+      <li class="pt-2 border-t border-gray-200 dark:border-gray-700 mt-2">
+        <button type="button" class="w-full flex items-center px-4 py-2 text-left text-gray-700 hover:bg-gray-100 dark:text-gray-200 dark:hover:bg-gray-800 rounded-md transition-colors duration-200" id="themeToggleMobile">
+          <svg class="h-5 w-5 mr-3 text-gray-500 dark:hidden" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z" />
+          </svg>
+          <svg class="h-5 w-5 mr-3 text-gray-500 hidden dark:block" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z" />
+          </svg>
+          <span class="dark:hidden">Dark Mode</span>
+          <span class="hidden dark:inline">Light Mode</span>
+        </button>
+      </li>
+    </ul>
+  </nav>
+</div>
+
+<!-- Mobile menu button -->
+<button type="button" class="md:hidden p-2 text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200 focus:outline-none" id="mobileMenuButton">
+  <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
+  </svg>
+</button>
+
+<script>
+// Mobile menu toggle
+document.addEventListener('DOMContentLoaded', function() {
+  const mobileMenu = document.getElementById('mobileMenu');
+  const mobileMenuButton = document.getElementById('mobileMenuButton');
+  const closeMobileMenu = document.getElementById('closeMobileMenu');
+  const mobileSearchBtn = document.getElementById('mobileSearchBtn');
+  const themeToggleMobile = document.getElementById('themeToggleMobile');
+
+  // Toggle mobile menu
+  function toggleMobileMenu() {
+    mobileMenu.classList.toggle('-translate-x-full');
+    document.body.classList.toggle('overflow-hidden');
+  }
+
+  // Event listeners
+  if (mobileMenuButton) mobileMenuButton.addEventListener('click', toggleMobileMenu);
+  if (closeMobileMenu) closeMobileMenu.addEventListener('click', toggleMobileMenu);
+  
+  // Close menu when clicking on a link
+  document.querySelectorAll('#mobileMenu a').forEach(link => {
+    link.addEventListener('click', toggleMobileMenu);
+  });
+  
+  // Mobile search trigger
+  if (mobileSearchBtn) {
+    mobileSearchBtn.addEventListener('click', function() {
+      toggleMobileMenu();
+      // Trigger search modal
+      const searchBtn = document.querySelector('[data-search-trigger]');
+      if (searchBtn) searchBtn.click();
+    });
+  }
+  
+  // Mobile theme toggle
+  if (themeToggleMobile) {
+    themeToggleMobile.addEventListener('click', function() {
+      const html = document.documentElement;
+      const theme = html.getAttribute('data-theme');
+      const newTheme = theme === 'dark' ? 'light' : 'dark';
+      
+      // Toggle theme
+      html.setAttribute('data-theme', newTheme);
+      localStorage.setItem('theme', newTheme);
+      
+      // Dispatch event for other theme toggles
+      document.dispatchEvent(new CustomEvent('themeChanged', { detail: { theme: newTheme } }));
+    });
+  }
+});
+
+// Close menu when clicking outside
+window.addEventListener('click', function(event) {
+  const mobileMenu = document.getElementById('mobileMenu');
+  const mobileMenuButton = document.getElementById('mobileMenuButton');
+  
+  if (!mobileMenu.classList.contains('-translate-x-full') && 
+      !mobileMenu.contains(event.target) && 
+      !mobileMenuButton.contains(event.target)) {
+    mobileMenu.classList.add('-translate-x-full');
+    document.body.classList.remove('overflow-hidden');
+  }
+});
+</script>
