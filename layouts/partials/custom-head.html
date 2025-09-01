@@ -1,3 +1,8 @@
 {{ if eq .Page.File.Dir "about/" }}
   <link rel="stylesheet" href="{{ "css/about.css" | relURL }}" media="screen">
 {{ end }}
+
+{{ if hugo.IsProduction }}
+<script defer data-domain="computerhacking101.com" src="https://cdn.technestcreations.com/js/script.js"></script>
+{{ end }}
+
