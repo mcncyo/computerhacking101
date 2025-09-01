@@ -11,7 +11,7 @@ steps:
     commands:
       - npm ci
       - export PATH=$PATH:$(pwd)/node_modules/.bin
-      - hugo --minify --gc --enableGitInfo
+      - hugo --minify --gc --enableGitInfo -e production
 
   # sanity check: prove secrets are available on push/tag
   - name: debug-secrets
