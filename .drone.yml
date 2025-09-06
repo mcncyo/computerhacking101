@@ -27,7 +27,8 @@ steps:
 
       # --- Install Node.js and dependencies ---
       - npm install -g npm@latest
-      - npm install -g yarn
+      - npm install -g yarn --force
+      - yarn set version stable
       - yarn install --frozen-lockfile
       
       # --- Build the site ---
