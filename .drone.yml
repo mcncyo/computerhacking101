@@ -20,14 +20,14 @@ steps:
       - apk add --no-cache curl tar bash jq libc6-compat tzdata git
 
       # --- Install Hugo Extended ---
-      - HUGO_VERSION="0.128.2"
-      - HUGO_FILENAME="hugo_extended_${HUGO_VERSION}_Linux-64bit.tar.gz"
-      - HUGO_URL="https://github.com/gohugoio/hugo/releases/download/v${HUGO_VERSION}/${HUGO_FILENAME}"
-      - echo "Downloading Hugo Extended ${HUGO_VERSION} from ${HUGO_URL}"
-      - curl -fsSL -o /tmp/hugo.tar.gz "${HUGO_URL}" || (echo "Failed to download Hugo"; exit 1)
-      - tar -xzf /tmp/hugo.tar.gz -C /tmp hugo
-      - install /tmp/hugo /usr/local/bin/hugo
-      - hugo version
+      - |
+        HUGO_VERSION="0.128.2"
+        HUGO_URL="https://github.com/gohugoio/hugo/releases/download/v${HUGO_VERSION}/hugo_extended_${HUGO_VERSION}_Linux-64bit.tar.gz"
+        echo "Downloading Hugo Extended ${HUGO_VERSION} from ${HUGO_URL}"
+        curl -fsSL -o /tmp/hugo.tar.gz "${HUGO_URL}" || { echo "Failed to download Hugo"; exit 1; }
+        tar -xzf /tmp/hugo.tar.gz -C /tmp hugo
+        install /tmp/hugo /usr/local/bin/hugo
+        hugo version
 
       # --- Install Node.js and dependencies ---
       - npm install -g npm@latest
