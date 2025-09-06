@@ -22,7 +22,8 @@ fetch_and_extract() {
     if command -v xmlstarlet >/dev/null 2>&1; then
         xmlstarlet sel -t -v '//*[local-name()="loc"]' "$TEMP_DIR/current_sitemap.xml" > "$output_file"
     else
-        grep -oP '<loc>\K[^<]+' "$TEMP_DIR/current_sitemap.xml" > "$output_file"
+        # Use grep -o with a simpler pattern for BusyBox compatibility
+        grep -o '<loc>[^<]*</loc>' "$TEMP_DIR/current_sitemap.xml" | sed 's/<loc>\(.*\)<\/loc>/\1/' > "$output_file"
     fi
     
     # Clean up empty lines and trim whitespace
