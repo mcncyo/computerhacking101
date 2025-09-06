@@ -1,29 +1,86 @@
+# ============================================
+# Drone CI/CD Pipeline Configuration
+# ============================================
+# This file defines the CI/CD pipeline for deploying the ComputerHacking101 website.
+# It includes build, test, and deployment steps that run on every push to the repository.
+
+# Pipeline Configuration
+# ---------------------
+# kind: Defines the type of pipeline (pipeline, cron, etc.)
+# type: Specifies the pipeline execution environment (docker, exec, etc.)
+# name: Human-readable name for the pipeline
 kind: pipeline
 type: docker
 name: CH101 – Deploy Hugo site (Cloudflare Pages)
 
+# Git Clone Configuration
+# ----------------------
+# depth: Number of commits to fetch (0 = full history)
+#   - Using 0 for full history to ensure proper versioning
+#   - Consider increasing for faster clones if full history isn't needed
 clone:
   depth: 0
 
+# Pipeline Steps
+# --------------
+# Each step runs in its own container with the specified image
+# Steps are executed in the order they are defined
 steps:
+  # ============================================
+  # 1. Build Hugo Site
+  # ============================================
+  # This step compiles the Hugo site into static files
+  # using a custom Hugo image with extended features.
+  #
+  # Input: Source code from git repository
+  # Output: Compiled site in /public directory
+  # Dependencies: Hugo modules, npm packages
   - name: build-hugo
+    # Image with Hugo and common extensions pre-installed
     image: hugomods/hugo:exts
+    
+    # Environment variables
     environment:
-      HUGO_ENV: production
-      TZ: America/Chicago
+      HUGO_ENV: production  # Set Hugo environment to production
+      TZ: America/Chicago   # Set timezone for consistent builds
+    
+    # Volume mounts for caching
     volumes:
       - name: cache_hugo
-        path: /root/.cache/hugo
+        path: /root/.cache/hugo  # Cache directory for Hugo
       - name: cache_npm
-        path: /root/.npm
+        path: /root/.npm         # Cache directory for npm
+    
+    # Commands to execute in the container
     commands:
-      - set -eux
+      # Enable error handling and debugging
+      - set -eux  # -e: exit on error, -u: fail on undefined variables, -x: print commands
+      
+      # Display Hugo version for debugging
       - hugo version
-      - hugo mod get -u
-      - hugo mod tidy
+      
+      # Update and clean Hugo modules
+      - hugo mod get -u  # Update modules to latest versions
+      - hugo mod tidy    # Remove unused modules
+      
+      # Install npm dependencies if package.json exists
       - test -f package.json && (npm ci || npm install) || true
+      
+      # Add local node modules to PATH
       - export PATH="$PATH:$(pwd)/node_modules/.bin"
+      
+      # Build the Hugo site with production settings
       - |
+        # --minify: Minify HTML, CSS, JS, etc.
+        # --gc: Run some cleanup tasks after build
+        # --enableGitInfo: Add Git revision information
+        # --environment: Set build environment
+        # --cleanDestinationDir: Remove old files from destination
+        # --ignoreCache: Ignore the cache directory
+        # --buildDrafts: Don't build draft content
+        # --buildFuture: Don't build content with future publish dates
+        # --buildExpired: Don't build expired content
+        # --baseURL: Set the base URL for absolute links
         hugo \
           --minify \
           --gc \
@@ -36,100 +93,202 @@ steps:
           --buildExpired=false \
           --baseURL "https://computerhacking101.com/"
 
+  # ============================================
+  # 2. Verify Sitemap
+  # ============================================
+  # Validates that the sitemap was generated correctly
+  # and contains the expected content.
+  #
+  # Input: Generated sitemap.xml in /public
+  # Output: Debug information in logs
   - name: verify-sitemap
+    # Lightweight Alpine image for basic shell commands
     image: alpine:3.20
+    
+    # Run this step on all pushes and tags
     when:
       event: [push, tag]
+    
     commands:
+      # Enable error handling and debugging
       - set -euxo pipefail
+      
+      # Verify sitemap exists
       - test -f public/sitemap.xml
+      
+      # Count number of URLs in sitemap
       - grep -c "<url>" public/sitemap.xml || true
+      
+      # Check for tutorial URLs in sitemap
       - grep -n "/tutorials/" public/sitemap.xml | head -n 20 || true
+      
+      # Print first 80 lines of sitemap for debugging
       - sed -n '1,80p' public/sitemap.xml
 
+  # ============================================
+  # 3. Deploy to Cloudflare Pages
+  # ============================================
+  # Deploys the built site to Cloudflare Pages
+  # using Wrangler CLI.
+  #
+  # Input: Compiled site in /public
+  # Output: Deployed site on Cloudflare Pages
   - name: deploy-pages
+    # Node.js image with npm for Wrangler
     image: node:20-alpine
+    
+    # Run on all pushes and tags
     when:
       event: [push, tag]
+    
+    # Cloudflare API credentials
     environment:
       CLOUDFLARE_ACCOUNT_ID:
-        from_secret: CF_ACCOUNT_ID
+        from_secret: CF_ACCOUNT_ID  # Cloudflare account ID
       CLOUDFLARE_API_TOKEN:
-        from_secret: CLOUDFLARE_API_TOKEN
+        from_secret: CLOUDFLARE_API_TOKEN  # Cloudflare API token with Pages edit permission
+    
     commands:
+      # Enable error handling and debugging
       - set -eux
+      
+      # Install timezone data (required by some dependencies)
       - apk add --no-cache tzdata
+      
+      # Install Wrangler CLI globally
       - npm i -g wrangler@3
+      
+      # Deploy to Cloudflare Pages
       - |
+        # Check if this is the main branch
         if [ "$DRONE_BRANCH" = "main" ]; then
+          # Production deployment (no branch specified)
           wrangler pages deploy public --project-name=computerhacking101
         else
+          # Preview deployment with branch name
           wrangler pages deploy public --project-name=computerhacking101 --branch="$DRONE_BRANCH"
         fi
 
+  # ============================================
+  # 4. Cloudflare Cache Purge
+  # ============================================
+  # Purges the Cloudflare cache for specific URLs
+  # to ensure visitors see the latest content.
+  #
+  # Input: List of URLs to purge
+  # Output: Cache purge status
   - name: purge-cf-cache
+    # Lightweight image with curl
     image: alpine/curl:8.9.1
+    
+    # Only run on main branch pushes and tags
     when:
       event: [push, tag]
       branch: [main]
+    
+    # Cloudflare API credentials
     environment:
-      CLOUDFLARE_API_TOKEN:
-        from_secret: CLOUDFLARE_API_TOKEN_PURGE
-      CF_ZONE_ID:
-        from_secret: CF_ZONE_ID_CH101
+      CLOUDFLARE_API_TOKEN: { from_secret: CLOUDFLARE_API_TOKEN_PURGE }  # Token with zone.cache_purge permission
+      CF_ZONE_ID: { from_secret: CF_ZONE_ID_CH101 }  # Cloudflare Zone ID
+    
     commands:
-      - set -eux
-      - |
-        cat > payload.json << 'EOF'
-        {
-          "files": [
-            "https://computerhacking101.com/sitemap.xml",
-            "https://computerhacking101.com/sitemap-pages.xml",
-            "https://computerhacking101.com/sitemap-posts.xml",
-            "https://computerhacking101.com/robots.txt"
-          ]
-        }
-        EOF
-      - |
-        curl -sS -X POST "https://api.cloudflare.com/client/v4/zones/$CF_ZONE_ID/purge_cache" \
-          -H "Authorization: Bearer $CLOUDFLARE_API_TOKEN" \
-          -H "Content-Type: application/json" \
-          --data @payload.json | tee purge_response.json
-      - rm -f payload.json
+      # Make the purge script executable
+      - chmod +x .drone/scripts/purge-cf-cache.sh
+      
+      # Install jq for JSON pretty-printing (used in the script)
+      - apk add --no-cache jq
+      
+      # Execute the cache purge script
+      - .drone/scripts/purge-cf-cache.sh
 
+  # ============================================
+  # 5. Submit Sitemap to Search Engines (IndexNow)
+  # ============================================
+  # Informs search engines about the updated sitemap
+  # using the IndexNow protocol.
+  #
+  # Input: sitemap.xml
+  # Output: Submission status to search engines
   - name: indexnow-submit
+    # Python image for running the IndexNow script
     image: python:3.11-alpine
+    
+    # Only run on main branch pushes and tags
     when:
       event: [push, tag]
       branch: [main]
+    
+    # IndexNow API key
     environment:
       INDEXNOW_KEY:
-        from_secret: INDEXNOW_KEY
+        from_secret: INDEXNOW_KEY  # Secret key for IndexNow API
+    
     commands:
+      # Enable error handling and debugging
       - set -eux
+      
+      # Install required Python packages
       - pip install --no-cache-dir requests defusedxml
+      
+      # Make the IndexNow script executable
       - chmod +x .drone/scripts/indexnow.py
+      
+      # Run the IndexNow submission script
       - SITE_HOST=computerhacking101.com .drone/scripts/indexnow.py
 
+  # ============================================
+  # 6. Warm Cache
+  # ============================================
+  # Visits important pages to warm up the cache
+  # and improve initial page load times.
+  #
+  # Input: List of URLs to warm
+  # Output: Cache warming status
   - name: warm-cache
+    # Lightweight image with curl
     image: alpine/curl:8.9.1
+    
+    # Only run on main branch pushes and tags
     when:
       event: [push, tag]
       branch: [main]
+    
     commands:
+      # Enable error handling and debugging
       - set -eux
+      
+      # Make the warm cache script executable
       - chmod +x .drone/scripts/warm_cache.sh
+      
+      # Execute the warm cache script with parameters:
+      # 1. Sitemap URL
+      # 2. Space-separated list of additional URLs to warm
       - |
         .drone/scripts/warm_cache.sh \
           "https://computerhacking101.com/sitemap.xml" \
           "https://computerhacking101.com/ https://www.computerhacking101.com/"
 
+# ============================================
+# Volumes
+# ============================================
+# Volumes are used to persist data between steps
+# and speed up builds by caching dependencies.
 volumes:
+  # Hugo build cache
   - name: cache_hugo
-    temp: {}
+    temp: {}  # Temporary volume (deleted after pipeline completes)
+  
+  # npm package cache
   - name: cache_npm
-    temp: {}
+    temp: {}  # Temporary volume (deleted after pipeline completes)
 
+# ============================================
+# Pipeline Triggers
+# ============================================
+# Defines when the pipeline should be executed.
 trigger:
+  # Only run on these branches
   branch: [main]
+  
+  # Only run on these events
   event: [push, tag]
