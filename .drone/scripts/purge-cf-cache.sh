@@ -33,9 +33,9 @@ response=$(
 echo "📨 Response from Cloudflare:"
 echo "$response" | jq . 2>/dev/null || echo "$response"
 
-# Verify the response
-if ! echo "$response" | grep -q '"success":true'; then
-    echo "❌ Cache purge failed"
+# Verify the response using jq to properly parse the JSON
+if ! echo "$response" | jq -e '.success == true' >/dev/null; then
+    echo "❌ Cache purge failed - API did not return success"
     exit 1
 fi
 
