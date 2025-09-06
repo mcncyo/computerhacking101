@@ -18,7 +18,7 @@ steps:
       HUGO_MODULE_OFFLINE: "true"
     commands:
       - set -eux
-      - apk add --no-cache curl tar bash jq libc6-compat
+      - apk add --no-cache curl tar bash jq libc6-compat tzdata
 
       # --- choose Hugo version (latest or fallback) ---
       - HUGO_FALLBACK=0.128.2
