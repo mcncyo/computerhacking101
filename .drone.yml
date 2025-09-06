@@ -8,52 +8,39 @@ steps:
     commands:
       - git submodule update --init --recursive
 
-  # Build with Node and Hugo Extended (vendored modules offline)
+  # Build with Node and Hugo Extended
   - name: build site
     image: node:20-alpine
     environment:
       HUGO_ENV: production
       NODE_ENV: production
-      HUGO_MODULE_PROXY: "off"
-      HUGO_MODULE_OFFLINE: "true"
+      TZ: "America/Chicago"
     commands:
       - set -eux
-      - apk add --no-cache curl tar bash jq libc6-compat tzdata
+      - apk add --no-cache curl tar bash jq libc6-compat tzdata git
 
-      # --- choose Hugo version (latest or fallback) ---
-      - HUGO_FALLBACK=0.128.2
-      - HUGO_VERSION=$(curl -s https://api.github.com/repos/gohugoio/hugo/releases/latest | jq -r .tag_name | sed 's/^v//' || true)
-      - |
-        if [ -z "$HUGO_VERSION" ]; then
-          echo "Could not get latest Hugo via GitHub API; falling back to $HUGO_FALLBACK"
-          HUGO_VERSION="$HUGO_FALLBACK"
-        fi
-      - HUGO_URL=$(printf 'https://github.com/gohugoio/hugo/releases/download/v%s/hugo_extended_%s_Linux-64bit.tar.gz' "$HUGO_VERSION" "$HUGO_VERSION")
-      - |
-        if ! curl -fsI "$HUGO_URL" >/dev/null 2>&1; then
-          echo "Latest Hugo asset not found ($HUGO_URL); falling back to $HUGO_FALLBACK"
-          HUGO_VERSION="$HUGO_FALLBACK"
-          HUGO_URL=$(printf 'https://github.com/gohugoio/hugo/releases/download/v%s/hugo_extended_%s_Linux-64bit.tar.gz' "$HUGO_VERSION" "$HUGO_VERSION")
-        fi
+      # --- Install Hugo Extended ---
+      - HUGO_VERSION=0.128.2
+      - HUGO_URL="https://github.com/gohugoio/hugo/releases/download/v${HUGO_VERSION}/hugo_extended_${HUGO_VERSION}_Linux-64bit.tar.gz"
       - echo "Using Hugo Extended $HUGO_VERSION"
       - curl -fsSL -o /tmp/hugo.tar.gz "$HUGO_URL"
       - tar -xzf /tmp/hugo.tar.gz -C /tmp hugo
       - install /tmp/hugo /usr/local/bin/hugo
       - hugo version
 
-      # --- CSS pipeline toolchain (Hugoplate expects these) ---
-      - npm i -g postcss postcss-cli autoprefixer tailwindcss
-
-      # repo-level npm (if present)
-      - if [ -f package.json ]; then npm ci || npm i; fi
-      # theme-level npm (if vendored)
-      - if [ -d themes/hugoplate ] && [ -f themes/hugoplate/package.json ]; then (cd themes/hugoplate && npm ci || npm i); fi
-
-      # Build using vendored modules (offline, no go/git required)
+      # --- Install Node.js and dependencies ---
+      - npm install -g npm@latest
+      - npm install -g yarn
+      - yarn install --frozen-lockfile
+      
+      # --- Build the site ---
+      - echo "Building site with Hugo..."
       - umask 0022
-      - hugo --minify --gc --baseURL "https://computerhacking101.com/"
-      - ls -lh public
-      - ls -lh public/index.html || echo "index.html missing"
+      - yarn build
+      
+      # Verify build
+      - ls -lah public/
+      - if [ ! -f public/index.html ]; then echo "Error: index.html not found"; exit 1; fi
 
   - name: extract all URLs
     image: python:3.11-alpine
