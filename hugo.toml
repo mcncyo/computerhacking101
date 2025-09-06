@@ -118,7 +118,7 @@ target = 'assets/notwatching/hugo_stats.json'
 
 ############################# Outputs ############################
 [outputs]
-home = ["HTML", "RSS", "WebAppManifest", "SearchIndex", "Sitemap"]
+home = ["HTML", "RSS", "WebAppManifest", "SearchIndex", "Sitemap", "SitemapPages", "SitemapPosts"]
 page = ["HTML"]
 section = ["HTML", "RSS"]
 
@@ -176,6 +176,18 @@ rel = "manifest"
 [outputFormats.SearchIndex]
 mediaType = "application/json"
 baseName = "searchindex"
+isPlainText = true
+notAlternative = true
+
+[outputFormats.SitemapPages]
+mediaType = "application/xml"
+baseName = "sitemap-pages"
+isPlainText = true
+notAlternative = true
+
+[outputFormats.SitemapPosts]
+mediaType = "application/xml"
+baseName = "sitemap-posts"
 isPlainText = true
 notAlternative = true
 

@@ -33,6 +33,22 @@ steps:
       - echo "Total <url> entries:" && grep -c "<url>" public/sitemap.xml || true
       - echo "Tutorial URLs present (showing up to 20):" && grep -n "/tutorials/" public/sitemap.xml | head -n 20 || true
       - echo "First 80 lines of sitemap.xml:" && sed -n '1,80p' public/sitemap.xml
+      - |
+        if [ -f public/sitemap-pages.xml ]; then
+          echo "sitemap-pages.xml present:" && ls -lh public/sitemap-pages.xml;
+          echo "Pages <url> count:" && grep -c "<url>" public/sitemap-pages.xml || true;
+          sed -n '1,40p' public/sitemap-pages.xml;
+        else
+          echo "sitemap-pages.xml not found";
+        fi
+      - |
+        if [ -f public/sitemap-posts.xml ]; then
+          echo "sitemap-posts.xml present:" && ls -lh public/sitemap-posts.xml;
+          echo "Posts <url> count:" && grep -c "<url>" public/sitemap-posts.xml || true;
+          grep -n "/tutorials/\|/blog/" public/sitemap-posts.xml | head -n 20 || true;
+        else
+          echo "sitemap-posts.xml not found";
+        fi
 
   # ----------------- DEPLOY TO CLOUDFLARE PAGES -----------------
   - name: deploy-pages
@@ -56,6 +72,35 @@ steps:
         else
           wrangler pages deploy public --project-name=computerhacking101 --branch="$DRONE_BRANCH"
         fi
+
+  # ----------------- PURGE CLOUDFLARE CACHE -----------------
+  - name: purge-cf-cache
+    image: alpine/curl:8.9.1
+    when:
+      event: [ push, tag ]
+      branch: [ main ]
+    environment:
+      CLOUDFLARE_API_TOKEN:
+        from_secret: CLOUDFLARE_API_TOKEN
+      CF_ZONE_ID:
+        from_secret: CF_ZONE_ID
+    commands:
+      - set -eux
+      - '[ -n "$CF_ZONE_ID" ] || ( echo "Missing CF_ZONE_ID"; exit 1 )'
+      - '[ -n "$CLOUDFLARE_API_TOKEN" ] || ( echo "Missing CLOUDFLARE_API_TOKEN"; exit 1 )'
+      - >-
+        curl -sS -X POST "https://api.cloudflare.com/client/v4/zones/$CF_ZONE_ID/purge_cache" \
+        -H "Authorization: Bearer $CLOUDFLARE_API_TOKEN" \
+        -H "Content-Type: application/json" \
+        --data '{
+          "files": [
+            "https://computerhacking101.com/sitemap.xml",
+            "https://computerhacking101.com/sitemap-pages.xml",
+            "https://computerhacking101.com/sitemap-posts.xml",
+            "https://computerhacking101.com/robots.txt"
+          ]
+        }'
+      - echo "Requested Cloudflare cache purge for sitemap and robots."
 
   # ----------------- INDEXNOW (always from sitemap) -----------------
   - name: indexnow-submit

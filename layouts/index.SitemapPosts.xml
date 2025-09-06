@@ -1,0 +1,32 @@
+{{- $.Scratch.Add "index" slice -}}
+{{- $pages := where .Site.Pages "Kind" "in" (slice "page" "section" "taxonomy" "term") -}}
+{{- range $pages -}}
+  {{- if and (ne .Params.noindex true) (ne .Params.sitemap_exclude true) -}}
+    {{- if or (eq .Section "tutorials") (eq .Section "blog") -}}
+      {{- if and (not (in .RelPermalink "/tags/")) (not (in .RelPermalink "/categories/")) (not (in .RelPermalink "/search")) (not (in .RelPermalink "/json")) -}}
+        {{- $.Scratch.Add "index" (dict
+          "loc" .Permalink
+          "lastmod" (time.Format "2006-01-02T15:04:05-07:00" (default .Lastmod .Date))
+          "changefreq" (default "weekly" .Params.changefreq)
+          "priority" (default 0.5 .Params.priority)
+        ) -}}
+      {{- end -}}
+    {{- end -}}
+  {{- end -}}
+{{- end -}}
+
+{{- $sitemap := $.Scratch.Get "index" | uniq -}}
+{{- $sitemap = sort $sitemap "priority" "desc" -}}
+
+{{- printf "<?xml version=\"1.0\" encoding=\"utf-8\" standalone=\"yes\"?>" | safeHTML }}
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
+  xmlns:xhtml="http://www.w3.org/1999/xhtml">
+  {{- range $sitemap -}}
+  <url>
+    <loc>{{ .loc | safeHTML }}</loc>
+    <lastmod>{{ .lastmod }}</lastmod>
+    <changefreq>{{ .changefreq }}</changefreq>
+    <priority>{{ .priority }}</priority>
+  </url>
+  {{- end -}}
+</urlset>
