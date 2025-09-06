@@ -8,7 +8,7 @@ steps:
     commands:
       - git submodule update --init --recursive
 
-  # Build with Node and a "latest-with-fallback" Hugo Extended
+  # Build with Node and Hugo Extended (latest with fallback)
   - name: build site
     image: node:20-alpine
     environment:
@@ -18,7 +18,7 @@ steps:
       - set -eux
       - apk add --no-cache curl tar bash jq libc6-compat
 
-      # --- choose Hugo version: latest if possible, else fallback ---
+      # --- choose Hugo version (latest or fallback) ---
       - HUGO_FALLBACK=0.128.2
       - HUGO_VERSION=$(curl -s https://api.github.com/repos/gohugoio/hugo/releases/latest | jq -r .tag_name | sed 's/^v//' || true)
       - |
@@ -26,13 +26,18 @@ steps:
           echo "Could not get latest Hugo via GitHub API; falling back to $HUGO_FALLBACK"
           HUGO_VERSION="$HUGO_FALLBACK"
         fi
-      - HUGO_URL="https://github.com/gohugoio/hugo/releases/download/v$HUGO_VERSION/hugo_extended_${HUGO_VERSION}_Linux-64bit.tar.gz"
+
+      # build URL with printf to avoid Drone parsing issues
+      - HUGO_URL=$(printf 'https://github.com/gohugoio/hugo/releases/download/v%s/hugo_extended_%s_Linux-64bit.tar.gz' "$HUGO_VERSION" "$HUGO_VERSION")
+
+      # check asset; if missing, fall back
       - |
         if ! curl -fsI "$HUGO_URL" >/dev/null 2>&1; then
           echo "Latest Hugo asset not found ($HUGO_URL); falling back to $HUGO_FALLBACK"
           HUGO_VERSION="$HUGO_FALLBACK"
-          HUGO_URL="https://github.com/gohugoio/hugo/releases/download/v$HUGO_VERSION/hugo_extended_${HUGO_VERSION}_Linux-64bit.tar.gz"
+          HUGO_URL=$(printf 'https://github.com/gohugoio/hugo/releases/download/v%s/hugo_extended_%s_Linux-64bit.tar.gz' "$HUGO_VERSION" "$HUGO_VERSION")
         fi
+
       - echo "Using Hugo Extended $HUGO_VERSION"
       - curl -fsSL -o /tmp/hugo.tar.gz "$HUGO_URL"
       - tar -xzf /tmp/hugo.tar.gz -C /tmp hugo
