@@ -65,7 +65,7 @@ steps:
       CF_ZONE_ID:           { from_secret: CF_ZONE_ID_CH101 }
     commands:
       - set -eux
-      - printf '{ "files": ["https://computerhacking101.com/sitemap.xml","https://computerhacking101.com/sitemap-pages.xml","https://computerhacking101.com/sitemap-posts.xml","https://computerhacking101.com/robots.txt"] }\n' > payload.json
+      - printf '{"files":["https://computerhacking101.com/sitemap.xml","https://computerhacking101.com/sitemap-pages.xml","https://computerhacking101.com/sitemap-posts.xml","https://computerhacking101.com/robots.txt"]}\n' > payload.json
       - curl -sS -X POST "https://api.cloudflare.com/client/v4/zones/$CF_ZONE_ID/purge_cache" \
           -H "Authorization: Bearer $CLOUDFLARE_API_TOKEN" -H "Content-Type: application/json" \
           --data @payload.json | tee purge_response.json
