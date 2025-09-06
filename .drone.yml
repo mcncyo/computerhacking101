@@ -40,7 +40,11 @@ steps:
       
       # Verify build
       - ls -lah public/
-      - if [ ! -f public/index.html ]; then echo "Error: index.html not found"; exit 1; fi
+      - |
+        if [ ! -f public/index.html ]; then 
+          echo "Error: index.html not found"
+          exit 1
+        fi
 
   - name: extract all URLs
     image: python:3.11-alpine
