@@ -8,15 +8,17 @@ steps:
     commands:
       - git submodule update --init --recursive
 
-  # Build with Node, Go, and Hugo Extended (latest with fallback)
+  # Build with Node and Hugo Extended (vendored modules offline)
   - name: build site
     image: node:20-alpine
     environment:
       HUGO_ENV: production
       NODE_ENV: production
+      HUGO_MODULE_PROXY: "off"
+      HUGO_MODULE_OFFLINE: "true"
     commands:
       - set -eux
-      - apk add --no-cache curl tar bash jq libc6-compat go
+      - apk add --no-cache curl tar bash jq libc6-compat
 
       # --- choose Hugo version (latest or fallback) ---
       - HUGO_FALLBACK=0.128.2
@@ -47,17 +49,7 @@ steps:
       # theme-level npm (if vendored)
       - if [ -d themes/hugoplate ] && [ -f themes/hugoplate/package.json ]; then (cd themes/hugoplate && npm ci || npm i); fi
 
-      # --- Hugo Modules (needs Go) ---
-      # Get/refresh modules, then vendor them so subsequent builds can run offline if desired.
-      - hugo mod get -u || true
-      - hugo mod tidy || true
-      - hugo mod vendor || true
-
-      # If you want to force offline module use after vendoring, uncomment next two lines:
-      # - export HUGO_MODULE_PROXY=off
-      # - export HUGO_MODULE_OFFLINE=true
-
-      # build
+      # Build using vendored modules (offline, no go/git required)
       - umask 0022
       - hugo --minify --gc --baseURL "https://computerhacking101.com/"
       - ls -lh public
@@ -107,4 +99,3 @@ steps:
     commands:
       - chmod +x .drone/scripts/warm_cache.sh
       - .drone/scripts/warm_cache.sh "https://computerhacking101.com/sitemap.xml" 10
-
