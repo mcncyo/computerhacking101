@@ -40,7 +40,6 @@ steps:
     commands:
       - corepack enable || true
       - |
-        # quick sanity check so failures are obvious
         [ -n "$CLOUDFLARE_ACCOUNT_ID" ] || { echo "Missing CLOUDFLARE_ACCOUNT_ID"; exit 1; }
         [ -n "$CLOUDFLARE_API_TOKEN" ]  || { echo "Missing CLOUDFLARE_API_TOKEN";  exit 1; }
         if [ "$DRONE_BRANCH" = "main" ]; then
@@ -62,7 +61,7 @@ steps:
     commands:
       - pip install --no-cache-dir requests
       - |
-        cat > indexnow.py << 'EOF'
+        python <<'PY'
         import json, os, pathlib, sys, requests
         key = os.environ.get("INDEXNOW_KEY", "51ccd95176a34334891dc90cab8d3dc7")
         host = "computerhacking101.com"
@@ -86,8 +85,7 @@ steps:
         except Exception as e:
             # Don't block deploy over IndexNow
             print("IndexNow error (ignored):", e)
-        EOF
-        python indexnow.py
+        PY
 
   - name: warm up Cloudflare cache (parallel)
     image: curlimages/curl:8.9.1
@@ -124,8 +122,8 @@ steps:
         awk 'NF' /tmp/all_urls.txt | sort -u > /tmp/urls.txt
 
         echo "Warming $(wc -l < /tmp/urls.txt) URLs with concurrency=${CONCURRENCY} ..."
-        # Avoid {} (Drone parser hates it). Use URL as placeholder.
+        # Avoid {} and %{...} entirely to keep Drone happy.
         xargs -n1 -P "${CONCURRENCY}" -I URL sh -c '
-          printf "Warming: %s ... " "URL"
-          curl -s -o /dev/null -w "-> %{%Y-%m-%d %H:%M:%S}t %{http_code} (%{time_total}s)\n" "URL"
+          echo "Warming: URL"
+          curl -s -L -o /dev/null "URL" || echo "Failed: URL"
         ' < /tmp/urls.txt
