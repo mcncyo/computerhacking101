@@ -32,7 +32,7 @@ steps:
       # --- Build the site ---
       - echo "Building site with Hugo..."
       - umask 0022
-      - yarn build
+      - npm run build
       
       # Verify build
       - ls -lah public/
