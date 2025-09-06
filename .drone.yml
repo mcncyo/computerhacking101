@@ -53,7 +53,7 @@ steps:
       INDEXNOW_KEY:
         from_secret: INDEXNOW_KEY
     commands:
-      - pip install --no-cache-dir requests
+      - pip install --no-cache-dir requests defusedxml
       - chmod +x .drone/scripts/indexnow.py
       - SITE_HOST=computerhacking101.com .drone/scripts/indexnow.py
 
