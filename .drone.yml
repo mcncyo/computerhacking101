@@ -29,15 +29,11 @@ steps:
       - npm install -g npm@latest
       - npm ci || npm install
       
-      # --- Install and configure Tailwind CSS ---
-      - npx tailwindcss init -p
-      - npm install -D tailwindcss@latest postcss@latest autoprefixer@latest
-      
       # --- Build the site ---
       - echo "Building site with Hugo..."
       - umask 0022
-      - npx tailwindcss -i ./assets/css/main.css -o ./static/css/main.css --minify
-      - hugo --minify --gc --baseURL "https://computerhacking101.com/"
+      - hugo mod get github.com/hugomods/tailwindcss
+      - hugo --minify --gc --baseURL "https://computerhacking101.com/" --environment production
       
       # Verify build
       - ls -lah public/
