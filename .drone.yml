@@ -27,12 +27,30 @@ steps:
 
       # --- Install Node.js and dependencies ---
       - npm install -g npm@latest
-      - npm ci || npm install
+      - npm install -D tailwindcss@latest postcss@latest autoprefixer@latest
+      - npx tailwindcss init -p
+      
+      # --- Configure Tailwind CSS ---
+      - |
+        cat > tailwind.config.js << 'EOL'
+        module.exports = {
+          content: [
+            "./layouts/**/*.html",
+            "./content/**/*.md",
+            "./themes/hugoplate/**/*.html"
+          ],
+          theme: {
+            extend: {},
+          },
+          plugins: [],
+        }
+        EOL
       
       # --- Build the site ---
       - echo "Building site with Hugo..."
       - umask 0022
-      - hugo mod get github.com/hugomods/tailwindcss
+      - mkdir -p static/css
+      - npx tailwindcss -i ./assets/css/main.css -o ./static/css/main.css --minify
       - hugo --minify --gc --baseURL "https://computerhacking101.com/" --environment production
       
       # Verify build
