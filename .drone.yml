@@ -8,7 +8,7 @@ steps:
     commands:
       - git submodule update --init --recursive
 
-  # Build with Node and a pinned Hugo Extended
+  # Build with Node and a "latest-with-fallback" Hugo Extended
   - name: build site
     image: node:20-alpine
     environment:
@@ -16,30 +16,47 @@ steps:
       NODE_ENV: production
     commands:
       - set -eux
-      # deps needed to unpack Hugo
-      - apk add --no-cache curl tar bash libc6-compat
-      # --- install Hugo Extended (pin the version) ---
-      - export HUGO_VERSION=0.128.2
-      - curl -fsSL -o /tmp/hugo.tar.gz "https://github.com/gohugoio/hugo/releases/download/v${HUGO_VERSION}/hugo_extended_${HUGO_VERSION}_Linux-64bit.tar.gz"
-      - tar -xz -C /tmp -f /tmp/hugo.tar.gz hugo
+      - apk add --no-cache curl tar bash jq libc6-compat
+
+      # --- choose Hugo version: latest if possible, else fallback ---
+      - HUGO_FALLBACK=0.128.2
+      - HUGO_VERSION=$(curl -s https://api.github.com/repos/gohugoio/hugo/releases/latest | jq -r .tag_name | sed 's/^v//' || true)
+      - |
+        if [ -z "$HUGO_VERSION" ]; then
+          echo "Could not get latest Hugo via GitHub API; falling back to $HUGO_FALLBACK"
+          HUGO_VERSION="$HUGO_FALLBACK"
+        fi
+      - HUGO_URL="https://github.com/gohugoio/hugo/releases/download/v$HUGO_VERSION/hugo_extended_${HUGO_VERSION}_Linux-64bit.tar.gz"
+      - |
+        if ! curl -fsI "$HUGO_URL" >/dev/null 2>&1; then
+          echo "Latest Hugo asset not found ($HUGO_URL); falling back to $HUGO_FALLBACK"
+          HUGO_VERSION="$HUGO_FALLBACK"
+          HUGO_URL="https://github.com/gohugoio/hugo/releases/download/v$HUGO_VERSION/hugo_extended_${HUGO_VERSION}_Linux-64bit.tar.gz"
+        fi
+      - echo "Using Hugo Extended $HUGO_VERSION"
+      - curl -fsSL -o /tmp/hugo.tar.gz "$HUGO_URL"
+      - tar -xzf /tmp/hugo.tar.gz -C /tmp hugo
       - install /tmp/hugo /usr/local/bin/hugo
       - hugo version
-      # --- Node toolchain for PostCSS/Tailwind used by Hugoplate ---
+
+      # --- CSS pipeline toolchain (Hugoplate expects these) ---
       - npm i -g postcss postcss-cli autoprefixer tailwindcss
-      # repo-level packages if present
+
+      # repo-level npm (if present)
       - if [ -f package.json ]; then npm ci || npm i; fi
-      # theme-level packages if theme is vendored under themes/hugoplate
+      # theme-level npm (if vendored)
       - if [ -d themes/hugoplate ] && [ -f themes/hugoplate/package.json ]; then (cd themes/hugoplate && npm ci || npm i); fi
-      # update hugo modules (harmless if not used)
+
+      # update modules (safe even if not using modules)
       - hugo mod get -u || true
       - hugo mod tidy || true
+
       # build
       - umask 0022
       - hugo --minify --gc --baseURL "https://computerhacking101.com/"
       - ls -lh public
       - ls -lh public/index.html || echo "index.html missing"
 
-  # Full crawl to populate changed_urls.txt for IndexNow
   - name: extract all URLs
     image: python:3.11-alpine
     commands:
