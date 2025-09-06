@@ -21,6 +21,19 @@ steps:
       # Build with all content included
       - hugo --minify --gc --enableGitInfo --environment production --cleanDestinationDir --ignoreCache --buildDrafts=false --buildFuture=false --buildExpired=false --baseURL "https://computerhacking101.com/"
 
+  # ----------------- VERIFY SITEMAP (pre-deploy) -----------------
+  - name: verify-sitemap
+    image: alpine:3.20
+    when:
+      event: [ push, tag ]
+    commands:
+      - set -euxo pipefail
+      - test -f public/sitemap.xml
+      - echo "Sitemap file exists:" && ls -lh public/sitemap.xml
+      - echo "Total <url> entries:" && grep -c "<url>" public/sitemap.xml || true
+      - echo "Tutorial URLs present (showing up to 20):" && grep -n "/tutorials/" public/sitemap.xml | head -n 20 || true
+      - echo "First 80 lines of sitemap.xml:" && sed -n '1,80p' public/sitemap.xml
+
   # ----------------- DEPLOY TO CLOUDFLARE PAGES -----------------
   - name: deploy-pages
     image: node:20-alpine
