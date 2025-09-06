@@ -23,16 +23,23 @@ steps:
       - hugo mod tidy
       - test -f package.json && (npm ci || npm install) || true
       - export PATH="$PATH:$(pwd)/node_modules/.bin"
-      - hugo --minify --gc --enableGitInfo \
-             --environment production \
-             --cleanDestinationDir \
-             --ignoreCache \
-             --buildDrafts=false --buildFuture=false --buildExpired=false \
-             --baseURL "https://computerhacking101.com/"
+      - |
+        hugo \
+          --minify \
+          --gc \
+          --enableGitInfo \
+          --environment production \
+          --cleanDestinationDir \
+          --ignoreCache \
+          --buildDrafts=false \
+          --buildFuture=false \
+          --buildExpired=false \
+          --baseURL "https://computerhacking101.com/"
 
   - name: verify-sitemap
     image: alpine:3.20
-    when: { event: [ push, tag ] }
+    when:
+      event: [push, tag]
     commands:
       - set -euxo pipefail
       - test -f public/sitemap.xml
@@ -42,10 +49,13 @@ steps:
 
   - name: deploy-pages
     image: node:20-alpine
-    when: { event: [ push, tag ] }
+    when:
+      event: [push, tag]
     environment:
-      CLOUDFLARE_ACCOUNT_ID: { from_secret: CF_ACCOUNT_ID }
-      CLOUDFLARE_API_TOKEN:  { from_secret: CLOUDFLARE_API_TOKEN }
+      CLOUDFLARE_ACCOUNT_ID:
+        from_secret: CF_ACCOUNT_ID
+      CLOUDFLARE_API_TOKEN:
+        from_secret: CLOUDFLARE_API_TOKEN
     commands:
       - set -eux
       - apk add --no-cache tzdata
@@ -59,23 +69,42 @@ steps:
 
   - name: purge-cf-cache
     image: alpine/curl:8.9.1
-    when: { event: [ push, tag ], branch: [ main ] }
+    when:
+      event: [push, tag]
+      branch: [main]
     environment:
-      CLOUDFLARE_API_TOKEN: { from_secret: CLOUDFLARE_API_TOKEN_PURGE }
-      CF_ZONE_ID:           { from_secret: CF_ZONE_ID_CH101 }
+      CLOUDFLARE_API_TOKEN:
+        from_secret: CLOUDFLARE_API_TOKEN_PURGE
+      CF_ZONE_ID:
+        from_secret: CF_ZONE_ID_CH101
     commands:
       - set -eux
-      - printf '{"files":["https://computerhacking101.com/sitemap.xml","https://computerhacking101.com/sitemap-pages.xml","https://computerhacking101.com/sitemap-posts.xml","https://computerhacking101.com/robots.txt"]}\n' > payload.json
-      - curl -sS -X POST "https://api.cloudflare.com/client/v4/zones/$CF_ZONE_ID/purge_cache" \
-          -H "Authorization: Bearer $CLOUDFLARE_API_TOKEN" -H "Content-Type: application/json" \
+      - |
+        cat > payload.json << 'EOF'
+        {
+          "files": [
+            "https://computerhacking101.com/sitemap.xml",
+            "https://computerhacking101.com/sitemap-pages.xml",
+            "https://computerhacking101.com/sitemap-posts.xml",
+            "https://computerhacking101.com/robots.txt"
+          ]
+        }
+        EOF
+      - |
+        curl -sS -X POST "https://api.cloudflare.com/client/v4/zones/$CF_ZONE_ID/purge_cache" \
+          -H "Authorization: Bearer $CLOUDFLARE_API_TOKEN" \
+          -H "Content-Type: application/json" \
           --data @payload.json | tee purge_response.json
       - rm -f payload.json
 
   - name: indexnow-submit
     image: python:3.11-alpine
-    when: { event: [ push, tag ], branch: [ main ] }
+    when:
+      event: [push, tag]
+      branch: [main]
     environment:
-      INDEXNOW_KEY: { from_secret: INDEXNOW_KEY }
+      INDEXNOW_KEY:
+        from_secret: INDEXNOW_KEY
     commands:
       - set -eux
       - pip install --no-cache-dir requests defusedxml
@@ -84,11 +113,16 @@ steps:
 
   - name: warm-cache
     image: alpine/curl:8.9.1
-    when: { event: [ push, tag ], branch: [ main ] }
+    when:
+      event: [push, tag]
+      branch: [main]
     commands:
       - set -eux
       - chmod +x .drone/scripts/warm_cache.sh
-      - .drone/scripts/warm_cache.sh "https://computerhacking101.com/sitemap.xml" "https://computerhacking101.com/ https://www.computerhacking101.com/"
+      - |
+        .drone/scripts/warm_cache.sh \
+          "https://computerhacking101.com/sitemap.xml" \
+          "https://computerhacking101.com/ https://www.computerhacking101.com/"
 
 volumes:
   - name: cache_hugo
@@ -97,6 +131,5 @@ volumes:
     temp: {}
 
 trigger:
-  branch: [ main ]
-  event:  [ push, tag ]
-
+  branch: [main]
+  event: [push, tag]
