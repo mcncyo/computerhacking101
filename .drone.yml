@@ -189,7 +189,7 @@ steps:
     # Cloudflare API credentials
     environment:
       CLOUDFLARE_API_TOKEN: { from_secret: CLOUDFLARE_API_TOKEN_PURGE }  # Token with zone.cache_purge permission
-      CF_ZONE_ID: { from_secret: CF_ZONE_ID_CH101 }  # Cloudflare Zone ID
+      CF_ZONE_ID: { from_secret: CF_ZONE_ID }  # Cloudflare Zone ID
     
     commands:
       # Make the purge script executable
