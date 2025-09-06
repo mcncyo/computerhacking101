@@ -1,12 +1,21 @@
 {{- $.Scratch.Add "index" slice -}}
-{{- range where .Site.RegularPages "Type" "not in" (slice "search" "json") -}}
+{{- $pages := where .Site.Pages "Kind" "in" (slice "page" "section") -}}
+{{- range $pages -}}
   {{- if and (ne .Params.noindex true) (ne .Params.sitemap_exclude true) -}}
-    {{- $.Scratch.Add "index" (dict
-      "loc" .Permalink
-      "lastmod" (time.Format "2006-01-02T15:04:05-07:00" (default .Lastmod .Date))
-      "changefreq" (default "weekly" .Params.changefreq)
-      "priority" (default 0.5 .Params.priority)
-    ) -}}
+    {{- if not (in .RelPermalink "/tags/") -}}
+      {{- if not (in .RelPermalink "/categories/") -}}
+        {{- if not (in .RelPermalink "/search") -}}
+          {{- if not (in .RelPermlash "/json") -}}
+            {{- $.Scratch.Add "index" (dict
+              "loc" .Permalink
+              "lastmod" (time.Format "2006-01-02T15:04:05-07:00" (default .Lastmod .Date))
+              "changefreq" (default "weekly" .Params.changefreq)
+              "priority" (default 0.5 .Params.priority)
+            ) -}}
+          {{- end -}}
+        {{- end -}}
+      {{- end -}}
+    {{- end -}}
   {{- end -}}
 {{- end -}}
 
