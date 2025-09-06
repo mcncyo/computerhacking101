@@ -88,18 +88,24 @@ steps:
       - set -eux
       - '[ -n "$CF_ZONE_ID" ] || ( echo "Missing CF_ZONE_ID"; exit 1 )'
       - '[ -n "$CLOUDFLARE_API_TOKEN" ] || ( echo "Missing CLOUDFLARE_API_TOKEN"; exit 1 )'
-      - >-
-        curl -sS -X POST "https://api.cloudflare.com/client/v4/zones/$CF_ZONE_ID/purge_cache" \
-        -H "Authorization: Bearer $CLOUDFLARE_API_TOKEN" \
-        -H "Content-Type: application/json" \
-        --data '{
+      - |
+        cat > payload.json << 'JSON'
+        {
           "files": [
             "https://computerhacking101.com/sitemap.xml",
             "https://computerhacking101.com/sitemap-pages.xml",
             "https://computerhacking101.com/sitemap-posts.xml",
             "https://computerhacking101.com/robots.txt"
           ]
-        }'
+        }
+        JSON
+      - |
+        curl -sS -X POST "https://api.cloudflare.com/client/v4/zones/$CF_ZONE_ID/purge_cache" \
+          -H "Authorization: Bearer $CLOUDFLARE_API_TOKEN" \
+          -H "Content-Type: application/json" \
+          --data @payload.json | tee purge_response.json
+      - set -x
+      - rm -f payload.json
       - echo "Requested Cloudflare cache purge for sitemap and robots."
 
   # ----------------- INDEXNOW (always from sitemap) -----------------
