@@ -8,30 +8,36 @@ steps:
     commands:
       - git submodule update --init --recursive
 
-  # Build with Hugo (Alpine) and install Node/PostCSS inside the container
+  # Build with Node and a pinned Hugo Extended
   - name: build site
-    image: klakegg/hugo:0.128.2-ext-alpine
+    image: node:20-alpine
     environment:
       HUGO_ENV: production
       NODE_ENV: production
     commands:
-      - umask 0022
-      # Node & npm for PostCSS/Tailwind pipeline
-      - apk add --no-cache nodejs npm
-      # Install global CLIs (some Hugoplate pipelines expect these)
+      - set -eux
+      # deps needed to unpack Hugo
+      - apk add --no-cache curl tar bash libc6-compat
+      # --- install Hugo Extended (pin the version) ---
+      - export HUGO_VERSION=0.128.2
+      - curl -fsSL -o /tmp/hugo.tar.gz "https://github.com/gohugoio/hugo/releases/download/v${HUGO_VERSION}/hugo_extended_${HUGO_VERSION}_Linux-64bit.tar.gz"
+      - tar -xz -C /tmp -f /tmp/hugo.tar.gz hugo
+      - install /tmp/hugo /usr/local/bin/hugo
+      - hugo version
+      # --- Node toolchain for PostCSS/Tailwind used by Hugoplate ---
       - npm i -g postcss postcss-cli autoprefixer tailwindcss
-      # If your repo has a package.json, install it
+      # repo-level packages if present
       - if [ -f package.json ]; then npm ci || npm i; fi
-      # If the theme lives in themes/hugoplate with its own package.json, install there too
+      # theme-level packages if theme is vendored under themes/hugoplate
       - if [ -d themes/hugoplate ] && [ -f themes/hugoplate/package.json ]; then (cd themes/hugoplate && npm ci || npm i); fi
-      # Update Hugo modules to versions your theme expects
-      - hugo mod get -u
-      - hugo mod tidy
-      # Build
-      - hugo --minify --baseURL "https://computerhacking101.com/" --gc
+      # update hugo modules (harmless if not used)
+      - hugo mod get -u || true
+      - hugo mod tidy || true
+      # build
+      - umask 0022
+      - hugo --minify --gc --baseURL "https://computerhacking101.com/"
       - ls -lh public
       - ls -lh public/index.html || echo "index.html missing"
-
 
   # Full crawl to populate changed_urls.txt for IndexNow
   - name: extract all URLs
@@ -78,4 +84,3 @@ steps:
     commands:
       - chmod +x .drone/scripts/warm_cache.sh
       - .drone/scripts/warm_cache.sh "https://computerhacking101.com/sitemap.xml" 10
-
