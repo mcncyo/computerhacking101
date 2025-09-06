@@ -8,19 +8,26 @@ steps:
     commands:
       - git submodule update --init --recursive
 
+  # Build with Hugo (Alpine) and install Node/PostCSS inside the container
   - name: build site
-    image: klakegg/hugo:ext-node
+    image: klakegg/hugo:ext-alpine
     environment:
       HUGO_ENV: production
       NODE_ENV: production
     commands:
       - umask 0022
-      - npm ci || npm install
+      # install Node + npm for PostCSS pipeline
+      - apk add --no-cache nodejs npm
+      # install theme/site npm deps if present (doesn't fail if package.json missing)
+      - npm ci || npm install || true
+      # update Hugo modules if you use them
       - hugo mod get -u || true
+      # build
       - hugo --minify --baseURL "https://computerhacking101.com/" --gc
       - ls -lh public
       - ls -lh public/index.html || echo "index.html missing"
 
+  # Full crawl to populate changed_urls.txt for IndexNow
   - name: extract all URLs
     image: python:3.11-alpine
     commands:
@@ -36,7 +43,7 @@ steps:
     commands:
       - corepack enable || true
       - '[ -n "$CLOUDFLARE_ACCOUNT_ID" ] || ( echo "Missing CLOUDFLARE_ACCOUNT_ID" && exit 1 )'
-      - '[ -n "$CLOUDFLARE_API_TOKEN" ] || ( echo "Missing CLOUDFLARE_API_TOKEN" && exit 1 )'
+      - '[ -n "$CLOUDFLARE_API_TOKEN" ]  || ( echo "Missing CLOUDFLARE_API_TOKEN" && exit 1 )'
       - >
         if [ "$DRONE_BRANCH" = "main" ]; then
           npx --yes wrangler@3 pages deploy public --project-name=computerhacking101;
@@ -65,3 +72,4 @@ steps:
     commands:
       - chmod +x .drone/scripts/warm_cache.sh
       - .drone/scripts/warm_cache.sh "https://computerhacking101.com/sitemap.xml" 10
+
