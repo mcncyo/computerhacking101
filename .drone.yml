@@ -81,7 +81,7 @@ steps:
       branch: [ main ]
     environment:
       CLOUDFLARE_API_TOKEN:
-        from_secret: CLOUDFLARE_API_TOKEN
+        from_secret: CLOUDFLARE_API_TOKEN_PURGE
       CF_ZONE_ID:
         from_secret: CF_ZONE_ID
     commands:
