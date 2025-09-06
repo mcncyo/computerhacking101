@@ -8,7 +8,6 @@ steps:
     commands:
       - git submodule update --init --recursive
 
-  # Build with Node available for PostCSS/etc.
   - name: build site
     image: klakegg/hugo:ext-node
     environment:
@@ -16,15 +15,12 @@ steps:
       NODE_ENV: production
     commands:
       - umask 0022
-      # If your theme uses npm packages:
       - npm ci || npm install
-      # If you use Hugo modules:
       - hugo mod get -u || true
       - hugo --minify --baseURL "https://computerhacking101.com/" --gc
       - ls -lh public
       - ls -lh public/index.html || echo "index.html missing"
 
-  # Full crawl to populate changed_urls.txt for IndexNow
   - name: extract all URLs
     image: python:3.11-alpine
     commands:
@@ -39,13 +35,13 @@ steps:
         from_secret: CLOUDFLARE_API_TOKEN
     commands:
       - corepack enable || true
-      - |
-        [ -n "$CLOUDFLARE_ACCOUNT_ID" ] || { echo "Missing CLOUDFLARE_ACCOUNT_ID"; exit 1; }
-        [ -n "$CLOUDFLARE_API_TOKEN" ]  || { echo "Missing CLOUDFLARE_API_TOKEN";  exit 1; }
+      - '[ -n "$CLOUDFLARE_ACCOUNT_ID" ] || ( echo "Missing CLOUDFLARE_ACCOUNT_ID" && exit 1 )'
+      - '[ -n "$CLOUDFLARE_API_TOKEN" ] || ( echo "Missing CLOUDFLARE_API_TOKEN" && exit 1 )'
+      - >
         if [ "$DRONE_BRANCH" = "main" ]; then
-          npx --yes wrangler@3 pages deploy public --project-name=computerhacking101
+          npx --yes wrangler@3 pages deploy public --project-name=computerhacking101;
         else
-          npx --yes wrangler@3 pages deploy public --project-name=computerhacking101 --branch="$DRONE_BRANCH"
+          npx --yes wrangler@3 pages deploy public --project-name=computerhacking101 --branch="$DRONE_BRANCH";
         fi
     when:
       branch:
@@ -57,73 +53,15 @@ steps:
       branch: [ main ]
     environment:
       INDEXNOW_KEY:
-        from_secret: INDEXNOW_KEY       # matches https://computerhacking101.com/<key>.txt
+        from_secret: INDEXNOW_KEY
     commands:
       - pip install --no-cache-dir requests
-      - |
-        python <<'PY'
-        import json, os, pathlib, sys, requests
-        key = os.environ.get("INDEXNOW_KEY", "51ccd95176a34334891dc90cab8d3dc7")
-        host = "computerhacking101.com"
-        p = pathlib.Path("changed_urls.txt")
-        urls = [u.strip() for u in p.read_text().splitlines() if u.strip()] if p.exists() and p.stat().st_size > 0 else []
-        if not urls:
-            print("IndexNow: no URLs, skipping.")
-            sys.exit(0)
-
-        payload = {
-            "host": host,
-            "key": key,
-            "keyLocation": f"https://{host}/{key}.txt",
-            "urlList": urls
-        }
-        print("IndexNow payload:", json.dumps(payload, indent=2)[:800])
-
-        try:
-            r = requests.post("https://api.indexnow.org/indexnow", json=payload, timeout=30)
-            print("IndexNow response:", r.status_code, r.text[:500])
-        except Exception as e:
-            # Don't block deploy over IndexNow
-            print("IndexNow error (ignored):", e)
-        PY
+      - python .drone/scripts/indexnow_submit.py computerhacking101.com "$INDEXNOW_KEY"
 
   - name: warm up Cloudflare cache (parallel)
     image: curlimages/curl:8.9.1
     when:
       branch: [ main ]
     commands:
-      - |
-        set -euo pipefail
-        SITEMAP_ROOT="https://computerhacking101.com/sitemap.xml"
-        EXTRA_URLS=("https://computerhacking101.com/" "https://www.computerhacking101.com/")
-        CONCURRENCY=10
-
-        fetch_and_extract() {
-          echo "Fetching $1"
-          curl -fsS "$1" -o /tmp/sm.xml
-          sed -n 's:.*<loc>\(.*\)</loc>.*:\1:p' /tmp/sm.xml
-        }
-
-        ROOT_LOCS=$(fetch_and_extract "$SITEMAP_ROOT")
-
-        if grep -q "<sitemapindex" /tmp/sm.xml; then
-          echo "Sitemap index detected. Expanding child sitemaps..."
-          > /tmp/all_urls.txt
-          echo "$ROOT_LOCS" | while read -r sm; do
-            [ -n "$sm" ] || continue
-            fetch_and_extract "$sm" >> /tmp/all_urls.txt
-          done
-        else
-          echo "Standard sitemap detected."
-          echo "$ROOT_LOCS" > /tmp/all_urls.txt
-        fi
-
-        for u in "${EXTRA_URLS[@]}"; do echo "$u"; done >> /tmp/all_urls.txt
-        awk 'NF' /tmp/all_urls.txt | sort -u > /tmp/urls.txt
-
-        echo "Warming $(wc -l < /tmp/urls.txt) URLs with concurrency=${CONCURRENCY} ..."
-        # Avoid {} and %{...} entirely to keep Drone happy.
-        xargs -n1 -P "${CONCURRENCY}" -I URL sh -c '
-          echo "Warming: URL"
-          curl -s -L -o /dev/null "URL" || echo "Failed: URL"
-        ' < /tmp/urls.txt
+      - chmod +x .drone/scripts/warm_cache.sh
+      - .drone/scripts/warm_cache.sh "https://computerhacking101.com/sitemap.xml" 10
