@@ -157,35 +157,40 @@ steps:
         set -euo pipefail
         SITEMAP_ROOT="https://computerhacking101.com/sitemap.xml"
         CONCURRENCY=10
-        EXTRA_URLS="https://computerhacking101.com/ https://www.computerhacking101.com/"
+        EXTRA_URLS=("https://computerhacking101.com/" "https://www.computerhacking101.com/")
 
         fetch_and_extract() {
-          echo "Fetching $1"
+          printf 'Fetching %s\n' "$1" >&2        # log to stderr so it won't be captured
           curl -fsS "$1" -o /tmp/sm.xml
           sed -n 's:.*<loc>\(.*\)</loc>.*:\1:p' /tmp/sm.xml
         }
 
-        ROOT_LOCS=$(fetch_and_extract "$SITEMAP_ROOT")
+        ROOT_LOCS="$(fetch_and_extract "$SITEMAP_ROOT")"
+
         if grep -qi "<sitemapindex" /tmp/sm.xml; then
           echo "Sitemap index detected. Expanding..."
-          > /tmp/all_urls.txt
+          : > /tmp/all_urls.txt
           echo "$ROOT_LOCS" | while read -r sm; do
             [ -n "$sm" ] || continue
+            echo "$sm" | grep -E '^https?://' >/dev/null 2>&1 || continue
             fetch_and_extract "$sm" >> /tmp/all_urls.txt
           done
         else
-          echo "Standard sitemap detected."
           echo "$ROOT_LOCS" > /tmp/all_urls.txt
         fi
 
-        for u in $EXTRA_URLS; do echo "$u"; done >> /tmp/all_urls.txt
-        awk 'NF' /tmp/all_urls.txt | sort -u > /tmp/urls.txt
+        # Add must-warm pages
+        for u in "${EXTRA_URLS[@]}"; do echo "$u"; done >> /tmp/all_urls.txt
 
-        echo "Warming $(wc -l < /tmp/urls.txt) URLs (P=$CONCURRENCY)..."
-        xargs -n1 -P "$CONCURRENCY" -I URL sh -c '
+        # Keep only real http(s) URLs, de-dup
+        awk 'BEGIN{IGNORECASE=1} /^https?:\/\// {print}' /tmp/all_urls.txt | sort -u > /tmp/urls.txt
+
+        echo "Warming $(wc -l < /tmp/urls.txt) URLs (P=${CONCURRENCY})..."
+        xargs -n1 -P "${CONCURRENCY}" -I URL sh -c '
           echo "Warming: URL"
           curl -s -L -o /dev/null "URL" || echo "Failed: URL"
         ' < /tmp/urls.txt
+
 
 # Triggers (no nightly cron)
 trigger:
