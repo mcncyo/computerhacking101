@@ -1,107 +1,194 @@
 kind: pipeline
 type: docker
-name: build-and-deploy
+name: Deploy Hugo site (Cloudflare Pages)
+
+clone:
+  depth: 0
 
 steps:
-  - name: git submodules
-    image: alpine/git
-    commands:
-      - git submodule update --init --recursive
-
-  # Build with Node and Hugo Extended
-  - name: build site
-    image: node:20-alpine
+  # ----------------- BUILD -----------------
+  - name: build-hugo
+    image: hugomods/hugo:exts
     environment:
       HUGO_ENV: production
-      NODE_ENV: production
-      TZ: "America/Chicago"
+      HUGO_MODULE_PROXY: "off"       # use vendored modules
+      HUGO_MODULE_OFFLINE: "true"    # use vendored modules
+      TZ: America/Chicago
     commands:
       - set -eux
-      - apk add --no-cache curl tar bash jq libc6-compat tzdata git
+      - npm ci || npm install
+      - export PATH="$PATH:$(pwd)/node_modules/.bin"
+      - hugo --minify --gc --enableGitInfo -e production --baseURL "https://computerhacking101.com/"
 
-      # --- Install Hugo Extended ---
-      - wget -O /tmp/hugo.tar.gz https://github.com/gohugoio/hugo/releases/download/v0.128.2/hugo_extended_0.128.2_Linux-64bit.tar.gz
-      - tar -xzf /tmp/hugo.tar.gz -C /tmp hugo
-      - install /tmp/hugo /usr/local/bin/hugo
-      - hugo version
-
-      # --- Install Node.js and dependencies ---
-      - npm install -g npm@latest
-      - npm install -D tailwindcss@latest postcss@latest autoprefixer@latest
-      - npx tailwindcss init -p
-      
-      # --- Configure Tailwind CSS ---
-      - |
-        cat > tailwind.config.js << 'EOL'
-        module.exports = {
-          content: [
-            "./layouts/**/*.html",
-            "./content/**/*.md",
-            "./themes/hugoplate/**/*.html"
-          ],
-          theme: {
-            extend: {},
-          },
-          plugins: [],
-        }
-        EOL
-      
-      # --- Build the site ---
-      - echo "Building site with Hugo..."
-      - umask 0022
-      - mkdir -p static/css
-      - npx tailwindcss -i ./assets/css/main.css -o ./static/css/main.css --minify
-      - hugo --minify --gc --baseURL "https://computerhacking101.com/" --environment production
-      
-      # Verify build
-      - ls -lah public/
-      - |
-        if [ ! -f public/index.html ]; then 
-          echo "Error: index.html not found"
-          exit 1
-        fi
-
-  - name: extract all URLs
-    image: python:3.11-alpine
-    commands:
-      - python .drone/scripts/extract_all_urls.py
-
-  - name: deploy to Cloudflare Pages
+  # ----------------- DEPLOY TO CLOUDFLARE PAGES -----------------
+  - name: deploy-pages
     image: node:20-alpine
+    when:
+      event: [ push, tag ]
     environment:
       CLOUDFLARE_ACCOUNT_ID:
         from_secret: CF_ACCOUNT_ID
       CLOUDFLARE_API_TOKEN:
         from_secret: CLOUDFLARE_API_TOKEN
     commands:
-      - corepack enable || true
-      - '[ -n "$CLOUDFLARE_ACCOUNT_ID" ] || ( echo "Missing CLOUDFLARE_ACCOUNT_ID" && exit 1 )'
-      - '[ -n "$CLOUDFLARE_API_TOKEN" ]  || ( echo "Missing CLOUDFLARE_API_TOKEN" && exit 1 )'
-      - >
+      - set -eux
+      - apk add --no-cache tzdata
+      - '[ -n "$CLOUDFLARE_ACCOUNT_ID" ] || ( echo "Missing CLOUDFLARE_ACCOUNT_ID"; exit 1 )'
+      - '[ -n "$CLOUDFLARE_API_TOKEN" ]  || ( echo "Missing CLOUDFLARE_API_TOKEN";  exit 1 )'
+      - npm install -g wrangler@3
+      - |
         if [ "$DRONE_BRANCH" = "main" ]; then
-          npx --yes wrangler@3 pages deploy public --project-name=computerhacking101;
+          wrangler pages deploy public --project-name=computerhacking101
         else
-          npx --yes wrangler@3 pages deploy public --project-name=computerhacking101 --branch="$DRONE_BRANCH";
+          wrangler pages deploy public --project-name=computerhacking101 --branch="$DRONE_BRANCH"
         fi
-    when:
-      branch:
-        include: [ main, feature/*, fix/* ]
 
-  - name: submit IndexNow (main only)
+  # ----------------- INDEXNOW (always from sitemap) -----------------
+  - name: indexnow-submit
     image: python:3.11-alpine
     when:
+      event: [ push, tag ]
       branch: [ main ]
     environment:
       INDEXNOW_KEY:
         from_secret: INDEXNOW_KEY
     commands:
       - pip install --no-cache-dir requests
-      - python .drone/scripts/indexnow_submit.py computerhacking101.com "$INDEXNOW_KEY"
+      - |
+        python <<'PY'
+        import os, sys, re, time, json
+        import requests
+        from urllib.parse import urlparse
 
-  - name: warm up Cloudflare cache (parallel)
+        HOST = "computerhacking101.com"
+        KEY = os.environ.get("INDEXNOW_KEY", "").strip()
+        if not KEY:
+            print("INDEXNOW_KEY missing; skipping IndexNow.")
+            sys.exit(0)
+
+        KEY_URL = f"https://{HOST}/{KEY}.txt"
+        SITEMAP_URL = f"https://{HOST}/sitemap.xml"
+        INDEXNOW_ENDPOINT = "https://api.indexnow.org/indexnow"
+        MAX_BATCH = 10_000
+
+        def fetch(url, timeout=30):
+            try:
+                r = requests.get(url, timeout=timeout)
+                if r.status_code == 200:
+                    return r.text
+                print(f"Fetch {url} -> {r.status_code}")
+            except Exception as e:
+                print(f"Fetch error {url}: {e}")
+            return ""
+
+        def extract_locs(xml_text):
+            return re.findall(r"<loc>\s*([^<\s]+)\s*</loc>", xml_text, flags=re.IGNORECASE)
+
+        def normalize(urls):
+            out, seen = [], set()
+            for u in urls:
+                pu = urlparse(u.strip())
+                if pu.scheme in ("http","https") and pu.netloc.endswith(HOST):
+                    v = f"https://{HOST}{pu.path or '/'}"
+                    if pu.query:
+                        v += f"?{pu.query}"
+                    if v not in seen:
+                        seen.add(v); out.append(v)
+            return out
+
+        # get sitemap (expand index if present)
+        root = fetch(SITEMAP_URL)
+        if not root:
+            print("No sitemap retrieved; skipping.")
+            sys.exit(0)
+
+        urls = []
+        if "<sitemapindex" in root.lower():
+            for sm in extract_locs(root):
+                child = fetch(sm)
+                if child:
+                    urls.extend(extract_locs(child))
+        else:
+            urls.extend(extract_locs(root))
+
+        urls = normalize(urls)
+        if not urls:
+            print("No URLs found in sitemap; skipping.")
+            sys.exit(0)
+
+        print(f"Submitting {len(urls)} URLs from sitemap.xml")
+
+        def submit(batch):
+            payload = {"host": HOST, "key": KEY, "keyLocation": KEY_URL, "urlList": batch}
+            for attempt in range(5):
+                try:
+                    r = requests.post(INDEXNOW_ENDPOINT, json=payload, timeout=30)
+                except Exception as e:
+                    print(f"IndexNow POST error (attempt {attempt+1}): {e}")
+                    time.sleep(min(60, 2**attempt)); continue
+                if r.status_code in (200, 202):
+                    print(f"IndexNow OK {len(batch)} urls")
+                    return True
+                if r.status_code in (429, 500, 502, 503, 504):
+                    wait = min(60, 2**attempt)
+                    print(f"IndexNow {r.status_code}, retrying in {wait}s")
+                    time.sleep(wait); continue
+                print(f"IndexNow failed {r.status_code}: {r.text[:300]}")
+                return False
+            return False
+
+        sent = 0
+        for i in range(0, len(urls), MAX_BATCH):
+            chunk = urls[i:i+MAX_BATCH]
+            if submit(chunk):
+                sent += len(chunk)
+
+        print(f"IndexNow done. Submitted {sent}/{len(urls)} URLs.")
+        PY
+
+  # ----------------- WARM CACHE (optional) -----------------
+  - name: warm-cache
     image: curlimages/curl:8.9.1
     when:
+      event: [ push, tag ]
       branch: [ main ]
     commands:
-      - chmod +x .drone/scripts/warm_cache.sh
-      - .drone/scripts/warm_cache.sh "https://computerhacking101.com/sitemap.xml" 10
+      - |
+        set -euo pipefail
+        SITEMAP_ROOT="https://computerhacking101.com/sitemap.xml"
+        CONCURRENCY=10
+        EXTRA_URLS=("https://computerhacking101.com/" "https://www.computerhacking101.com/")
+
+        fetch_and_extract() {
+          echo "Fetching $1"
+          curl -fsS "$1" -o /tmp/sm.xml
+          sed -n 's:.*<loc>\(.*\)</loc>.*:\1:p' /tmp/sm.xml
+        }
+
+        ROOT_LOCS=$(fetch_and_extract "$SITEMAP_ROOT")
+        if grep -qi "<sitemapindex" /tmp/sm.xml; then
+          echo "Sitemap index detected. Expanding..."
+          > /tmp/all_urls.txt
+          echo "$ROOT_LOCS" | while read -r sm; do
+            [ -n "$sm" ] || continue
+            fetch_and_extract "$sm" >> /tmp/all_urls.txt
+          done
+        else
+          echo "Standard sitemap detected."
+          echo "$ROOT_LOCS" > /tmp/all_urls.txt
+        fi
+
+        for u in "${EXTRA_URLS[@]}"; do echo "$u"; done >> /tmp/all_urls.txt
+        awk 'NF' /tmp/all_urls.txt | sort -u > /tmp/urls.txt
+
+        echo "Warming $(wc -l < /tmp/urls.txt) URLs (P=${CONCURRENCY})..."
+        xargs -n1 -P "${CONCURRENCY}" -I URL sh -c '
+          echo "Warming: URL"
+          curl -s -L -o /dev/null "URL" || echo "Failed: URL"
+        ' < /tmp/urls.txt
+
+# Triggers (no nightly cron)
+trigger:
+  branch: [ main ]
+  event:  [ push, tag ]
+
