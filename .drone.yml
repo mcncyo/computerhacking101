@@ -157,7 +157,7 @@ steps:
         set -euo pipefail
         SITEMAP_ROOT="https://computerhacking101.com/sitemap.xml"
         CONCURRENCY=10
-        EXTRA_URLS=("https://computerhacking101.com/" "https://www.computerhacking101.com/")
+        EXTRA_URLS="https://computerhacking101.com/ https://www.computerhacking101.com/"
 
         fetch_and_extract() {
           echo "Fetching $1"
@@ -178,11 +178,11 @@ steps:
           echo "$ROOT_LOCS" > /tmp/all_urls.txt
         fi
 
-        for u in "${EXTRA_URLS[@]}"; do echo "$u"; done >> /tmp/all_urls.txt
+        for u in $EXTRA_URLS; do echo "$u"; done >> /tmp/all_urls.txt
         awk 'NF' /tmp/all_urls.txt | sort -u > /tmp/urls.txt
 
-        echo "Warming $(wc -l < /tmp/urls.txt) URLs (P=${CONCURRENCY})..."
-        xargs -n1 -P "${CONCURRENCY}" -I URL sh -c '
+        echo "Warming $(wc -l < /tmp/urls.txt) URLs (P=$CONCURRENCY)..."
+        xargs -n1 -P "$CONCURRENCY" -I URL sh -c '
           echo "Warming: URL"
           curl -s -L -o /dev/null "URL" || echo "Failed: URL"
         ' < /tmp/urls.txt
