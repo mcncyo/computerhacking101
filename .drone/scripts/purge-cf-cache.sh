@@ -18,18 +18,15 @@ fi
 echo "🔑 Using Zone ID: ${CF_ZONE_ID:0:4}...${CF_ZONE_ID: -4}"
 echo "🔑 Using API Token: ${CLOUDFLARE_API_TOKEN:0:5}..."
 
-# Make the API request using the external JSON payload
-echo "📡 Sending cache purge request to Cloudflare..."
-
-# Get the directory of the current script
-SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+# Make the API request to purge everything
+echo "📡 Sending request to clear entire Cloudflare cache..."
 
 response=$(
     curl -sS -X POST \
     "https://api.cloudflare.com/client/v4/zones/$CF_ZONE_ID/purge_cache" \
     -H "Authorization: Bearer $CLOUDFLARE_API_TOKEN" \
     -H "Content-Type: application/json" \
-    --data @"$SCRIPT_DIR/cf-purge-payload.json"
+    --data '{"purge_everything":true}'
 )
 
 # Save and display the response
