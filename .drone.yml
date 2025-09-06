@@ -1,115 +1,140 @@
 kind: pipeline
 type: docker
-name: Deploy Hugo site (latest)
-
-clone:
-  depth: 0
+name: build-and-deploy
 
 steps:
-  - name: build-hugo
-    image: hugomods/hugo:exts
+  - name: git submodules
+    image: alpine/git
     commands:
-      - npm ci
-      - export PATH=$PATH:$(pwd)/node_modules/.bin
-      - hugo --minify --gc --enableGitInfo -e production
+      - git submodule update --init --recursive
 
-  # sanity check: prove secrets are available on push/tag
-  - name: debug-secrets
-    image: alpine:3.20
-    when:
-      event: [ push, tag ]
+  - name: install dependencies
+    image: node:20-alpine
+    commands:
+      - apk add --no-cache git
+      - npm install -g postcss-cli autoprefixer
+      - npm install
+      - hugo mod get -u
+
+  - name: build site
+    image: klakegg/hugo:ext-alpine
     environment:
-      CF_API_TOKEN:
-        from_secret: CF_API_TOKEN
-      CF_ZONE_ID:
-        from_secret: CF_ZONE_ID
+      HUGO_ENV: production
+      NODE_ENV: production
+    commands:
+      - umask 0022
+      - hugo --minify --baseURL "https://computerhacking101.com/" --gc
+      - ls -lh public
+      - ls -lh public/index.html || echo "index.html missing"
+      - find public -type f -name "*.html" | xargs ls -lah || true
+
+  # Full crawl to populate changed_urls.txt for IndexNow
+  - name: extract all URLs
+    image: python:3.11-alpine
+    commands:
+      - python .drone/scripts/extract_all_urls.py
+
+  - name: deploy to Cloudflare Pages
+    image: node:20-alpine
+    environment:
+      CLOUDFLARE_ACCOUNT_ID:
+        from_secret: CF_ACCOUNT_ID     # set in Drone
+      CLOUDFLARE_API_TOKEN:
+        from_secret: CLOUDFLARE_API_TOKEN     # set in Drone (Pages:Edit)
+    commands:
+      - corepack enable || true
+      - |
+        if [ "$DRONE_BRANCH" = "main" ]; then
+          npx --yes wrangler@3 pages deploy public --project-name=computerhacking101
+        else
+          npx --yes wrangler@3 pages deploy public --project-name=computerhacking101 --branch="$DRONE_BRANCH"
+        fi
+    when:
+      branch:
+        include: [ main, feature/*, fix/* ]
+
+  - name: submit IndexNow (main only)
+    image: python:3.11-alpine
+    when:
+      branch: [ main ]
+    environment:
       INDEXNOW_KEY:
-        from_secret: INDEXNOW_KEY
-      SSH_USER:
-        from_secret: SSH_USER
+        from_secret: INDEXNOW_KEY       # optional; matches https://chrisallen.us/<key>.txt
+    commands:
+      - pip install --no-cache-dir requests
+      - |
+        python <<'PY'
+        import json, os, pathlib, sys, requests
+        key = os.environ.get("INDEXNOW_KEY", "51ccd95176a34334891dc90cab8d3dc7")
+        host = "computerhacking101.com"
+        p = pathlib.Path("changed_urls.txt")
+        urls = [u.strip() for u in p.read_text().splitlines() if u.strip()] if p.exists() and p.stat().st_size > 0 else []
+        if not urls:
+            print("IndexNow: no URLs, skipping.")
+            sys.exit(0)
+
+        payload = {
+            "host": host,
+            "key": key,
+            "keyLocation": f"https://{host}/{key}.txt",
+            "urlList": urls
+        }
+        print("IndexNow payload:", json.dumps(payload, indent=2)[:800])
+
+        try:
+            r = requests.post("https://api.indexnow.org/indexnow", json=payload, timeout=30)
+            print("IndexNow response:", r.status_code, r.text[:500])
+        except Exception as e:
+            # Don't ever block deploy over IndexNow
+            print("IndexNow error (ignored):", e)
+        PY
+
+  - name: warm up Cloudflare cache (parallel)
+    image: curlimages/curl:8.9.1
+    when:
+      branch: [ main ]
     commands:
       - |
-        echo "=== Checking required secrets ==="
-        if [ -n "$CF_API_TOKEN" ]; then echo "CF_API_TOKEN is set"; else echo "CF_API_TOKEN is MISSING"; exit 1; fi
-        if [ -n "$CF_ZONE_ID" ]; then echo "CF_ZONE_ID is set"; else echo "CF_ZONE_ID is MISSING"; exit 1; fi
-        if [ -n "$INDEXNOW_KEY" ]; then echo "INDEXNOW_KEY is set"; else echo "INDEXNOW_KEY is MISSING"; exit 1; fi
-        if [ -n "$SSH_USER" ]; then echo "SSH_USER is set"; else echo "SSH_USER is MISSING"; exit 1; fi
-        echo "All required secrets are present"
+        set -euo pipefail
+        SITEMAP_ROOT="https://computerhacking101.com/sitemap.xml"
+        EXTRA_URLS=("https://computerhacking101.com/" "https://www.computerhacking101.com/")  # add any must-warm pages
+        CONCURRENCY=10
 
-  - name: deploy-rsync
-    image: alpine:3.20
-    when:
-      event: [ push, tag ]
-    environment:
-      SSH_HOST:
-        from_secret: SSH_HOST
-      SSH_PORT:
-        from_secret: SSH_PORT
-      SSH_USER:
-        from_secret: SSH_USER
-      SSH_TARGET_DIR:
-        from_secret: SSH_TARGET_DIR
-      SSH_PRIVATE_KEY:
-        from_secret: SSH_PRIVATE_KEY
-    commands:
-      - apk add --no-cache rsync openssh-client
-      - mkdir -p ~/.ssh
-      - printf "%s\n" "$SSH_PRIVATE_KEY" > ~/.ssh/id_rsa
-      - chmod 600 ~/.ssh/id_rsa
-      - ssh-keyscan -p "${SSH_PORT:-22}" "$SSH_HOST" >> ~/.ssh/known_hosts
-      - rsync -avz --delete -e "ssh -p ${SSH_PORT:-22}" ./public/ "$SSH_USER@$SSH_HOST:$SSH_TARGET_DIR"
+        fetch_and_extract() {
+          # $1 = sitemap URL; print all <loc> values to stdout
+          echo "Fetching $1"
+          curl -fsS "$1" -o /tmp/sm.xml
+          # sed-only extractor (portable): pull <loc>...</loc> contents
+          sed -n 's:.*<loc>\(.*\)</loc>.*:\1:p' /tmp/sm.xml
+        }
 
-  - name: post-deploy-hooks
-    image: alpine:3.20
-    when:
-      event: [ push, tag ]
-    environment:
-      SITE_URL: https://computerhacking101.com
-      CF_ZONE_ID:
-        from_secret: CF_ZONE_ID
-      CF_API_TOKEN:
-        from_secret: CF_API_TOKEN
-      INDEXNOW_KEY:
-        from_secret: INDEXNOW_KEY
-    commands:
-      - apk add --no-cache curl
-      - |
-        echo "=== Starting post-deploy hooks ==="
-        
-        # Cloudflare cache purge
-        if [ -n "$CF_ZONE_ID" ] && [ -n "$CF_API_TOKEN" ]; then
-          echo "Purging Cloudflare cache..."
-          curl -s -X POST "https://api.cloudflare.com/client/v4/zones/$CF_ZONE_ID/purge_cache" \
-            -H "Authorization: Bearer $CF_API_TOKEN" \
-            -H "Content-Type: application/json" \
-            --data '{"purge_everything":true}' \
-            -w "\nStatus: %{http_code}\n"
+        # Fetch root sitemap
+        ROOT_LOCS=$(fetch_and_extract "$SITEMAP_ROOT")
+
+        # Detect if it's a sitemap index
+        if grep -q "<sitemapindex" /tmp/sm.xml; then
+          echo "Sitemap index detected. Expanding child sitemaps..."
+          # For each child sitemap link, fetch and extract its <loc> entries
+          > /tmp/all_urls.txt
+          echo "$ROOT_LOCS" | while read -r sm; do
+            [ -n "$sm" ] || continue
+            fetch_and_extract "$sm" >> /tmp/all_urls.txt
+          done
         else
-          echo "Cloudflare credentials missing; skipping cache purge"
-        fi
-        
-        # IndexNow submission
-        if [ -n "$INDEXNOW_KEY" ]; then
-          echo "Submitting to IndexNow..."
-          echo "URL: $SITE_URL"
-          curl -s -w "\nStatus: %{http_code}\n" -X POST "https://api.indexnow.org/indexnow" \
-            -H "Content-Type: application/json" \
-            --data "{\"host\":\"computerhacking101.com\",\"key\":\"$INDEXNOW_KEY\",\"urlList\":[\"$SITE_URL\"]}"
-        else
-          echo "IndexNow key missing; skipping submission"
+          echo "Standard sitemap detected."
+          echo "$ROOT_LOCS" > /tmp/all_urls.txt
         fi
 
-# Trigger pipeline on push to main branch, tags, or daily schedule
-trigger:
-  branch: [ main ]
-  event:  [ push, tag, cron ]
+        # Add any extra URLs you always want warmed
+        for u in "${EXTRA_URLS[@]}"; do echo "$u"; done >> /tmp/all_urls.txt
 
-# Run daily at midnight UTC
-cron:
-  - name: daily-build
-    cron: "0 0 * * *"
-    branch: main
-    event: cron
+        # Clean up, normalize, de-dup
+        awk 'NF' /tmp/all_urls.txt | sort -u > /tmp/urls.txt
 
-
+        echo "Warming $(wc -l < /tmp/urls.txt) URLs with concurrency=${CONCURRENCY} ..."
+        # Use GET (HEAD won't populate cache). Parallelize with xargs.
+        cat /tmp/urls.txt | xargs -n1 -P "${CONCURRENCY}" -I {} sh -c '
+          printf "Warming: %s ... " "{}"
+          curl -s -o /dev/null -w "-> %{%Y-%m-%d %H:%M:%S}t %{http_code} (%{time_total}s)\n" "{}"
+        '
 
