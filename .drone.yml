@@ -62,7 +62,7 @@ steps:
     commands:
       - pip install --no-cache-dir requests
       - |
-        python <<'PY'
+        cat > indexnow.py << 'EOF'
         import json, os, pathlib, sys, requests
         key = os.environ.get("INDEXNOW_KEY", "51ccd95176a34334891dc90cab8d3dc7")
         host = "computerhacking101.com"
@@ -86,7 +86,8 @@ steps:
         except Exception as e:
             # Don't block deploy over IndexNow
             print("IndexNow error (ignored):", e)
-        PY
+        EOF
+        python indexnow.py
 
   - name: warm up Cloudflare cache (parallel)
     image: curlimages/curl:8.9.1
