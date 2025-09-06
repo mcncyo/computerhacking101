@@ -27,9 +27,7 @@ steps:
 
       # --- Install Node.js and dependencies ---
       - npm install -g npm@latest
-      - npm install -g yarn --force
-      - yarn set version stable
-      - yarn install --frozen-lockfile
+      - npm ci || npm install
       
       # --- Build the site ---
       - echo "Building site with Hugo..."
