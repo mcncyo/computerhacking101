@@ -18,7 +18,8 @@ steps:
       - set -eux
       - npm ci || npm install
       - export PATH="$PATH:$(pwd)/node_modules/.bin"
-      - hugo --minify --gc --enableGitInfo -e production --baseURL "https://computerhacking101.com/"
+      # Build with all content included
+      - hugo --minify --gc --enableGitInfo --environment production --cleanDestinationDir --ignoreCache --buildDrafts=false --buildFuture=false --buildExpired=false --baseURL "https://computerhacking101.com/"
 
   # ----------------- DEPLOY TO CLOUDFLARE PAGES -----------------
   - name: deploy-pages
