@@ -10,22 +10,28 @@ steps:
 
   # Build with Hugo (Alpine) and install Node/PostCSS inside the container
   - name: build site
-    image: klakegg/hugo:ext-alpine
+    image: klakegg/hugo:0.128.2-ext-alpine
     environment:
       HUGO_ENV: production
       NODE_ENV: production
     commands:
       - umask 0022
-      # install Node + npm for PostCSS pipeline
+      # Node & npm for PostCSS/Tailwind pipeline
       - apk add --no-cache nodejs npm
-      # install theme/site npm deps if present (doesn't fail if package.json missing)
-      - npm ci || npm install || true
-      # update Hugo modules if you use them
-      - hugo mod get -u || true
-      # build
+      # Install global CLIs (some Hugoplate pipelines expect these)
+      - npm i -g postcss postcss-cli autoprefixer tailwindcss
+      # If your repo has a package.json, install it
+      - if [ -f package.json ]; then npm ci || npm i; fi
+      # If the theme lives in themes/hugoplate with its own package.json, install there too
+      - if [ -d themes/hugoplate ] && [ -f themes/hugoplate/package.json ]; then (cd themes/hugoplate && npm ci || npm i); fi
+      # Update Hugo modules to versions your theme expects
+      - hugo mod get -u
+      - hugo mod tidy
+      # Build
       - hugo --minify --baseURL "https://computerhacking101.com/" --gc
       - ls -lh public
       - ls -lh public/index.html || echo "index.html missing"
+
 
   # Full crawl to populate changed_urls.txt for IndexNow
   - name: extract all URLs
