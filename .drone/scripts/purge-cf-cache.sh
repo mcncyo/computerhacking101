@@ -18,15 +18,18 @@ fi
 echo "🔑 Using Zone ID: ${CF_ZONE_ID:0:4}...${CF_ZONE_ID: -4}"
 echo "🔑 Using API Token: ${CLOUDFLARE_API_TOKEN:0:5}..."
 
+# Define the domain to purge
+DOMAIN="computerhacking101.com"
+
 # Make the API request to purge everything
-echo "📡 Sending request to clear entire Cloudflare cache..."
+echo "📡 Sending request to clear Cloudflare cache for $DOMAIN..."
 
 response=$(
     curl -sS -X POST \
     "https://api.cloudflare.com/client/v4/zones/$CF_ZONE_ID/purge_cache" \
     -H "Authorization: Bearer $CLOUDFLARE_API_TOKEN" \
     -H "Content-Type: application/json" \
-    --data '{"purge_everything":true}'
+    --data '{"files":["https://'$DOMAIN'/*"]}'
 )
 
 # Save and display the response
