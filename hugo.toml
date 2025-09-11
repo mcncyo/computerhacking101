@@ -148,6 +148,10 @@ unsafe = true
 [markup.goldmark.extensions]     # <-- add this table
 attribute = true               # so {.btn-red} works
 
+[taxonomies]
+tag = "tags"
+category = "categories"
+
 
 [markup.highlight]
 style = 'monokai' # see https://xyproto.github.io/splash/docs/all.html
