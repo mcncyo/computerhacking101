@@ -13,4 +13,4 @@ resources
 jsconfig.json
 hugo_stats.json
 node_modules
-yarn.lock
+yarn.lock.envrc
