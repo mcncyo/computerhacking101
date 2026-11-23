@@ -28,7 +28,7 @@ if [[ "${HAVE}" != "${HUGO_WANT}" ]]; then
 fi
 
 echo "Building ${SITE_HOST}..."
-hugo --minify --gc  --baseURL "https://${SITE_HOST}/" --cleanDestinationDir
+HUGO_ENV=production hugo --minify --gc  --baseURL "https://${SITE_HOST}/" --cleanDestinationDir
 
 test -f public/sitemap.xml || { echo "No public/sitemap.xml: build looks wrong, not deploying." >&2; exit 1; }
 
