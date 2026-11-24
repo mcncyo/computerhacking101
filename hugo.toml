@@ -78,7 +78,7 @@ defaultContentLanguageInSubdir = false
     displayTitle = true
     displayLogo = false
   [params.footer]
-    displayCopyright = true
+    displayCopyright = false
     displayPoweredBy = false
   [params.search]
     enable = true
