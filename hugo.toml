@@ -73,6 +73,7 @@ defaultContentLanguageInSubdir = false
       type = "theme-toggle"
 
 [params]
+  images = ["images/og-default.png"]
   description = "Step-by-step tutorials that help you make your computer work for you: Docker, Linux servers, Home Assistant, security and self-hosting."
   [params.navbar]
     displayTitle = true

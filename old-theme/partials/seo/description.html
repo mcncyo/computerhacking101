@@ -1,7 +1,0 @@
-{{/* Generate the page description */}}
-{{- $description := .Description | default .Summary | default .Site.Params.Description -}}
-{{- if $description -}}
-  <meta name="description" content="{{ $description | plainify | htmlUnescape | chomp }}" />
-  <meta property="og:description" content="{{ $description | plainify | htmlUnescape | chomp }}" />
-  <meta name="twitter:description" content="{{ $description | plainify | htmlUnescape | chomp }}" />
-{{- end -}}
