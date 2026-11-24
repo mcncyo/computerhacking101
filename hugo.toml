@@ -93,4 +93,4 @@ defaultContentLanguageInSubdir = false
 
 [security]
   [security.exec]
-    allow = ["^go$", "^git$", "^npx$", "^node$"]
+    allow = ["^go$", "^git$"]

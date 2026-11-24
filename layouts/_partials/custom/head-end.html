@@ -1,17 +1,14 @@
-{{- /* Site-wide SEO extras: Twitter card, JSON-LD. Robots, canonical, description and Open Graph come from Hextra's head partial. */ -}}
+{{- /* Site-wide SEO extras: Twitter site handle, JSON-LD. Robots, canonical, description, Open Graph and the Twitter card come from Hextra's head partial. */ -}}
 {{- $img := "images/og-default.png" | absURL -}}
 {{- with .Params.images }}{{ with index . 0 }}{{ $img = . | absURL }}{{ end }}{{ end -}}
-<meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:site" content="@computerhack101">
-<meta name="twitter:title" content="{{ .Title }}">
-<meta name="twitter:image" content="{{ $img }}">
 {{- $desc := cond (ne .Description "") .Description (cond .IsPage .Summary (site.Params.description | default "")) | plainify | strings.TrimSpace -}}
 {{- $ld := dict "@context" "https://schema.org" -}}
 {{- if .IsHome -}}
   {{- $ld = merge $ld (dict "@type" "WebSite" "name" site.Title "url" site.Home.Permalink "description" site.Params.description) -}}
 {{- else if and .IsPage (eq .Section "blog") -}}
   {{- $ld = merge $ld (dict "@type" "BlogPosting" "headline" .Title "description" $desc "url" .Permalink "image" $img "datePublished" (.Date.Format "2006-01-02T15:04:05Z07:00") "dateModified" (.Lastmod.Format "2006-01-02T15:04:05Z07:00") "author" (dict "@type" "Person" "name" "Chris Allen") "publisher" (dict "@type" "Organization" "name" site.Title)) -}}
-{{- else if and .IsPage (eq .Section "tutorials") -}}
+{{- else if and (eq .Section "tutorials") (ne .RelPermalink "/tutorials/") -}}
   {{- $ld = merge $ld (dict "@type" "TechArticle" "headline" .Title "description" $desc "url" .Permalink "image" $img "dateModified" (.Lastmod.Format "2006-01-02T15:04:05Z07:00") "author" (dict "@type" "Person" "name" "Chris Allen") "publisher" (dict "@type" "Organization" "name" site.Title)) -}}
 {{- else -}}
   {{- $ld = merge $ld (dict "@type" "WebPage" "name" .Title "url" .Permalink "description" $desc) -}}

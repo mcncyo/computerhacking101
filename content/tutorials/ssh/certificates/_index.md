@@ -7,7 +7,7 @@ tags: ["ssh", "security", "authentication"]
 draft: false
 ---
 
-# SSH Certificates: Secure Authentication at Scale
+## SSH Certificates: Secure Authentication at Scale
 
 SSH certificates provide a more manageable and secure alternative to traditional SSH key authentication, especially in large environments. This guide covers how to set up and use SSH certificates for authentication.
 

@@ -30,7 +30,7 @@ fi
 BRANCH="$(git rev-parse --abbrev-ref HEAD)"
 # Branch previews live on <branch>.<project>.pages.dev, so build them with that baseURL (the theme loads its
 # CSS with an integrity hash from the baseURL host, which breaks if a preview points at production).
-if [[ "${BRANCH}" == "main" ]]; then BASEURL="https://${SITE_HOST}/"; else BASEURL="https://${BRANCH//\//-}.${PAGES_PROJECT}.pages.dev/"; fi
+if [[ "${BRANCH}" == "main" ]]; then BASEURL="https://${SITE_HOST}/"; else ALIAS="$(printf "%s" "${BRANCH}" | tr "[:upper:]" "[:lower:]" | sed -E "s/[^a-z0-9]+/-/g; s/^-+|-+$//g")"; BASEURL="https://${ALIAS}.${PAGES_PROJECT}.pages.dev/"; fi
 
 echo "Building ${SITE_HOST} (${BASEURL})..."
 HUGO_ENV=production hugo --minify --gc --baseURL "${BASEURL}" --cleanDestinationDir

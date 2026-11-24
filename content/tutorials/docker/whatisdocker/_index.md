@@ -11,7 +11,6 @@ description = "Learn what Docker is, how it works, and why it's become the indus
 
 # What is Docker? Understanding Containerization
 
-{{< figure src="/images/docker-architecture.png" alt="Docker Architecture" caption="Docker Architecture Overview" class="img-fluid" >}}
 
 Docker has revolutionized the way developers build, ship, and run applications. This open-source containerization platform provides a standardized way to package applications with all their dependencies into lightweight, portable containers that can run consistently across different environments.
 
@@ -32,7 +31,6 @@ In this comprehensive guide, we'll explore:
 
 Docker employs a client-server architecture that's both powerful and flexible. This design enables developers to build, ship, and run applications in lightweight, isolated environments called containers. Let's break down the key components and how they interact:
 
-{{< figure src="/images/docker-architecture-diagram.png" alt="Docker Architecture Components" caption="Docker's client-server architecture" class="img-fluid" >}}
 
 ### 🔑 Key Components
 

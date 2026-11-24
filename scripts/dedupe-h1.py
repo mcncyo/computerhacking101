@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 """Remove a leading '# H1' from the body when it equals the front-matter title.
-Usage: dedupe-h1.py [--write] content/   (check mode exits 1 if any duplicate is found)"""
+Usage: dedupe-h1.py [--write] [--demote] content/   (check mode exits 1 if any is found)
+--demote also turns a leading body "# X" that differs from the title into "## X" (one H1 per page)."""
 import re, sys, pathlib
 
 def split(text):
@@ -14,6 +15,7 @@ def title_of(fm):
 
 def main():
     write = '--write' in sys.argv
+    demote = '--demote' in sys.argv
     roots = [a for a in sys.argv[1:] if not a.startswith('--')] or ['content']
     found = []
     for root in roots:
@@ -34,6 +36,11 @@ def main():
                     if write:
                         del lines[i]
                         if i < len(lines) and lines[i].strip() == '': del lines[i]
+                        p.write_text(a + fm + b + '\n'.join(lines), encoding='utf-8')
+                elif m and demote:
+                    found.append(str(p) + '  (demote)')
+                    if write:
+                        lines[i] = '#' + lines[i]
                         p.write_text(a + fm + b + '\n'.join(lines), encoding='utf-8')
     for f in found: print(f)
     print(f'{len(found)} file(s) with a duplicate H1')

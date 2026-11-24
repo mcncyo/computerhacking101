@@ -6,4 +6,9 @@ P="${1:?usage: assets-check.sh <public-dir>}"; fail=0; bad(){ echo "FAIL: $*"; f
 grep -q '^Sitemap: https://computerhacking101.com/sitemap.xml' "$P/robots.txt" 2>/dev/null || bad "robots.txt has no Sitemap line"
 f="$P/404.html"
 { grep -q '<title' "$f" && grep -q 'href=https://computerhacking101.com/tutorials' "$f" && grep -qi 'not found' "$f"; } 2>/dev/null || bad "404.html is not a themed page with a title, navigation and a not-found message"
+# every /images/... path referenced from content must exist in the build
+cd "$(dirname "$0")/.."
+while read -r ref; do
+  path="${ref%%#*}"; [ -f "$P$path" ] || bad "referenced image missing in build: $path"
+done < <(grep -rhoE '/images/[A-Za-z0-9_./-]+\.(png|jpg|jpeg|webp|svg|gif)' content | sort -u)
 exit $fail

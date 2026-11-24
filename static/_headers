@@ -13,6 +13,3 @@
   Cache-Control: no-cache, no-store, must-revalidate
   Content-Type: text/plain; charset=utf-8
 
-/searchindex.json
-  Cache-Control: no-cache, no-store, must-revalidate
-  Content-Type: application/json; charset=utf-8

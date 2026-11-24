@@ -10,7 +10,7 @@ tags: ["git", "version-control", "github", "development", "workflow"]
 draft: false
 ---
 
-# Git Version Control Mastery
+## Git Version Control Mastery
 
 Master the world's most popular version control system with our comprehensive Git tutorial series. From basic commands to advanced workflows, learn everything you need to manage code like a professional developer.
 

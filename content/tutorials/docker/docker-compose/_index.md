@@ -7,7 +7,7 @@ tags: ["docker", "containers", "devops", "deployment"]
 draft: false
 ---
 
-# Docker Compose: Simplifying Multi-Container Applications
+## Docker Compose: Simplifying Multi-Container Applications
 
 Docker Compose is a tool for defining and running multi-container Docker applications. With a single `docker-compose.yml` file, you can configure all your application's services, networks, and volumes, then start everything with a single command.
 

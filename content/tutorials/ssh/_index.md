@@ -5,9 +5,8 @@ description: "Master secure remote access with our comprehensive SSH guide. Lear
 tags: ["ssh", "security", "networking", "linux", "system-administration"]
 ---
 
-{{< figure src="/images/ssh-banner.png" alt="SSH Security Illustration" caption="Secure your remote connections with industry-standard encryption" class="banner-image" >}}
 
-# 🔐 SSH Mastery: Secure Remote Access
+## 🔐 SSH Mastery: Secure Remote Access
 
 Welcome to our comprehensive guide on SSH (Secure Shell), the industry-standard protocol for secure remote system administration and file transfers. Whether you're a beginner or an experienced user, these tutorials will help you master secure remote access.
 

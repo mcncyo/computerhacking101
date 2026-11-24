@@ -7,7 +7,7 @@ categories: ["Home Automation", "Home Assistant"]
 Sitemap: { priority = 0.8, changefreq = "weekly" }
 ---
 
-# Home Assistant Tutorials
+## Home Assistant Tutorials
 
 Welcome to your one-stop guide for <span class="red-bold">Home Assistant</span> — the powerful open-source platform that lets you take full control of your smart home!
 
