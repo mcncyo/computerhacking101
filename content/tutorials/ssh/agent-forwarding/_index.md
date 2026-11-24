@@ -7,8 +7,6 @@ tags: ["ssh", "security", "authentication"]
 draft: false
 ---
 
-# SSH Agent Forwarding
-
 SSH Agent Forwarding allows you to use your local SSH keys when connecting to a remote server, without copying your private keys to the remote machine. This provides both convenience and security when working with multiple servers.
 
 ## How SSH Agent Forwarding Works

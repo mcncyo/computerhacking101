@@ -4,8 +4,6 @@ description: "Master containerization with our comprehensive Docker tutorials. L
 weight: 1
 ---
 
-# Docker Tutorials & Guides
-
 {{< toc >}}
 
 ## 🚀 Getting Started with Docker

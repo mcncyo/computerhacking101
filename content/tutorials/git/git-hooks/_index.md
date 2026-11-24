@@ -7,8 +7,6 @@ tags: ["git", "automation", "devops"]
 draft: false
 ---
 
-# Git Hooks & Automation
-
 Git hooks are scripts that run automatically before or after specific Git events like commits, pushes, and merges. They're incredibly powerful for automating development workflows and enforcing code quality standards.
 
 ## Why Use Git Hooks?

@@ -7,8 +7,6 @@ tags: ["security", "hacking", "cybersecurity"]
 draft: false
 ---
 
-# Security & Hacking
-
 Welcome to the Security & Hacking section, where we explore the world of cybersecurity, ethical hacking, and system hardening. Whether you're a beginner looking to secure your first server or an experienced professional interested in penetration testing, these tutorials will provide practical, hands-on knowledge.
 
 ## Why Learn Security?

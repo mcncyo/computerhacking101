@@ -7,8 +7,6 @@ tags: ["docker", "containers", "devops", "debugging"]
 draft: false
 ---
 
-# Docker Troubleshooting Guide
-
 Encountering issues with Docker? This guide covers common problems and their solutions to help you get back on track quickly.
 
 ## Common Issues and Solutions

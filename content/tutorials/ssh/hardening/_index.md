@@ -7,8 +7,6 @@ weight: 4
 tags: ["ssh", "security", "hardening", "server-administration"]
 ---
 
-# SSH Server Hardening Guide
-
 Securing your SSH server is critical to protect against unauthorized access and potential security breaches. This guide provides comprehensive steps to harden your SSH server configuration.
 
 ## Table of Contents
