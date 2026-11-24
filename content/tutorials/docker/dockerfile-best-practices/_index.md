@@ -7,8 +7,6 @@ tags: ["docker", "containers", "devops", "security"]
 draft: false
 ---
 
-# Dockerfile Best Practices
-
 Writing efficient and secure Dockerfiles is crucial for building production-ready container images. This guide covers the best practices to follow when creating Dockerfiles.
 
 ## 1. Use Official Base Images

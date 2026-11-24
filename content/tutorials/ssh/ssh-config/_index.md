@@ -7,8 +7,6 @@ weight: 3
 tags: ["ssh", "configuration", "productivity", "system-administration"]
 ---
 
-# SSH Config File: The Complete Guide
-
 The SSH config file (`~/.ssh/config`) is a powerful tool that can save you time and make your SSH workflow more efficient. This guide covers everything you need to know to master SSH configuration.
 
 ## Table of Contents

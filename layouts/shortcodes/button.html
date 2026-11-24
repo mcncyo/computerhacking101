@@ -1,0 +1,9 @@
+{{- /* {{< button "Label" "/url/" >}}  Self-contained so it does not depend on theme CSS purging. */ -}}
+{{- $label := .Get 0 -}}
+{{- $url := .Get 1 -}}
+{{- $external := hasPrefix $url "http" -}}
+<p><a class="ch101-button" href="{{ $url }}"{{ if $external }} target="_blank" rel="noopener"{{ end }}>{{ $label }}</a></p>
+<style>
+.ch101-button{display:inline-block;padding:.65rem 1.3rem;border-radius:.5rem;background:#2563eb;color:#fff!important;font-weight:600;text-decoration:none!important;transition:background .15s}
+.ch101-button:hover{background:#1d4ed8}
+</style>

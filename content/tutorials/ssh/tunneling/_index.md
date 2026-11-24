@@ -7,7 +7,7 @@ weight: 5
 tags: ["ssh", "networking", "tunneling", "port-forwarding", "security"]
 ---
 
-# SSH Tunneling & Port Forwarding Guide
+## SSH Tunneling & Port Forwarding Guide
 
 SSH tunneling and port forwarding are powerful techniques for securely accessing remote services, bypassing firewalls, and creating encrypted tunnels. This guide covers all aspects of SSH tunneling with practical examples.
 

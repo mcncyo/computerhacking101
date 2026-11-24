@@ -7,7 +7,7 @@ weight: 2
 tags: ["ssh", "security", "key-management", "authentication"]
 ---
 
-# SSH Key Management: Organizing Multiple Keys
+## SSH Key Management: Organizing Multiple Keys
 
 Managing multiple SSH keys is essential for maintaining security and organization when working with different servers and services. This guide covers best practices for SSH key management.
 

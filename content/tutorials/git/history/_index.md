@@ -6,7 +6,7 @@ title: "Gits History"
 description: "Git, a distributed version control system, has a fascinating history rooted in open-source software development. Its journey reflects innovation and the needs of large-scale collaborative projects."
 ---
 
-# History of Git
+## History of Git
 
 Git, a distributed version control system, has a fascinating history rooted in open-source software development. Its journey reflects innovation and the needs of large-scale collaborative projects.
 

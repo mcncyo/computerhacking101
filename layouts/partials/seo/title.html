@@ -1,7 +1,0 @@
-{{/* Generate the page title */}}
-{{- $title := .Title -}}
-{{- if eq $title .Site.Title -}}
-  <title>{{ $title }}</title>
-{{- else -}}
-  <title>{{ printf "%s | %s" $title .Site.Title }}</title>
-{{- end -}}

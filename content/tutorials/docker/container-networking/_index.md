@@ -7,7 +7,7 @@ tags: ["docker", "networking", "containers", "devops"]
 draft: false
 ---
 
-# Docker Container Networking: The Complete Guide
+## Docker Container Networking: The Complete Guide
 
 Docker networking enables containers to communicate with each other and with external networks. This comprehensive guide will help you understand and master Docker's networking capabilities, from basic concepts to advanced configurations for production environments.
 

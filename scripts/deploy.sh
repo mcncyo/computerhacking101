@@ -27,13 +27,17 @@ if [[ "${HAVE}" != "${HUGO_WANT}" ]]; then
   echo "Warning: Hugo ${HAVE} installed, this site was tested on ${HUGO_WANT}." >&2
 fi
 
-echo "Building ${SITE_HOST}..."
-HUGO_ENV=production hugo --minify --gc  --baseURL "https://${SITE_HOST}/" --cleanDestinationDir
+BRANCH="$(git rev-parse --abbrev-ref HEAD)"
+# Branch previews live on <branch>.<project>.pages.dev, so build them with that baseURL (the theme loads its
+# CSS with an integrity hash from the baseURL host, which breaks if a preview points at production).
+if [[ "${BRANCH}" == "main" ]]; then BASEURL="https://${SITE_HOST}/"; else ALIAS="$(printf "%s" "${BRANCH}" | tr "[:upper:]" "[:lower:]" | sed -E "s/[^a-z0-9]+/-/g; s/^-+|-+$//g")"; BASEURL="https://${ALIAS}.${PAGES_PROJECT}.pages.dev/"; fi
+
+echo "Building ${SITE_HOST} (${BASEURL})..."
+HUGO_ENV=production hugo --minify --gc --baseURL "${BASEURL}" --cleanDestinationDir
 
 test -f public/sitemap.xml || { echo "No public/sitemap.xml: build looks wrong, not deploying." >&2; exit 1; }
 
 echo "Deploying to Cloudflare Pages..."
-BRANCH="$(git rev-parse --abbrev-ref HEAD)"
 if [[ "${BRANCH}" == "main" ]]; then
   npx --yes wrangler@3 pages deploy public --project-name="${PAGES_PROJECT}" --branch=main
 else

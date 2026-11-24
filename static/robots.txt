@@ -1,5 +1,4 @@
 # robots.txt for computerhacking101.com
-# Last updated: {{ now.Format "2006-01-02" }}
 
 # Global rules for all crawlers
 User-agent: *
